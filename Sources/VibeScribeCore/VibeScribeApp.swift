@@ -100,7 +100,7 @@ public final class VibeScribeApp: NSObject, NSApplicationDelegate {
     private func handleTranscriptEvent(_ event: TranscriptEvent) {
         appState.handleTranscriptEvent(event)
         if streamWhileRecordingForSession {
-            liveTextInjection.enqueueRewrite(to: appState.displayTranscript, isFinal: event.isFinal)
+            liveTextInjection.enqueueAppend(to: appState.displayTranscript)
         }
     }
 
@@ -122,8 +122,7 @@ public final class VibeScribeApp: NSObject, NSApplicationDelegate {
             deepgramClient.connect(apiKey: apiKey, format: format, language: appState.deepgramLanguage)
             streamWhileRecordingForSession = appState.liveTranscriptionEnabled
             if streamWhileRecordingForSession {
-                let rewriteStyle = rewriteStyleForFrontmostApp()
-                _ = liveTextInjection.startSession(rewriteStyle: rewriteStyle)
+                _ = liveTextInjection.startSession()
             }
 
             audioCapture.onBuffer = { [weak self] buffer in
@@ -142,15 +141,6 @@ public final class VibeScribeApp: NSObject, NSApplicationDelegate {
             appState.statusMessage = "Failed to start audio capture: \(error.localizedDescription)"
             appState.addLog("Failed to start audio capture: \(error.localizedDescription)", level: .error)
         }
-    }
-
-    private func rewriteStyleForFrontmostApp() -> LiveTextInjectionController.RewriteStyle {
-        let bundleID = NSWorkspace.shared.frontmostApplication?.bundleIdentifier
-        if bundleID == "com.apple.Notes" {
-            appState.addLog("Using Notes-safe live mode: append during speech, rewrite on final chunks.", level: .info)
-            return .appendDuringInterim
-        }
-        return .replaceInPlace
     }
 
     private func stopRecording() {

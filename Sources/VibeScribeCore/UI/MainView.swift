@@ -12,7 +12,7 @@ struct MainView: View {
                 .tabItem { Text("Logs") }
         }
         .padding(24)
-        .frame(minWidth: 520, minHeight: 420)
+        .frame(minWidth: 640, minHeight: 560)
     }
 
     private var homeTab: some View {
@@ -128,7 +128,7 @@ struct MainView: View {
                         }
                     }
                     Toggle("Type while speaking", isOn: $appState.liveTranscriptionEnabled)
-                    Text(appState.liveTranscriptionEnabled ? "Live mode updates the focused text field continuously." : "When off, transcript is pasted once when recording stops.")
+                    Text(appState.liveTranscriptionEnabled ? "Live mode types finalized chunks while speaking for consistent behavior across apps." : "When off, transcript is pasted once when recording stops.")
                         .font(.caption)
                         .foregroundStyle(.secondary)
                     Text("Automatic uses Deepgram multilingual mode (language=multi).")

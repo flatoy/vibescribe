@@ -3,43 +3,40 @@ import XCTest
 
 @MainActor
 final class LiveTextInjectionControllerTests: XCTestCase {
-    func testRewriteOperationForAppendOnly() {
-        let operation = LiveTextInjectionController.rewriteOperation(from: "hello", to: "hello world")
-        XCTAssertEqual(operation, .init(deleteCount: 0, insertSuffix: " world"))
+    func testAppendOnlySuffixWhenTargetExtendsPreviousText() {
+        let suffix = LiveTextInjectionController.appendOnlySuffix(from: "hello", to: "hello world")
+        XCTAssertEqual(suffix, " world")
     }
 
-    func testRewriteOperationForMidWordCorrection() {
-        let operation = LiveTextInjectionController.rewriteOperation(from: "helo", to: "hello")
-        XCTAssertEqual(operation, .init(deleteCount: 1, insertSuffix: "lo"))
+    func testAppendOnlySuffixWhenTargetDoesNotExtendPreviousText() {
+        let suffix = LiveTextInjectionController.appendOnlySuffix(from: "hello world", to: "hello there")
+        XCTAssertNil(suffix)
     }
 
-    func testRewriteOperationForReplacementAfterPrefix() {
-        let operation = LiveTextInjectionController.rewriteOperation(from: "hello world", to: "hello there")
-        XCTAssertEqual(operation, .init(deleteCount: 5, insertSuffix: "there"))
+    func testAppendDecisionReturnsAppendWithSuffix() {
+        let decision = LiveTextInjectionController.appendDecision(from: "hello", to: "hello world")
+        XCTAssertEqual(decision, .append(" world"))
     }
 
-    func testAllowsDeleteForReplaceInPlaceDuringInterim() {
-        let allowsDelete = LiveTextInjectionController.allowsDelete(
-            rewriteStyle: .replaceInPlace,
-            isFinal: false
+    func testAppendDecisionReturnsRebaseForNonAppendCorrection() {
+        let decision = LiveTextInjectionController.appendDecision(from: "i cant", to: "I can't")
+        XCTAssertEqual(decision, .rebase)
+    }
+
+    func testSalvageAppendSuffixRecoversTrailingWordsAfterCorrection() {
+        let suffix = LiveTextInjectionController.salvageAppendSuffix(
+            from: "i cant",
+            to: "I can't continue"
         )
-        XCTAssertTrue(allowsDelete)
+        XCTAssertEqual(suffix, " continue")
     }
 
-    func testAllowsDeleteForAppendDuringInterimWhenNotFinal() {
-        let allowsDelete = LiveTextInjectionController.allowsDelete(
-            rewriteStyle: .appendDuringInterim,
-            isFinal: false
+    func testSalvageAppendSuffixReturnsNilWhenNoSequenceMatch() {
+        let suffix = LiveTextInjectionController.salvageAppendSuffix(
+            from: "hello world",
+            to: "completely different"
         )
-        XCTAssertFalse(allowsDelete)
-    }
-
-    func testAllowsDeleteForAppendDuringInterimWhenFinal() {
-        let allowsDelete = LiveTextInjectionController.allowsDelete(
-            rewriteStyle: .appendDuringInterim,
-            isFinal: true
-        )
-        XCTAssertTrue(allowsDelete)
+        XCTAssertNil(suffix)
     }
 
     func testFallbackTextReturnsOnlyMissingSuffixWhenAlreadyInjected() {
@@ -50,12 +47,12 @@ final class LiveTextInjectionControllerTests: XCTestCase {
         XCTAssertEqual(text, " world")
     }
 
-    func testFallbackTextReturnsFullFinalWhenInjectedTextDoesNotMatchPrefix() {
+    func testFallbackTextReturnsEmptyWhenInjectedTextDoesNotMatchPrefix() {
         let text = LiveTextInjectionController.fallbackText(
             finalText: "hello world",
             injectedText: "goodbye"
         )
-        XCTAssertEqual(text, "hello world")
+        XCTAssertEqual(text, "")
     }
 
     func testFallbackTextReturnsEmptyForWhitespaceFinalText() {
@@ -64,5 +61,13 @@ final class LiveTextInjectionControllerTests: XCTestCase {
             injectedText: "hello"
         )
         XCTAssertEqual(text, "")
+    }
+
+    func testFallbackTextReturnsFullFinalWhenNothingWasInjected() {
+        let text = LiveTextInjectionController.fallbackText(
+            finalText: "hello world",
+            injectedText: ""
+        )
+        XCTAssertEqual(text, "hello world")
     }
 }
