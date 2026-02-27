@@ -7,6 +7,7 @@ import Foundation
 final class AppState: ObservableObject {
     private static let apiKeyKey = "VibeScribe.ApiKey"
     private static let deepgramLanguageKey = "VibeScribe.DeepgramLanguage"
+    private static let liveTranscriptionEnabledKey = "VibeScribe.LiveTranscriptionEnabled"
 
     @Published var isRecording = false
     @Published var statusMessage = "Idle"
@@ -30,11 +31,21 @@ final class AppState: ObservableObject {
             UserDefaults.standard.set(deepgramLanguage.rawValue, forKey: Self.deepgramLanguageKey)
         }
     }
+    @Published var liveTranscriptionEnabled: Bool {
+        didSet {
+            UserDefaults.standard.set(liveTranscriptionEnabled, forKey: Self.liveTranscriptionEnabledKey)
+        }
+    }
 
     init() {
         apiKey = UserDefaults.standard.string(forKey: Self.apiKeyKey) ?? ""
         let savedLanguage = UserDefaults.standard.string(forKey: Self.deepgramLanguageKey)
         deepgramLanguage = savedLanguage.flatMap(DeepgramLanguage.init(rawValue:)) ?? .automatic
+        if UserDefaults.standard.object(forKey: Self.liveTranscriptionEnabledKey) == nil {
+            liveTranscriptionEnabled = true
+        } else {
+            liveTranscriptionEnabled = UserDefaults.standard.bool(forKey: Self.liveTranscriptionEnabledKey)
+        }
         refreshPermissions()
     }
 

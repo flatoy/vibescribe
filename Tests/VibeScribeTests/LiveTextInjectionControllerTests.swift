@@ -18,6 +18,30 @@ final class LiveTextInjectionControllerTests: XCTestCase {
         XCTAssertEqual(operation, .init(deleteCount: 5, insertSuffix: "there"))
     }
 
+    func testAllowsDeleteForReplaceInPlaceDuringInterim() {
+        let allowsDelete = LiveTextInjectionController.allowsDelete(
+            rewriteStyle: .replaceInPlace,
+            isFinal: false
+        )
+        XCTAssertTrue(allowsDelete)
+    }
+
+    func testAllowsDeleteForAppendDuringInterimWhenNotFinal() {
+        let allowsDelete = LiveTextInjectionController.allowsDelete(
+            rewriteStyle: .appendDuringInterim,
+            isFinal: false
+        )
+        XCTAssertFalse(allowsDelete)
+    }
+
+    func testAllowsDeleteForAppendDuringInterimWhenFinal() {
+        let allowsDelete = LiveTextInjectionController.allowsDelete(
+            rewriteStyle: .appendDuringInterim,
+            isFinal: true
+        )
+        XCTAssertTrue(allowsDelete)
+    }
+
     func testFallbackTextReturnsOnlyMissingSuffixWhenAlreadyInjected() {
         let text = LiveTextInjectionController.fallbackText(
             finalText: "hello world",
