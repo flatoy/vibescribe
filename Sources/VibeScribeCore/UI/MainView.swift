@@ -148,11 +148,8 @@ struct MainView: View {
     }
 
     private var transcriptText: String {
-        if !appState.finalTranscript.isEmpty {
-            return appState.finalTranscript
-        }
-        if !appState.lastTranscript.isEmpty {
-            return appState.lastTranscript
+        if !appState.displayTranscript.isEmpty {
+            return appState.displayTranscript
         }
         return "Waiting for transcription..."
     }
