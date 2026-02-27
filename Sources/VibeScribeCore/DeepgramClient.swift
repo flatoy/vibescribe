@@ -8,13 +8,13 @@ final class DeepgramClient: NSObject, @unchecked Sendable {
     private var task: URLSessionWebSocketTask?
     private var isConnected = false
     private var isClosing = false
-    private let onTranscriptEvent: (@Sendable (String, Bool) -> Void)?
+    private let onTranscriptEvent: (@Sendable (TranscriptEvent) -> Void)?
     private let onLog: (@Sendable (String, LogLevel) -> Void)?
     private var onClose: (() -> Void)?
     private var closeTimer: DispatchSourceTimer?
 
     init(
-        onTranscriptEvent: (@Sendable (String, Bool) -> Void)? = nil,
+        onTranscriptEvent: (@Sendable (TranscriptEvent) -> Void)? = nil,
         onLog: (@Sendable (String, LogLevel) -> Void)? = nil
     ) {
         let configuration = URLSessionConfiguration.default
@@ -163,7 +163,13 @@ final class DeepgramClient: NSObject, @unchecked Sendable {
 
         if let transcript = result.transcript, !transcript.isEmpty {
             let isFinal = (result.is_final ?? false) || (result.speech_final ?? false) || (result.from_finalize ?? false)
-            onTranscriptEvent?(transcript, isFinal)
+            let event = TranscriptEvent(
+                text: transcript,
+                isFinal: isFinal,
+                isSpeechFinal: result.speech_final ?? false,
+                receivedAt: Date()
+            )
+            onTranscriptEvent?(event)
         }
 
         if result.type == "Error", let description = result.errorDescription {

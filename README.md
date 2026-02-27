@@ -10,6 +10,8 @@ A blazing fast transcription app with smart formatting, powered by Deepgram.
 - Push-to-talk hotkey (hold to record)
 - Listening overlay
 - WebSocket streaming to Deepgram
+- Live in-place transcription while you speak
+- Final-segment correction (interim text is rewritten when Deepgram finalizes)
 - Logs tab for connection/debugging
 - Auto-paste transcript on release (requires Accessibility permission)
 
@@ -54,7 +56,9 @@ brew install xcbeautify
 2. Open the main window and paste your Deepgram API key.
 3. Hold the Option hotkey to listen while pressed (push-to-talk).
 4. Tap the Option hotkey to toggle listening on/off.
-5. The app restores your previous clipboard contents after pasting the transcript.
+5. While recording, transcript text streams into the focused input and is corrected on final events.
+6. If focus/cursor changes during dictation, live rewriting pauses and transcription still finalizes safely.
+7. The app restores your previous clipboard contents after pasting any fallback text.
 
 ## Permissions
 - Microphone access is required.

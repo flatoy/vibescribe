@@ -22,40 +22,82 @@ final class AppStateTests: XCTestCase {
         let state = AppState()
         state.resetTranscript()
 
-        state.handleTranscript(" hello ", isFinal: true)
+        state.handleTranscriptEvent(makeEvent(" hello ", isFinal: true))
         XCTAssertEqual(state.finalTranscript, "hello")
+        XCTAssertEqual(state.displayTranscript, "hello")
 
-        state.handleTranscript("hello", isFinal: true)
+        state.handleTranscriptEvent(makeEvent("hello", isFinal: true))
         XCTAssertEqual(state.finalTranscript, "hello")
+        XCTAssertEqual(state.displayTranscript, "hello")
 
-        state.handleTranscript("world", isFinal: true)
+        state.handleTranscriptEvent(makeEvent("world", isFinal: true))
         XCTAssertEqual(state.finalTranscript, "hello world")
+        XCTAssertEqual(state.displayTranscript, "hello world")
     }
 
     func testHandleTranscriptIgnoresEmptyFinalText() {
         let state = AppState()
         state.resetTranscript()
 
-        state.handleTranscript(" ", isFinal: true)
+        state.handleTranscriptEvent(makeEvent(" ", isFinal: true))
         XCTAssertEqual(state.finalTranscript, "")
+        XCTAssertEqual(state.displayTranscript, "")
     }
 
     func testNonFinalTranscriptUpdatesLastOnly() {
         let state = AppState()
         state.resetTranscript()
 
-        state.handleTranscript("partial", isFinal: false)
+        state.handleTranscriptEvent(makeEvent("partial", isFinal: false))
         XCTAssertEqual(state.lastTranscript, "partial")
         XCTAssertEqual(state.finalTranscript, "")
+        XCTAssertEqual(state.displayTranscript, "partial")
+    }
+
+    func testInterimSegmentAppendsToCommittedTranscriptForDisplay() {
+        let state = AppState()
+        state.resetTranscript()
+
+        state.handleTranscriptEvent(makeEvent("hello", isFinal: true))
+        state.handleTranscriptEvent(makeEvent("wor", isFinal: false))
+
+        XCTAssertEqual(state.finalTranscript, "hello")
+        XCTAssertEqual(state.displayTranscript, "hello wor")
+        XCTAssertEqual(state.lastTranscript, "wor")
+    }
+
+    func testInterimUpdatesReplaceActiveSegmentInsteadOfAppending() {
+        let state = AppState()
+        state.resetTranscript()
+
+        state.handleTranscriptEvent(makeEvent("hel", isFinal: false))
+        XCTAssertEqual(state.displayTranscript, "hel")
+
+        state.handleTranscriptEvent(makeEvent("hello", isFinal: false))
+        XCTAssertEqual(state.displayTranscript, "hello")
+    }
+
+    func testEmptyFinalClearsActiveSegmentAndKeepsCommittedTranscript() {
+        let state = AppState()
+        state.resetTranscript()
+
+        state.handleTranscriptEvent(makeEvent("hello", isFinal: true))
+        state.handleTranscriptEvent(makeEvent("world", isFinal: false))
+        state.handleTranscriptEvent(makeEvent(" ", isFinal: true))
+
+        XCTAssertEqual(state.finalTranscript, "hello")
+        XCTAssertEqual(state.displayTranscript, "hello")
+        XCTAssertEqual(state.lastTranscript, "")
     }
 
     func testResetTranscriptClearsState() {
         let state = AppState()
-        state.handleTranscript("hello", isFinal: true)
+        state.handleTranscriptEvent(makeEvent("hello", isFinal: true))
 
         state.resetTranscript()
         XCTAssertEqual(state.lastTranscript, "")
         XCTAssertEqual(state.finalTranscript, "")
+        XCTAssertEqual(state.displayTranscript, "")
     }
 
     func testDeepgramLanguageDefaultsToAutomatic() {
@@ -69,5 +111,14 @@ final class AppStateTests: XCTestCase {
 
         let restored = AppState()
         XCTAssertEqual(restored.deepgramLanguage, .french)
+    }
+
+    private func makeEvent(_ text: String, isFinal: Bool) -> TranscriptEvent {
+        TranscriptEvent(
+            text: text,
+            isFinal: isFinal,
+            isSpeechFinal: isFinal,
+            receivedAt: Date()
+        )
     }
 }

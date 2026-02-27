@@ -19,6 +19,7 @@ public final class VibeScribeApp: NSObject, NSApplicationDelegate {
     private var hotkeyListener: HotkeyListener!
     private var audioCapture: AudioCaptureController!
     private var deepgramClient: DeepgramClient!
+    private var liveTextInjection: LiveTextInjectionController!
     private var stopWorkItem: DispatchWorkItem?
     private var hotkeyPressedAt: TimeInterval?
     private var isLatchedRecording = false
@@ -32,10 +33,15 @@ public final class VibeScribeApp: NSObject, NSApplicationDelegate {
 
         appState = AppState()
         audioCapture = AudioCaptureController()
+        liveTextInjection = LiveTextInjectionController(
+            onLog: { [weak self] message, level in
+                self?.appState.addLog(message, level: level)
+            }
+        )
         deepgramClient = DeepgramClient(
-            onTranscriptEvent: { [weak self] text, isFinal in
+            onTranscriptEvent: { [weak self] event in
                 Task { @MainActor in
-                    self?.appState.handleTranscript(text, isFinal: isFinal)
+                    self?.handleTranscriptEvent(event)
                 }
             },
             onLog: { [weak self] message, level in
@@ -79,6 +85,7 @@ public final class VibeScribeApp: NSObject, NSApplicationDelegate {
             name: NSApplication.didBecomeActiveNotification,
             object: nil
         )
+        liveTextInjection.endSession()
     }
 
     @objc private func handleAppDidBecomeActive(_ notification: Notification) {
@@ -87,6 +94,11 @@ public final class VibeScribeApp: NSObject, NSApplicationDelegate {
 
     private func openMainWindow() {
         mainWindowController.show()
+    }
+
+    private func handleTranscriptEvent(_ event: TranscriptEvent) {
+        appState.handleTranscriptEvent(event)
+        liveTextInjection.enqueueRewrite(to: appState.displayTranscript)
     }
 
     private func startRecording() {
@@ -105,6 +117,7 @@ public final class VibeScribeApp: NSObject, NSApplicationDelegate {
             let format = try audioCapture.start()
             appState.addLog("Audio capture started (\(format.sampleRate) Hz, \(format.channels) ch).", level: .info)
             deepgramClient.connect(apiKey: apiKey, format: format, language: appState.deepgramLanguage)
+            _ = liveTextInjection.startSession()
 
             audioCapture.onBuffer = { [weak self] buffer in
                 self?.deepgramClient.sendAudio(buffer: buffer)
@@ -116,6 +129,7 @@ public final class VibeScribeApp: NSObject, NSApplicationDelegate {
             appState.addLog("Language: \(appState.deepgramLanguage.displayName) (\(appState.deepgramLanguage.deepgramCode)).", level: .info)
             appState.addLog("Listening started.", level: .info)
         } catch {
+            liveTextInjection.endSession()
             isLatchedRecording = false
             appState.statusMessage = "Failed to start audio capture: \(error.localizedDescription)"
             appState.addLog("Failed to start audio capture: \(error.localizedDescription)", level: .error)
@@ -135,9 +149,14 @@ public final class VibeScribeApp: NSObject, NSApplicationDelegate {
         deepgramClient.closeStream { [weak self] in
             Task { @MainActor in
                 guard let self else { return }
+                self.liveTextInjection.flush()
+                let fallbackText = self.liveTextInjection.fallbackText(for: self.appState.displayTranscript)
+                self.liveTextInjection.endSession()
                 self.appState.statusMessage = "Idle"
                 self.appState.addLog("Listening stopped.", level: .info)
-                self.pasteFinalTranscript()
+                if !fallbackText.trimmed.isEmpty {
+                    self.pasteTranscript(fallbackText)
+                }
             }
         }
     }
@@ -195,11 +214,8 @@ public final class VibeScribeApp: NSObject, NSApplicationDelegate {
         scheduleStopRecording()
     }
 
-    private func pasteFinalTranscript() {
-        let finalText = appState.finalTranscript.trimmed
-        let fallbackText = appState.lastTranscript.trimmed
-        let text = finalText.isEmpty ? fallbackText : finalText
-        guard !text.isEmpty else {
+    private func pasteTranscript(_ rawText: String) {
+        guard !rawText.trimmed.isEmpty else {
             appState.addLog("No transcript to paste.", level: .warning)
             return
         }
@@ -207,7 +223,7 @@ public final class VibeScribeApp: NSObject, NSApplicationDelegate {
         let pasteboard = NSPasteboard.general
         let snapshot = PasteboardSnapshot(pasteboard: pasteboard)
         pasteboard.clearContents()
-        pasteboard.setString(text, forType: .string)
+        pasteboard.setString(rawText, forType: .string)
         appState.addLog("Transcript copied to clipboard.", level: .info)
 
         if !AXIsProcessTrusted() {
@@ -233,34 +249,5 @@ public final class VibeScribeApp: NSObject, NSApplicationDelegate {
         DispatchQueue.main.asyncAfter(deadline: .now() + clipboardRestoreDelay) {
             snapshot.restore(to: pasteboard)
         }
-    }
-}
-
-private struct PasteboardSnapshot {
-    private let items: [[NSPasteboard.PasteboardType: Data]]
-
-    init(pasteboard: NSPasteboard) {
-        items = pasteboard.pasteboardItems?.map { item in
-            var dataByType: [NSPasteboard.PasteboardType: Data] = [:]
-            for type in item.types {
-                if let data = item.data(forType: type) {
-                    dataByType[type] = data
-                }
-            }
-            return dataByType
-        } ?? []
-    }
-
-    func restore(to pasteboard: NSPasteboard) {
-        pasteboard.clearContents()
-        guard !items.isEmpty else { return }
-        let restoredItems = items.map { dataByType -> NSPasteboardItem in
-            let item = NSPasteboardItem()
-            for (type, data) in dataByType {
-                item.setData(data, forType: type)
-            }
-            return item
-        }
-        pasteboard.writeObjects(restoredItems)
     }
 }

@@ -12,6 +12,7 @@ final class AppState: ObservableObject {
     @Published var statusMessage = "Idle"
     @Published var lastTranscript = ""
     @Published var finalTranscript = ""
+    @Published private(set) var displayTranscript = ""
     @Published var logs: [LogEntry] = []
     @Published var overlayPulseID = UUID()
     @Published var microphonePermission: PermissionStatus = .notDetermined
@@ -40,18 +41,34 @@ final class AppState: ObservableObject {
     func resetTranscript() {
         lastTranscript = ""
         finalTranscript = ""
-        transcriptSegments.removeAll()
+        displayTranscript = ""
+        committedSegments.removeAll()
+        activeSegment = ""
     }
 
-    func handleTranscript(_ text: String, isFinal: Bool) {
-        lastTranscript = text
-        guard isFinal else { return }
-        let trimmed = text.trimmed
-        guard !trimmed.isEmpty else { return }
-        if transcriptSegments.last != trimmed {
-            transcriptSegments.append(trimmed)
-            finalTranscript = transcriptSegments.joined(separator: " ")
+    func handleTranscriptEvent(_ event: TranscriptEvent) {
+        let trimmed = event.text.trimmed
+        lastTranscript = trimmed
+
+        guard event.isFinal else {
+            activeSegment = trimmed
+            rebuildDisplayTranscript()
+            return
         }
+
+        guard !trimmed.isEmpty else {
+            activeSegment = ""
+            lastTranscript = ""
+            rebuildDisplayTranscript()
+            return
+        }
+        if committedSegments.last != trimmed {
+            committedSegments.append(trimmed)
+        }
+        finalTranscript = committedSegments.joined(separator: " ")
+        activeSegment = ""
+        lastTranscript = ""
+        rebuildDisplayTranscript()
     }
 
     func addLog(_ message: String, level: LogLevel = .info) {
@@ -62,7 +79,20 @@ final class AppState: ObservableObject {
         logs.removeAll()
     }
 
-    private var transcriptSegments: [String] = []
+    private var committedSegments: [String] = []
+    private var activeSegment = ""
+
+    private func rebuildDisplayTranscript() {
+        if finalTranscript.isEmpty {
+            displayTranscript = activeSegment
+            return
+        }
+        if activeSegment.isEmpty {
+            displayTranscript = finalTranscript
+            return
+        }
+        displayTranscript = "\(finalTranscript) \(activeSegment)"
+    }
 }
 
 enum PermissionStatus: String {
