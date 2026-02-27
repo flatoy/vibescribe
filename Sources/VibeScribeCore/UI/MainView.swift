@@ -127,6 +127,10 @@ struct MainView: View {
                             Text(language.displayName).tag(language)
                         }
                     }
+                    Toggle("Type while speaking", isOn: $appState.liveTranscriptionEnabled)
+                    Text(appState.liveTranscriptionEnabled ? "Live mode updates the focused text field continuously." : "When off, transcript is pasted once when recording stops.")
+                        .font(.caption)
+                        .foregroundStyle(.secondary)
                     Text("Automatic uses Deepgram multilingual mode (language=multi).")
                         .font(.caption)
                         .foregroundStyle(.secondary)

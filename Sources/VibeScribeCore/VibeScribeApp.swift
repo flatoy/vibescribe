@@ -23,6 +23,7 @@ public final class VibeScribeApp: NSObject, NSApplicationDelegate {
     private var stopWorkItem: DispatchWorkItem?
     private var hotkeyPressedAt: TimeInterval?
     private var isLatchedRecording = false
+    private var streamWhileRecordingForSession = false
     private let hotkeyTapThreshold: TimeInterval = 0.25
     private let stopDelay: TimeInterval = 0.2
     private let clipboardRestoreDelay: TimeInterval = 0.2
@@ -98,7 +99,9 @@ public final class VibeScribeApp: NSObject, NSApplicationDelegate {
 
     private func handleTranscriptEvent(_ event: TranscriptEvent) {
         appState.handleTranscriptEvent(event)
-        liveTextInjection.enqueueRewrite(to: appState.displayTranscript)
+        if streamWhileRecordingForSession {
+            liveTextInjection.enqueueRewrite(to: appState.displayTranscript, isFinal: event.isFinal)
+        }
     }
 
     private func startRecording() {
@@ -117,7 +120,11 @@ public final class VibeScribeApp: NSObject, NSApplicationDelegate {
             let format = try audioCapture.start()
             appState.addLog("Audio capture started (\(format.sampleRate) Hz, \(format.channels) ch).", level: .info)
             deepgramClient.connect(apiKey: apiKey, format: format, language: appState.deepgramLanguage)
-            _ = liveTextInjection.startSession()
+            streamWhileRecordingForSession = appState.liveTranscriptionEnabled
+            if streamWhileRecordingForSession {
+                let rewriteStyle = rewriteStyleForFrontmostApp()
+                _ = liveTextInjection.startSession(rewriteStyle: rewriteStyle)
+            }
 
             audioCapture.onBuffer = { [weak self] buffer in
                 self?.deepgramClient.sendAudio(buffer: buffer)
@@ -130,10 +137,20 @@ public final class VibeScribeApp: NSObject, NSApplicationDelegate {
             appState.addLog("Listening started.", level: .info)
         } catch {
             liveTextInjection.endSession()
+            streamWhileRecordingForSession = false
             isLatchedRecording = false
             appState.statusMessage = "Failed to start audio capture: \(error.localizedDescription)"
             appState.addLog("Failed to start audio capture: \(error.localizedDescription)", level: .error)
         }
+    }
+
+    private func rewriteStyleForFrontmostApp() -> LiveTextInjectionController.RewriteStyle {
+        let bundleID = NSWorkspace.shared.frontmostApplication?.bundleIdentifier
+        if bundleID == "com.apple.Notes" {
+            appState.addLog("Using Notes-safe live mode: append during speech, rewrite on final chunks.", level: .info)
+            return .appendDuringInterim
+        }
+        return .replaceInPlace
     }
 
     private func stopRecording() {
@@ -149,13 +166,19 @@ public final class VibeScribeApp: NSObject, NSApplicationDelegate {
         deepgramClient.closeStream { [weak self] in
             Task { @MainActor in
                 guard let self else { return }
-                self.liveTextInjection.flush()
-                let fallbackText = self.liveTextInjection.fallbackText(for: self.appState.displayTranscript)
+                let textToPaste: String
+                if self.streamWhileRecordingForSession {
+                    self.liveTextInjection.flush()
+                    textToPaste = self.liveTextInjection.fallbackText(for: self.appState.displayTranscript)
+                } else {
+                    textToPaste = self.appState.displayTranscript
+                }
                 self.liveTextInjection.endSession()
+                self.streamWhileRecordingForSession = false
                 self.appState.statusMessage = "Idle"
                 self.appState.addLog("Listening stopped.", level: .info)
-                if !fallbackText.trimmed.isEmpty {
-                    self.pasteTranscript(fallbackText)
+                if !textToPaste.trimmed.isEmpty {
+                    self.pasteTranscript(textToPaste)
                 }
             }
         }

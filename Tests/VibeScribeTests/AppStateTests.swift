@@ -5,16 +5,19 @@ import XCTest
 final class AppStateTests: XCTestCase {
     private let apiKeyDefaultsKey = "VibeScribe.ApiKey"
     private let languageDefaultsKey = "VibeScribe.DeepgramLanguage"
+    private let liveTranscriptionDefaultsKey = "VibeScribe.LiveTranscriptionEnabled"
 
     override func setUp() {
         super.setUp()
         UserDefaults.standard.removeObject(forKey: apiKeyDefaultsKey)
         UserDefaults.standard.removeObject(forKey: languageDefaultsKey)
+        UserDefaults.standard.removeObject(forKey: liveTranscriptionDefaultsKey)
     }
 
     override func tearDown() {
         UserDefaults.standard.removeObject(forKey: apiKeyDefaultsKey)
         UserDefaults.standard.removeObject(forKey: languageDefaultsKey)
+        UserDefaults.standard.removeObject(forKey: liveTranscriptionDefaultsKey)
         super.tearDown()
     }
 
@@ -111,6 +114,19 @@ final class AppStateTests: XCTestCase {
 
         let restored = AppState()
         XCTAssertEqual(restored.deepgramLanguage, .french)
+    }
+
+    func testLiveTranscriptionDefaultsToEnabled() {
+        let state = AppState()
+        XCTAssertTrue(state.liveTranscriptionEnabled)
+    }
+
+    func testLiveTranscriptionPreferencePersists() {
+        let state = AppState()
+        state.liveTranscriptionEnabled = false
+
+        let restored = AppState()
+        XCTAssertFalse(restored.liveTranscriptionEnabled)
     }
 
     private func makeEvent(_ text: String, isFinal: Bool) -> TranscriptEvent {

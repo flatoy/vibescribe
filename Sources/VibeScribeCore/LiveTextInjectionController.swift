@@ -5,6 +5,11 @@ import Foundation
 
 @MainActor
 final class LiveTextInjectionController {
+    enum RewriteStyle {
+        case replaceInPlace
+        case appendDuringInterim
+    }
+
     struct RewriteOperation: Equatable {
         let deleteCount: Int
         let insertSuffix: String
@@ -23,7 +28,9 @@ final class LiveTextInjectionController {
     private var scheduledRewrite: DispatchWorkItem?
     private var lastRewriteAt: Date = .distantPast
     private var requestedText = ""
+    private var requestedIsFinal = false
     private var injectedText = ""
+    private var rewriteStyle: RewriteStyle = .replaceInPlace
 
     private(set) var isSessionActive = false
     private(set) var isFrozen = false
@@ -36,7 +43,7 @@ final class LiveTextInjectionController {
         self.onLog = onLog
     }
 
-    func startSession() -> Bool {
+    func startSession(rewriteStyle: RewriteStyle = .replaceInPlace) -> Bool {
         endSession()
 
         guard AXIsProcessTrusted() else {
@@ -52,18 +59,21 @@ final class LiveTextInjectionController {
         self.focusAnchor = focusAnchor
         pasteboardSnapshot = PasteboardSnapshot(pasteboard: .general)
         requestedText = ""
+        requestedIsFinal = false
         injectedText = ""
         lastRewriteAt = .distantPast
+        self.rewriteStyle = rewriteStyle
         isSessionActive = true
         isFrozen = false
         onLog?("Live insertion enabled.", .info)
         return true
     }
 
-    func enqueueRewrite(to fullText: String) {
+    func enqueueRewrite(to fullText: String, isFinal: Bool) {
         guard isSessionActive, !isFrozen else { return }
 
         requestedText = fullText
+        requestedIsFinal = isFinal
         scheduleRewrite()
     }
 
@@ -102,8 +112,10 @@ final class LiveTextInjectionController {
         focusAnchor = nil
         pasteboardSnapshot = nil
         requestedText = ""
+        requestedIsFinal = false
         injectedText = ""
         lastRewriteAt = .distantPast
+        rewriteStyle = .replaceInPlace
         isSessionActive = false
         isFrozen = false
     }
@@ -144,7 +156,16 @@ final class LiveTextInjectionController {
         let target = requestedText
         let rewrite = Self.rewriteOperation(from: injectedText, to: target)
 
-        if rewrite.deleteCount > 0, !sendBackspace(count: rewrite.deleteCount) {
+        let shouldDelete = rewrite.deleteCount > 0 && Self.allowsDelete(
+            rewriteStyle: rewriteStyle,
+            isFinal: requestedIsFinal
+        )
+
+        if rewrite.deleteCount > 0, !shouldDelete {
+            return
+        }
+
+        if shouldDelete, !sendBackspace(count: rewrite.deleteCount) {
             freeze(reason: "Failed to send backspace events. Live insertion is paused.")
             return
         }
@@ -290,6 +311,15 @@ final class LiveTextInjectionController {
         let insertStart = targetText.index(targetText.startIndex, offsetBy: commonPrefixCount)
         let insertSuffix = String(targetText[insertStart...])
         return RewriteOperation(deleteCount: deleteCount, insertSuffix: insertSuffix)
+    }
+
+    static func allowsDelete(rewriteStyle: RewriteStyle, isFinal: Bool) -> Bool {
+        switch rewriteStyle {
+        case .replaceInPlace:
+            return true
+        case .appendDuringInterim:
+            return isFinal
+        }
     }
 
     private static func commonPrefixCharacterCount(between lhs: String, and rhs: String) -> Int {
