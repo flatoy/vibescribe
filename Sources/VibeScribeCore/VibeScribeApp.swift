@@ -33,7 +33,9 @@ public final class VibeScribeApp: NSObject, NSApplicationDelegate {
         appState = AppState()
         audioCapture = AudioCaptureController()
         audioCapture.onConfigurationChanged = { [weak self] in
-            self?.handleAudioInputConfigurationChanged()
+            Task { @MainActor in
+                self?.handleAudioInputConfigurationChanged()
+            }
         }
         deepgramClient = DeepgramClient(
             onTranscriptEvent: { [weak self] text, isFinal in
