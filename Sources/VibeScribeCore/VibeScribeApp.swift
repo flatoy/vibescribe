@@ -16,15 +16,19 @@ public final class VibeScribeApp: NSObject, NSApplicationDelegate {
     private var menuBarController: MenuBarController!
     private var mainWindowController: MainWindowController!
     private var overlayWindowController: OverlayWindowController!
+    private var languagePickerWindowController: LanguagePickerWindowController!
     private var hotkeyListener: HotkeyListener!
+    private var languagePickerHotkeyListener: HotkeyListener!
     private var audioCapture: AudioCaptureController!
     private var deepgramClient: DeepgramClient!
     private var stopWorkItem: DispatchWorkItem?
     private var hotkeyPressedAt: TimeInterval?
     private var isLatchedRecording = false
+    private var pendingOverlayShowToken: UUID?
     private let hotkeyTapThreshold: TimeInterval = 0.25
     private let stopDelay: TimeInterval = 0.2
     private let clipboardRestoreDelay: TimeInterval = 0.2
+    private let overlayShowDelay: TimeInterval = 0.09
 
     public func applicationDidFinishLaunching(_ notification: Notification) {
         NSApp.setActivationPolicy(.accessory)
@@ -52,6 +56,7 @@ public final class VibeScribeApp: NSObject, NSApplicationDelegate {
 
         mainWindowController = MainWindowController(appState: appState)
         overlayWindowController = OverlayWindowController(appState: appState)
+        languagePickerWindowController = LanguagePickerWindowController(appState: appState)
 
         hotkeyListener = HotkeyListener(hotkey: appState.hotkey)
         hotkeyListener.onKeyDown = { [weak self] in
@@ -61,6 +66,12 @@ public final class VibeScribeApp: NSObject, NSApplicationDelegate {
             self?.handleHotkeyUp()
         }
         hotkeyListener.start()
+
+        languagePickerHotkeyListener = HotkeyListener(hotkey: .languagePickerDefault)
+        languagePickerHotkeyListener.onKeyDown = { [weak self] in
+            self?.handleLanguagePickerHotkey()
+        }
+        languagePickerHotkeyListener.start()
 
         menuBarController = MenuBarController(
             onOpenMain: { [weak self] in self?.openMainWindow() },
@@ -103,6 +114,7 @@ public final class VibeScribeApp: NSObject, NSApplicationDelegate {
 
         cancelPendingStop()
         isLatchedRecording = false
+        pendingOverlayShowToken = nil
         deepgramClient.disconnect()
         appState.isRecording = false
         overlayWindowController.hide()
@@ -133,7 +145,7 @@ public final class VibeScribeApp: NSObject, NSApplicationDelegate {
 
             appState.isRecording = true
             appState.statusMessage = "Listening..."
-            overlayWindowController.show()
+            scheduleOverlayShow()
             appState.addLog("Language: \(appState.deepgramLanguage.displayName) (\(appState.deepgramLanguage.deepgramCode)).", level: .info)
             appState.addLog("Listening started.", level: .info)
         } catch {
@@ -148,6 +160,7 @@ public final class VibeScribeApp: NSObject, NSApplicationDelegate {
 
         cancelPendingStop()
         isLatchedRecording = false
+        pendingOverlayShowToken = nil
         audioCapture.stop()
         appState.isRecording = false
         overlayWindowController.hide()
@@ -186,12 +199,45 @@ public final class VibeScribeApp: NSObject, NSApplicationDelegate {
         startRecording()
     }
 
+    private func handleLanguagePickerHotkey() {
+        if appState.isRecording {
+            cancelRecording()
+        }
+        languagePickerWindowController.show()
+    }
+
+    private func cancelRecording() {
+        guard appState.isRecording else { return }
+        cancelPendingStop()
+        isLatchedRecording = false
+        hotkeyPressedAt = nil
+        pendingOverlayShowToken = nil
+        audioCapture.stop()
+        deepgramClient.disconnect()
+        appState.isRecording = false
+        overlayWindowController.hide()
+        appState.statusMessage = "Idle"
+        appState.resetTranscript()
+    }
+
+    private func scheduleOverlayShow() {
+        let token = UUID()
+        pendingOverlayShowToken = token
+        DispatchQueue.main.asyncAfter(deadline: .now() + overlayShowDelay) { [weak self] in
+            guard let self else { return }
+            guard self.pendingOverlayShowToken == token else { return }
+            guard self.appState.isRecording else { return }
+            self.pendingOverlayShowToken = nil
+            self.overlayWindowController.show()
+        }
+    }
+
     private func handleHotkeyUp() {
-        let now = CACurrentMediaTime()
-        let pressedAt = hotkeyPressedAt
+        guard let pressedAt = hotkeyPressedAt else { return }
         hotkeyPressedAt = nil
 
-        let duration = pressedAt.map { now - $0 } ?? 0
+        let now = CACurrentMediaTime()
+        let duration = now - pressedAt
         let isTap = duration <= hotkeyTapThreshold
 
         if isTap {
