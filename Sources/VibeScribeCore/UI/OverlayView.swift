@@ -37,11 +37,9 @@ struct OverlayView: View {
         .id(appState.overlayPulseID)
         .onAppear {
             pulse = appState.isRecording
+            shimmer = appState.isRecording
             withAnimation(.spring(response: 0.42, dampingFraction: 0.72, blendDuration: 0.2)) {
                 appear = appState.isRecording
-            }
-            withAnimation(.easeInOut(duration: 1.1).repeatForever(autoreverses: true)) {
-                shimmer = true
             }
         }
         .onDisappear {
@@ -51,15 +49,12 @@ struct OverlayView: View {
         }
         .onChange(of: appState.isRecording) { isRecording in
             pulse = isRecording
+            shimmer = isRecording
             if isRecording {
                 withAnimation(.spring(response: 0.42, dampingFraction: 0.72, blendDuration: 0.2)) {
                     appear = true
                 }
-                withAnimation(.easeInOut(duration: 1.1).repeatForever(autoreverses: true)) {
-                    shimmer = true
-                }
             } else {
-                shimmer = false
                 withAnimation(.easeInOut(duration: 0.18)) {
                     appear = false
                 }
@@ -108,6 +103,10 @@ struct OverlayView: View {
         .frame(width: 120, height: 120)
         .rotationEffect(.degrees(25))
         .offset(x: shimmer ? 120 : -140, y: shimmer ? -12 : 12)
+        .animation(
+            .easeInOut(duration: 1.1).repeatForever(autoreverses: true),
+            value: shimmer
+        )
         .blendMode(.screen)
     }
 }
