@@ -25,6 +25,9 @@ func main() async {
     print("RecordingSession")
     runRecordingSessionTests(harness)
 
+    print("DeepgramParser")
+    runDeepgramParserTests(harness)
+
     let ok = harness.summarize()
     exit(ok ? 0 : 1)
 }

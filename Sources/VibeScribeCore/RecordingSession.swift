@@ -12,7 +12,7 @@ protocol RecordingSessionAudioCapture: AnyObject {
 protocol RecordingSessionTranscription: AnyObject {
     func connect(apiKey: String, format: AudioStreamFormat, language: DeepgramLanguage)
     func sendAudio(buffer: AVAudioPCMBuffer)
-    func closeStream(onClosed: @escaping () -> Void)
+    func closeStream(onClosed: @Sendable @escaping () -> Void)
     func disconnect()
 }
 
@@ -92,7 +92,7 @@ final class RecordingSession: ObservableObject {
         state = .finalizing
         statusMessage = "Finalizing..."
 
-        transcription.closeStream { [weak self] in
+        transcription.closeStream { @Sendable [weak self] in
             self?.hopToMain {
                 self?.finalizeStop()
             }

@@ -36,7 +36,7 @@ private final class FakeTranscription: @MainActor RecordingSessionTranscription 
     var disconnectCalls = 0
     var lastApiKey: String?
     var lastLanguage: DeepgramLanguage?
-    var pendingCloseCallbacks: [() -> Void] = []
+    var pendingCloseCallbacks: [@Sendable () -> Void] = []
 
     func connect(apiKey: String, format: AudioStreamFormat, language: DeepgramLanguage) {
         connectCalls += 1
@@ -48,7 +48,7 @@ private final class FakeTranscription: @MainActor RecordingSessionTranscription 
         sendCalls += 1
     }
 
-    func closeStream(onClosed: @escaping () -> Void) {
+    func closeStream(onClosed: @Sendable @escaping () -> Void) {
         pendingCloseCallbacks.append(onClosed)
     }
 
