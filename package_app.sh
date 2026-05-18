@@ -29,7 +29,7 @@ if [[ ${#ARCH_LIST[@]} -eq 0 ]]; then
 fi
 
 for ARCH in "${ARCH_LIST[@]}"; do
-  swift build -c "$CONF" --arch "$ARCH"
+  swift build -c "$CONF" --arch "$ARCH" --product "$APP_NAME"
 done
 
 APP="$ROOT/${APP_NAME}.app"
