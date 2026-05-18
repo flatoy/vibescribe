@@ -6,6 +6,7 @@ final class LanguagePickerModel: ObservableObject {
     @Published var query: String = ""
     @Published private(set) var results: [DeepgramLanguage] = DeepgramLanguage.allCases
     @Published var highlightIndex: Int = 0
+    @Published private(set) var keyboardNavTick: Int = 0
 
     var onCommit: (DeepgramLanguage) -> Void = { _ in }
     var onCancel: () -> Void = {}
@@ -24,6 +25,12 @@ final class LanguagePickerModel: ObservableObject {
     func moveHighlight(by delta: Int) {
         guard !results.isEmpty else { return }
         highlightIndex = max(0, min(results.count - 1, highlightIndex + delta))
+        keyboardNavTick &+= 1
+    }
+
+    func setHoverHighlight(at index: Int) {
+        guard results.indices.contains(index) else { return }
+        highlightIndex = index
     }
 
     func commit(at index: Int? = nil) {
@@ -138,7 +145,7 @@ struct LanguagePickerView: View {
                         }
                         .onHover { isHovering in
                             if isHovering {
-                                model.highlightIndex = index
+                                model.setHoverHighlight(at: index)
                             }
                         }
                     }
@@ -146,9 +153,10 @@ struct LanguagePickerView: View {
                 .padding(.vertical, 4)
             }
             .frame(maxHeight: 280)
-            .onChange(of: model.highlightIndex) { newIndex in
-                guard model.results.indices.contains(newIndex) else { return }
-                let lang = model.results[newIndex]
+            .onChange(of: model.keyboardNavTick) { _ in
+                let index = model.highlightIndex
+                guard model.results.indices.contains(index) else { return }
+                let lang = model.results[index]
                 withAnimation(.easeOut(duration: 0.08)) {
                     proxy.scrollTo(lang.id, anchor: .center)
                 }
