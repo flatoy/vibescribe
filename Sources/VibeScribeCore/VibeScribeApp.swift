@@ -13,6 +13,10 @@ public final class VibeScribeApp: NSObject, NSApplicationDelegate {
     }
 
     private var appState: AppState!
+    private var transcript: TranscriptBuffer!
+    private var permissions: Permissions!
+    private var preferences: Preferences!
+    private var logger: Logger!
     private var menuBarController: MenuBarController!
     private var mainWindowController: MainWindowController!
     private var overlayWindowController: OverlayWindowController!
@@ -29,6 +33,10 @@ public final class VibeScribeApp: NSObject, NSApplicationDelegate {
         NSApp.mainMenu = AppMenuBuilder.build()
 
         appState = AppState()
+        transcript = TranscriptBuffer()
+        permissions = Permissions()
+        preferences = Preferences()
+        logger = Logger()
         audioCapture = AudioCaptureController()
         audioCapture.onConfigurationChanged = { [weak self] in
             Task { @MainActor in
@@ -38,19 +46,28 @@ public final class VibeScribeApp: NSObject, NSApplicationDelegate {
         deepgramClient = DeepgramClient(
             onTranscriptEvent: { [weak self] text, isFinal in
                 Task { @MainActor in
-                    self?.appState.handleTranscript(text, isFinal: isFinal)
+                    self?.transcript.handle(text, isFinal: isFinal)
                 }
             },
             onLog: { [weak self] message, level in
                 Task { @MainActor in
-                    self?.appState.addLog(message, level: level)
+                    self?.logger.append(message, level: level)
                 }
             }
         )
 
-        mainWindowController = MainWindowController(appState: appState)
+        mainWindowController = MainWindowController(
+            appState: appState,
+            transcript: transcript,
+            permissions: permissions,
+            preferences: preferences,
+            logger: logger
+        )
         overlayWindowController = OverlayWindowController(appState: appState)
-        languagePickerWindowController = LanguagePickerWindowController(appState: appState)
+        languagePickerWindowController = LanguagePickerWindowController(
+            preferences: preferences,
+            logger: logger
+        )
 
         hotkeyCoordinator = HotkeyCoordinator(scheduler: DispatchHotkeyScheduler())
         hotkeyCoordinator.onIntent = { [weak self] intent in
@@ -73,7 +90,7 @@ public final class VibeScribeApp: NSObject, NSApplicationDelegate {
         languagePickerHotkeyListener.start()
 
         menuBarController = MenuBarController(
-            appState: appState,
+            preferences: preferences,
             onOpenMain: { [weak self] in self?.openMainWindow() },
             onQuit: { NSApp.terminate(nil) }
         )
@@ -85,8 +102,8 @@ public final class VibeScribeApp: NSObject, NSApplicationDelegate {
             object: nil
         )
 
-        appState.requestInitialPermissionsIfNeeded()
-        appState.addLog("VibeScribe launched.", level: .info)
+        permissions.requestInitialIfNeeded()
+        logger.append("VibeScribe launched.", level: .info)
     }
 
     public func applicationWillTerminate(_ notification: Notification) {
@@ -98,7 +115,7 @@ public final class VibeScribeApp: NSObject, NSApplicationDelegate {
     }
 
     @objc private func handleAppDidBecomeActive(_ notification: Notification) {
-        appState.refreshPermissions()
+        permissions.refresh()
     }
 
     private func openMainWindow() {
@@ -106,7 +123,7 @@ public final class VibeScribeApp: NSObject, NSApplicationDelegate {
     }
 
     private func handleAudioInputConfigurationChanged() {
-        appState.addLog("Audio input changed. Capture engine reset.", level: .warning)
+        logger.append("Audio input changed. Capture engine reset.", level: .warning)
         guard appState.isRecording else {
             appState.statusMessage = "Audio input changed. Ready."
             return
@@ -114,7 +131,7 @@ public final class VibeScribeApp: NSObject, NSApplicationDelegate {
 
         cancelRecording()
         appState.statusMessage = "Input changed. Press and hold Option to resume."
-        appState.addLog("Recording stopped because the input device changed.", level: .warning)
+        logger.append("Recording stopped because the input device changed.", level: .warning)
     }
 
     private func handle(intent: HotkeyIntent) {
@@ -133,19 +150,19 @@ public final class VibeScribeApp: NSObject, NSApplicationDelegate {
     private func startRecording() {
         guard !appState.isRecording else { return }
 
-        let apiKey = appState.apiKey.trimmed
+        let apiKey = preferences.apiKey.trimmed
         guard !apiKey.isEmpty else {
             appState.statusMessage = "Add a Deepgram API key in Settings."
-            appState.addLog("Missing API key. Open Settings to add one.", level: .warning)
+            logger.append("Missing API key. Open Settings to add one.", level: .warning)
             openMainWindow()
             return
         }
 
         do {
-            appState.resetTranscript()
+            transcript.reset()
             let format = try audioCapture.start()
-            appState.addLog("Audio capture started (\(format.sampleRate) Hz, \(format.channels) ch).", level: .info)
-            deepgramClient.connect(apiKey: apiKey, format: format, language: appState.deepgramLanguage)
+            logger.append("Audio capture started (\(format.sampleRate) Hz, \(format.channels) ch).", level: .info)
+            deepgramClient.connect(apiKey: apiKey, format: format, language: preferences.deepgramLanguage)
 
             audioCapture.onBuffer = { [weak self] buffer in
                 self?.deepgramClient.sendAudio(buffer: buffer)
@@ -154,11 +171,11 @@ public final class VibeScribeApp: NSObject, NSApplicationDelegate {
             appState.isRecording = true
             appState.statusMessage = "Listening..."
             overlayWindowController.show()
-            appState.addLog("Language: \(appState.deepgramLanguage.displayName) (\(appState.deepgramLanguage.deepgramCode)).", level: .info)
-            appState.addLog("Listening started.", level: .info)
+            logger.append("Language: \(preferences.deepgramLanguage.displayName) (\(preferences.deepgramLanguage.deepgramCode)).", level: .info)
+            logger.append("Listening started.", level: .info)
         } catch {
             appState.statusMessage = "Failed to start audio capture: \(error.localizedDescription)"
-            appState.addLog("Failed to start audio capture: \(error.localizedDescription)", level: .error)
+            logger.append("Failed to start audio capture: \(error.localizedDescription)", level: .error)
         }
     }
 
@@ -174,7 +191,7 @@ public final class VibeScribeApp: NSObject, NSApplicationDelegate {
             Task { @MainActor in
                 guard let self else { return }
                 self.appState.statusMessage = "Idle"
-                self.appState.addLog("Listening stopped.", level: .info)
+                self.logger.append("Listening stopped.", level: .info)
                 self.pasteFinalTranscript()
             }
         }
@@ -187,15 +204,13 @@ public final class VibeScribeApp: NSObject, NSApplicationDelegate {
         appState.isRecording = false
         overlayWindowController.hide()
         appState.statusMessage = "Idle"
-        appState.resetTranscript()
+        transcript.reset()
     }
 
     private func pasteFinalTranscript() {
-        let finalText = appState.finalTranscript.trimmed
-        let fallbackText = appState.lastTranscript.trimmed
-        let text = finalText.isEmpty ? fallbackText : finalText
+        let text = transcript.effectiveText
         guard !text.isEmpty else {
-            appState.addLog("No transcript to paste.", level: .warning)
+            logger.append("No transcript to paste.", level: .warning)
             return
         }
 
@@ -203,14 +218,14 @@ public final class VibeScribeApp: NSObject, NSApplicationDelegate {
         let snapshot = PasteboardSnapshot(pasteboard: pasteboard)
         pasteboard.clearContents()
         pasteboard.setString(text, forType: .string)
-        appState.addLog("Transcript copied to clipboard.", level: .info)
+        logger.append("Transcript copied to clipboard.", level: .info)
 
         if !AXIsProcessTrusted() {
-            appState.addLog("Accessibility permission not granted. Enable it to allow paste automation.", level: .warning)
+            logger.append("Accessibility permission not granted. Enable it to allow paste automation.", level: .warning)
         }
 
         guard let source = CGEventSource(stateID: .combinedSessionState) else {
-            appState.addLog("Failed to create CGEventSource for paste.", level: .error)
+            logger.append("Failed to create CGEventSource for paste.", level: .error)
             snapshot.restore(to: pasteboard)
             return
         }
@@ -223,7 +238,7 @@ public final class VibeScribeApp: NSObject, NSApplicationDelegate {
         keyDown?.post(tap: .cghidEventTap)
         keyUp?.post(tap: .cghidEventTap)
 
-        appState.addLog("Paste command sent (Cmd+V).", level: .info)
+        logger.append("Paste command sent (Cmd+V).", level: .info)
 
         DispatchQueue.main.asyncAfter(deadline: .now() + clipboardRestoreDelay) {
             snapshot.restore(to: pasteboard)

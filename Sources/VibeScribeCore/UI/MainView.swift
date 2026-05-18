@@ -3,6 +3,10 @@ import SwiftUI
 
 struct MainView: View {
     @ObservedObject var appState: AppState
+    @ObservedObject var transcript: TranscriptBuffer
+    @ObservedObject var permissions: Permissions
+    @ObservedObject var preferences: Preferences
+    @ObservedObject var logger: Logger
 
     var body: some View {
         TabView {
@@ -25,7 +29,7 @@ struct MainView: View {
             Spacer()
         }
         .onAppear {
-            appState.refreshPermissions()
+            permissions.refresh()
         }
     }
 
@@ -36,17 +40,17 @@ struct MainView: View {
                     .font(.headline)
                 Spacer()
                 Button("Clear") {
-                    appState.clearLogs()
+                    logger.clear()
                 }
             }
 
-            if appState.logs.isEmpty {
+            if logger.entries.isEmpty {
                 Text("No logs yet.")
                     .foregroundStyle(.secondary)
             } else {
                 ScrollView {
                     LazyVStack(alignment: .leading, spacing: 8) {
-                        ForEach(appState.logs) { entry in
+                        ForEach(logger.entries) { entry in
                             VStack(alignment: .leading, spacing: 4) {
                                 HStack(alignment: .firstTextBaseline) {
                                     Text("\(Self.formatter.string(from: entry.timestamp)) \(entry.level.rawValue)")
@@ -89,17 +93,17 @@ struct MainView: View {
                 .font(.headline)
             PermissionRow(
                 title: "Recording",
-                status: appState.microphonePermission,
+                status: permissions.microphone,
                 actionTitle: "Request"
             ) {
-                appState.requestMicrophonePermission()
+                permissions.requestMicrophone()
             }
             PermissionRow(
                 title: "Pasting",
-                status: appState.accessibilityPermission,
+                status: permissions.accessibility,
                 actionTitle: "Request"
             ) {
-                appState.requestAccessibilityPermission()
+                permissions.requestAccessibility()
             }
         }
     }
@@ -121,8 +125,8 @@ struct MainView: View {
 
             GroupBox("Deepgram") {
                 VStack(alignment: .leading, spacing: 12) {
-                    TextField("API Key", text: $appState.apiKey)
-                    Picker("Language", selection: $appState.deepgramLanguage) {
+                    TextField("API Key", text: $preferences.apiKey)
+                    Picker("Language", selection: $preferences.deepgramLanguage) {
                         ForEach(DeepgramLanguage.allCases) { language in
                             Text(language.displayName).tag(language)
                         }
@@ -148,11 +152,11 @@ struct MainView: View {
     }
 
     private var transcriptText: String {
-        if !appState.finalTranscript.isEmpty {
-            return appState.finalTranscript
+        if !transcript.final.isEmpty {
+            return transcript.final
         }
-        if !appState.lastTranscript.isEmpty {
-            return appState.lastTranscript
+        if !transcript.last.isEmpty {
+            return transcript.last
         }
         return "Waiting for transcription..."
     }

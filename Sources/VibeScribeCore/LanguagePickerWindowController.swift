@@ -4,7 +4,8 @@ import SwiftUI
 
 @MainActor
 final class LanguagePickerWindowController {
-    private let appState: AppState
+    private let preferences: Preferences
+    private let logger: Logger
     private let model: LanguagePickerModel
     private var panel: NSPanel?
     private var keyMonitor: Any?
@@ -12,8 +13,9 @@ final class LanguagePickerWindowController {
     private var isShowing = false
     private var previousFrontmostApp: NSRunningApplication?
 
-    init(appState: AppState) {
-        self.appState = appState
+    init(preferences: Preferences, logger: Logger) {
+        self.preferences = preferences
+        self.logger = logger
         self.model = LanguagePickerModel()
         self.model.onCommit = { [weak self] language in
             self?.commit(language: language)
@@ -97,8 +99,8 @@ final class LanguagePickerWindowController {
     }
 
     private func commit(language: DeepgramLanguage) {
-        appState.deepgramLanguage = language
-        appState.addLog("Language set to \(language.displayName) (\(language.deepgramCode)).", level: .info)
+        preferences.deepgramLanguage = language
+        logger.append("Language set to \(language.displayName) (\(language.deepgramCode)).", level: .info)
         hide()
     }
 

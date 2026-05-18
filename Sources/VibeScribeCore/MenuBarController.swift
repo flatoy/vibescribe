@@ -4,18 +4,18 @@ import Combine
 @MainActor
 final class MenuBarController {
     private let statusItem: NSStatusItem
-    private let appState: AppState
+    private let preferences: Preferences
     private var cancellables = Set<AnyCancellable>()
 
     private let openMainAction: () -> Void
     private let quitAction: () -> Void
 
     init(
-        appState: AppState,
+        preferences: Preferences,
         onOpenMain: @escaping () -> Void,
         onQuit: @escaping () -> Void
     ) {
-        self.appState = appState
+        self.preferences = preferences
         self.openMainAction = onOpenMain
         self.quitAction = onQuit
 
@@ -29,9 +29,9 @@ final class MenuBarController {
             button.imageHugsTitle = true
         }
 
-        updateFlagTitle(for: appState.deepgramLanguage)
+        updateFlagTitle(for: preferences.deepgramLanguage)
 
-        appState.$deepgramLanguage
+        preferences.$deepgramLanguage
             .receive(on: RunLoop.main)
             .sink { [weak self] language in
                 self?.updateFlagTitle(for: language)

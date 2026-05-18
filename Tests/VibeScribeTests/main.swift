@@ -10,8 +10,14 @@ func main() async {
     print("AudioBufferConverter")
     runAudioBufferConverterTests(harness)
 
-    print("AppState")
-    runAppStateTests(harness)
+    print("TranscriptBuffer")
+    runTranscriptBufferTests(harness)
+
+    print("Preferences")
+    runPreferencesTests(harness)
+
+    print("Logger")
+    runLoggerTests(harness)
 
     print("HotkeyCoordinator")
     runHotkeyCoordinatorTests(harness)
