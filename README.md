@@ -42,12 +42,9 @@ swift build
 
 ## Test
 ```bash
-bash scripts/test.sh
+swift run VibeScribeTests
 ```
-Requires `xcbeautify`:
-```bash
-brew install xcbeautify
-```
+The test target is a small executable harness (no XCTest dependency), so it runs on toolchains without Xcode installed.
 
 ## Usage
 1. Launch the app (it appears in the menu bar).

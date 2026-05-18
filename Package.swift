@@ -16,9 +16,10 @@ let package = Package(
             name: "VibeScribe",
             dependencies: ["VibeScribeCore"]
         ),
-        .testTarget(
+        .executableTarget(
             name: "VibeScribeTests",
-            dependencies: ["VibeScribeCore"]
+            dependencies: ["VibeScribeCore"],
+            path: "Tests/VibeScribeTests"
         ),
     ]
 )

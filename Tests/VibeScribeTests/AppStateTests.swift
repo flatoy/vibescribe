@@ -1,73 +1,69 @@
-import XCTest
+import Foundation
 @testable import VibeScribeCore
 
 @MainActor
-final class AppStateTests: XCTestCase {
-    private let apiKeyDefaultsKey = "VibeScribe.ApiKey"
-    private let languageDefaultsKey = "VibeScribe.DeepgramLanguage"
+func runAppStateTests(_ t: TestHarness) {
+    let apiKeyDefaultsKey = "VibeScribe.ApiKey"
+    let languageDefaultsKey = "VibeScribe.DeepgramLanguage"
 
-    override func setUp() {
-        super.setUp()
+    func reset() {
         UserDefaults.standard.removeObject(forKey: apiKeyDefaultsKey)
         UserDefaults.standard.removeObject(forKey: languageDefaultsKey)
     }
 
-    override func tearDown() {
-        UserDefaults.standard.removeObject(forKey: apiKeyDefaultsKey)
-        UserDefaults.standard.removeObject(forKey: languageDefaultsKey)
-        super.tearDown()
-    }
-
-    func testHandleTranscriptBuildsFinalTranscript() {
+    t.run("handleTranscript builds final transcript") {
+        reset()
         let state = AppState()
         state.resetTranscript()
 
         state.handleTranscript(" hello ", isFinal: true)
-        XCTAssertEqual(state.finalTranscript, "hello")
+        t.expectEqual(state.finalTranscript, "hello")
 
         state.handleTranscript("hello", isFinal: true)
-        XCTAssertEqual(state.finalTranscript, "hello")
+        t.expectEqual(state.finalTranscript, "hello")
 
         state.handleTranscript("world", isFinal: true)
-        XCTAssertEqual(state.finalTranscript, "hello world")
+        t.expectEqual(state.finalTranscript, "hello world")
     }
 
-    func testHandleTranscriptIgnoresEmptyFinalText() {
+    t.run("handleTranscript ignores empty final text") {
+        reset()
         let state = AppState()
         state.resetTranscript()
-
         state.handleTranscript(" ", isFinal: true)
-        XCTAssertEqual(state.finalTranscript, "")
+        t.expectEqual(state.finalTranscript, "")
     }
 
-    func testNonFinalTranscriptUpdatesLastOnly() {
+    t.run("non-final transcript updates last only") {
+        reset()
         let state = AppState()
         state.resetTranscript()
-
         state.handleTranscript("partial", isFinal: false)
-        XCTAssertEqual(state.lastTranscript, "partial")
-        XCTAssertEqual(state.finalTranscript, "")
+        t.expectEqual(state.lastTranscript, "partial")
+        t.expectEqual(state.finalTranscript, "")
     }
 
-    func testResetTranscriptClearsState() {
+    t.run("resetTranscript clears state") {
+        reset()
         let state = AppState()
         state.handleTranscript("hello", isFinal: true)
-
         state.resetTranscript()
-        XCTAssertEqual(state.lastTranscript, "")
-        XCTAssertEqual(state.finalTranscript, "")
+        t.expectEqual(state.lastTranscript, "")
+        t.expectEqual(state.finalTranscript, "")
     }
 
-    func testDeepgramLanguageDefaultsToAutomatic() {
+    t.run("deepgramLanguage defaults to automatic") {
+        reset()
         let state = AppState()
-        XCTAssertEqual(state.deepgramLanguage, .automatic)
+        t.expectEqual(state.deepgramLanguage, .automatic)
     }
 
-    func testDeepgramLanguagePersists() {
+    t.run("deepgramLanguage persists") {
+        reset()
         let state = AppState()
         state.deepgramLanguage = .french
-
         let restored = AppState()
-        XCTAssertEqual(restored.deepgramLanguage, .french)
+        t.expectEqual(restored.deepgramLanguage, .french)
+        reset()
     }
 }

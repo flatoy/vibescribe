@@ -1,16 +1,16 @@
-import XCTest
 @testable import VibeScribeCore
 
-final class StringTrimTests: XCTestCase {
-    func testTrimmedRemovesWhitespaceAndNewlines() {
-        XCTAssertEqual("  hello\n".trimmed, "hello")
+@MainActor
+func runStringTrimTests(_ t: TestHarness) {
+    t.run("trimmed removes whitespace and newlines") {
+        t.expectEqual("  hello\n".trimmed, "hello")
     }
 
-    func testNilIfEmptyReturnsNilForWhitespace() {
-        XCTAssertNil("   \n\t  ".nilIfEmpty)
+    t.run("nilIfEmpty returns nil for whitespace") {
+        t.expectNil("   \n\t  ".nilIfEmpty)
     }
 
-    func testNilIfEmptyReturnsTrimmedString() {
-        XCTAssertEqual("  hi  ".nilIfEmpty, "hi")
+    t.run("nilIfEmpty returns trimmed string") {
+        t.expectEqual("  hi  ".nilIfEmpty, "hi")
     }
 }
