@@ -13,6 +13,9 @@ func main() async {
     print("AppState")
     runAppStateTests(harness)
 
+    print("HotkeyCoordinator")
+    runHotkeyCoordinatorTests(harness)
+
     let ok = harness.summarize()
     exit(ok ? 0 : 1)
 }
