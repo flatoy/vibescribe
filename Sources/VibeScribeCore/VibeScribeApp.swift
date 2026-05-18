@@ -74,6 +74,7 @@ public final class VibeScribeApp: NSObject, NSApplicationDelegate {
         languagePickerHotkeyListener.start()
 
         menuBarController = MenuBarController(
+            appState: appState,
             onOpenMain: { [weak self] in self?.openMainWindow() },
             onQuit: { NSApp.terminate(nil) }
         )

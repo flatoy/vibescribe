@@ -91,6 +91,50 @@ enum DeepgramLanguage: String, CaseIterable, Identifiable {
         }
     }
 
+    var flag: String {
+        if self == .automatic {
+            return "🌐"
+        }
+        let raw = rawValue
+        if let dash = raw.firstIndex(of: "-") {
+            let region = String(raw[raw.index(after: dash)...])
+            if region == "419" { return "🌎" }
+            return Self.flag(for: region)
+        }
+        return Self.defaultFlag(for: raw)
+    }
+
+    private static let pureLanguageCountry: [String: String] = [
+        "ar": "SA", "be": "BY", "bn": "BD", "bs": "BA", "bg": "BG",
+        "ca": "ES", "hr": "HR", "cs": "CZ", "da": "DK", "nl": "NL",
+        "en": "US", "et": "EE", "fi": "FI", "fr": "FR", "de": "DE",
+        "el": "GR", "he": "IL", "hi": "IN", "hu": "HU", "id": "ID",
+        "it": "IT", "ja": "JP", "kn": "IN", "ko": "KR", "lv": "LV",
+        "lt": "LT", "mk": "MK", "ms": "MY", "mr": "IN", "no": "NO",
+        "fa": "IR", "pl": "PL", "pt": "PT", "ro": "RO", "ru": "RU",
+        "sr": "RS", "sk": "SK", "sl": "SI", "es": "ES", "sv": "SE",
+        "tl": "PH", "ta": "IN", "te": "IN", "tr": "TR", "uk": "UA",
+        "ur": "PK", "vi": "VN",
+    ]
+
+    private static func defaultFlag(for languageCode: String) -> String {
+        guard let country = pureLanguageCountry[languageCode] else {
+            return "🌐"
+        }
+        return flag(for: country)
+    }
+
+    private static func flag(for countryCode: String) -> String {
+        let base: UInt32 = 127397
+        var result = ""
+        for scalar in countryCode.uppercased().unicodeScalars {
+            if let regional = UnicodeScalar(base + scalar.value) {
+                result.unicodeScalars.append(regional)
+            }
+        }
+        return result
+    }
+
     var displayName: String {
         switch self {
         case .automatic:
