@@ -1,6 +1,7 @@
 import AppKit
 import ApplicationServices
 import Carbon
+import Combine
 import SwiftUI
 
 @MainActor
@@ -12,7 +13,6 @@ public final class VibeScribeApp: NSObject, NSApplicationDelegate {
         app.run()
     }
 
-    private var appState: AppState!
     private var transcript: TranscriptBuffer!
     private var permissions: Permissions!
     private var preferences: Preferences!
@@ -26,27 +26,23 @@ public final class VibeScribeApp: NSObject, NSApplicationDelegate {
     private var hotkeyCoordinator: HotkeyCoordinator!
     private var audioCapture: AudioCaptureController!
     private var deepgramClient: DeepgramClient!
+    private var recordingSession: RecordingSession!
+    private var cancellables = Set<AnyCancellable>()
     private let clipboardRestoreDelay: TimeInterval = 0.2
 
     public func applicationDidFinishLaunching(_ notification: Notification) {
         NSApp.setActivationPolicy(.accessory)
         NSApp.mainMenu = AppMenuBuilder.build()
 
-        appState = AppState()
         transcript = TranscriptBuffer()
         permissions = Permissions()
         preferences = Preferences()
         logger = Logger()
         audioCapture = AudioCaptureController()
-        audioCapture.onConfigurationChanged = { [weak self] in
-            Task { @MainActor in
-                self?.handleAudioInputConfigurationChanged()
-            }
-        }
         deepgramClient = DeepgramClient(
             onTranscriptEvent: { [weak self] text, isFinal in
                 Task { @MainActor in
-                    self?.transcript.handle(text, isFinal: isFinal)
+                    self?.recordingSession.handleTranscriptEvent(text, isFinal: isFinal)
                 }
             },
             onLog: { [weak self] message, level in
@@ -56,25 +52,50 @@ public final class VibeScribeApp: NSObject, NSApplicationDelegate {
             }
         )
 
+        recordingSession = RecordingSession(
+            audioCapture: audioCapture,
+            transcription: deepgramClient,
+            transcript: transcript,
+            logger: logger
+        )
+        recordingSession.onFinalized = { [weak self] text in
+            self?.pasteFinalTranscript(text)
+        }
+        recordingSession.onMissingApiKey = { [weak self] in
+            self?.openMainWindow()
+        }
+
         mainWindowController = MainWindowController(
-            appState: appState,
+            recordingSession: recordingSession,
             transcript: transcript,
             permissions: permissions,
             preferences: preferences,
             logger: logger
         )
-        overlayWindowController = OverlayWindowController(appState: appState)
+        overlayWindowController = OverlayWindowController(recordingSession: recordingSession)
         languagePickerWindowController = LanguagePickerWindowController(
             preferences: preferences,
             logger: logger
         )
+
+        recordingSession.$state
+            .removeDuplicates()
+            .sink { [weak self] state in
+                guard let self else { return }
+                if state == .recording {
+                    self.overlayWindowController.show()
+                } else {
+                    self.overlayWindowController.hide()
+                }
+            }
+            .store(in: &cancellables)
 
         hotkeyCoordinator = HotkeyCoordinator(scheduler: DispatchHotkeyScheduler())
         hotkeyCoordinator.onIntent = { [weak self] intent in
             self?.handle(intent: intent)
         }
 
-        hotkeyListener = HotkeyListener(hotkey: appState.hotkey)
+        hotkeyListener = HotkeyListener(hotkey: .pushToTalkDefault)
         hotkeyListener.onKeyDown = { [weak self] in
             self?.hotkeyCoordinator.primaryDown(at: CACurrentMediaTime())
         }
@@ -122,98 +143,20 @@ public final class VibeScribeApp: NSObject, NSApplicationDelegate {
         mainWindowController.show()
     }
 
-    private func handleAudioInputConfigurationChanged() {
-        logger.append("Audio input changed. Capture engine reset.", level: .warning)
-        guard appState.isRecording else {
-            appState.statusMessage = "Audio input changed. Ready."
-            return
-        }
-
-        cancelRecording()
-        appState.statusMessage = "Input changed. Press and hold Option to resume."
-        logger.append("Recording stopped because the input device changed.", level: .warning)
-    }
-
     private func handle(intent: HotkeyIntent) {
         switch intent {
         case .startRecording:
-            startRecording()
+            recordingSession.start(apiKey: preferences.apiKey, language: preferences.deepgramLanguage)
         case .stopRecording:
-            stopRecording()
+            recordingSession.stop()
         case .cancelRecording:
-            cancelRecording()
+            recordingSession.cancel()
         case .openLanguagePicker:
             languagePickerWindowController.show()
         }
     }
 
-    private func startRecording() {
-        guard !appState.isRecording else { return }
-
-        let apiKey = preferences.apiKey.trimmed
-        guard !apiKey.isEmpty else {
-            appState.statusMessage = "Add a Deepgram API key in Settings."
-            logger.append("Missing API key. Open Settings to add one.", level: .warning)
-            openMainWindow()
-            return
-        }
-
-        do {
-            transcript.reset()
-            let format = try audioCapture.start()
-            logger.append("Audio capture started (\(format.sampleRate) Hz, \(format.channels) ch).", level: .info)
-            deepgramClient.connect(apiKey: apiKey, format: format, language: preferences.deepgramLanguage)
-
-            audioCapture.onBuffer = { [weak self] buffer in
-                self?.deepgramClient.sendAudio(buffer: buffer)
-            }
-
-            appState.isRecording = true
-            appState.statusMessage = "Listening..."
-            overlayWindowController.show()
-            logger.append("Language: \(preferences.deepgramLanguage.displayName) (\(preferences.deepgramLanguage.deepgramCode)).", level: .info)
-            logger.append("Listening started.", level: .info)
-        } catch {
-            appState.statusMessage = "Failed to start audio capture: \(error.localizedDescription)"
-            logger.append("Failed to start audio capture: \(error.localizedDescription)", level: .error)
-        }
-    }
-
-    private func stopRecording() {
-        guard appState.isRecording else { return }
-
-        audioCapture.stop()
-        appState.isRecording = false
-        overlayWindowController.hide()
-        appState.statusMessage = "Finalizing..."
-
-        deepgramClient.closeStream { [weak self] in
-            Task { @MainActor in
-                guard let self else { return }
-                self.appState.statusMessage = "Idle"
-                self.logger.append("Listening stopped.", level: .info)
-                self.pasteFinalTranscript()
-            }
-        }
-    }
-
-    private func cancelRecording() {
-        guard appState.isRecording else { return }
-        audioCapture.stop()
-        deepgramClient.disconnect()
-        appState.isRecording = false
-        overlayWindowController.hide()
-        appState.statusMessage = "Idle"
-        transcript.reset()
-    }
-
-    private func pasteFinalTranscript() {
-        let text = transcript.effectiveText
-        guard !text.isEmpty else {
-            logger.append("No transcript to paste.", level: .warning)
-            return
-        }
-
+    private func pasteFinalTranscript(_ text: String) {
         let pasteboard = NSPasteboard.general
         let snapshot = PasteboardSnapshot(pasteboard: pasteboard)
         pasteboard.clearContents()

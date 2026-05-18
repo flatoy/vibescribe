@@ -3,20 +3,19 @@ import SwiftUI
 
 @MainActor
 final class OverlayWindowController {
-    private let appState: AppState
+    private let recordingSession: RecordingSession
     private var panel: NSPanel?
     private var isShowing = false
     private var animationID = UUID()
 
-    init(appState: AppState) {
-        self.appState = appState
+    init(recordingSession: RecordingSession) {
+        self.recordingSession = recordingSession
     }
 
     func show() {
         if panel == nil {
             panel = makePanel()
         }
-        appState.overlayPulseID = UUID()
         guard let panel else { return }
         isShowing = true
         animationID = UUID()
@@ -70,7 +69,7 @@ final class OverlayWindowController {
     }
 
     private func makePanel() -> NSPanel {
-        let overlayView = OverlayView(appState: appState)
+        let overlayView = OverlayView(recordingSession: recordingSession)
         let hosting = NSHostingController(rootView: overlayView)
 
         let panel = NSPanel(

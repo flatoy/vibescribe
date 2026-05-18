@@ -2,7 +2,7 @@ import AppKit
 import SwiftUI
 
 struct MainView: View {
-    @ObservedObject var appState: AppState
+    @ObservedObject var recordingSession: RecordingSession
     @ObservedObject var transcript: TranscriptBuffer
     @ObservedObject var permissions: Permissions
     @ObservedObject var preferences: Preferences
@@ -114,7 +114,7 @@ struct MainView: View {
                 VStack(alignment: .leading, spacing: 8) {
                     Text("Hotkey")
                         .font(.subheadline)
-                    Text(appState.hotkey.displayName)
+                    Text(Hotkey.pushToTalkDefault.displayName)
                         .foregroundStyle(.secondary)
                     Text("Change this in code for now (Hotkey.pushToTalkDefault).")
                         .font(.caption)

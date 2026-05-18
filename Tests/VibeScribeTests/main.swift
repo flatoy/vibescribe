@@ -22,6 +22,9 @@ func main() async {
     print("HotkeyCoordinator")
     runHotkeyCoordinatorTests(harness)
 
+    print("RecordingSession")
+    runRecordingSessionTests(harness)
+
     let ok = harness.summarize()
     exit(ok ? 0 : 1)
 }

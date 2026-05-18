@@ -3,7 +3,7 @@ import SwiftUI
 
 @MainActor
 final class MainWindowController: NSObject, NSWindowDelegate {
-    private let appState: AppState
+    private let recordingSession: RecordingSession
     private let transcript: TranscriptBuffer
     private let permissions: Permissions
     private let preferences: Preferences
@@ -11,13 +11,13 @@ final class MainWindowController: NSObject, NSWindowDelegate {
     private var window: NSWindow?
 
     init(
-        appState: AppState,
+        recordingSession: RecordingSession,
         transcript: TranscriptBuffer,
         permissions: Permissions,
         preferences: Preferences,
         logger: Logger
     ) {
-        self.appState = appState
+        self.recordingSession = recordingSession
         self.transcript = transcript
         self.permissions = permissions
         self.preferences = preferences
@@ -27,7 +27,7 @@ final class MainWindowController: NSObject, NSWindowDelegate {
     func show() {
         if window == nil {
             let rootView = MainView(
-                appState: appState,
+                recordingSession: recordingSession,
                 transcript: transcript,
                 permissions: permissions,
                 preferences: preferences,

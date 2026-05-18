@@ -1,7 +1,7 @@
 import SwiftUI
 
 struct OverlayView: View {
-    @ObservedObject var appState: AppState
+    @ObservedObject var recordingSession: RecordingSession
     @State private var pulse = false
     @State private var appear = false
     @State private var shimmer = false
@@ -34,12 +34,12 @@ struct OverlayView: View {
             RoundedRectangle(cornerRadius: 12)
                 .fill(.white)
         )
-        .id(appState.overlayPulseID)
+        .id(recordingSession.sessionStartID)
         .onAppear {
-            pulse = appState.isRecording
-            shimmer = appState.isRecording
+            pulse = recordingSession.isRecording
+            shimmer = recordingSession.isRecording
             withAnimation(.spring(response: 0.42, dampingFraction: 0.72, blendDuration: 0.2)) {
-                appear = appState.isRecording
+                appear = recordingSession.isRecording
             }
         }
         .onDisappear {
@@ -47,7 +47,7 @@ struct OverlayView: View {
             pulse = false
             shimmer = false
         }
-        .onChange(of: appState.isRecording) { isRecording in
+        .onChange(of: recordingSession.isRecording) { isRecording in
             pulse = isRecording
             shimmer = isRecording
             if isRecording {
