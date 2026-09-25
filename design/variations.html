@@ -1,0 +1,651 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>VibeScribe — design directions compared</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,400;12..96,600;12..96,800&family=IBM+Plex+Mono:wght@400;500&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="shared.css">
+<style>
+/* ---------- Page: direction headers + matrix ---------- */
+.dir-tag{display:inline-grid;place-items:center;width:30px;height:30px;border-radius:8px;background:var(--ink);color:var(--desk);font:800 16px var(--display);margin-right:12px;vertical-align:4px}
+.sec-head h2 small{display:block;font:500 13px var(--mono);letter-spacing:.04em;color:var(--ink-2);margin-top:8px;text-transform:none}
+.proscons{display:grid;grid-template-columns:1fr 1fr;gap:24px;margin:-12px 0 32px;font-size:13.5px;color:var(--ink-2)}
+.proscons b{display:block;font:500 11.5px var(--mono);letter-spacing:.06em;text-transform:uppercase;color:var(--ink);margin-bottom:4px}
+.proscons ul{margin:0;padding-left:18px}
+.matrix{width:100%;border-collapse:collapse;font-size:13.5px;margin-top:40px}
+.matrix th,.matrix td{text-align:left;vertical-align:top;padding:10px 12px 10px 0;border-bottom:1px solid var(--rule)}
+.matrix thead th{font:600 15px var(--display);border-bottom:1px solid var(--ink);padding-bottom:12px}
+.matrix thead th .dir-tag{width:24px;height:24px;font-size:13px;border-radius:6px;margin-right:6px;vertical-align:1px}
+.matrix tbody th{font:500 11.5px var(--mono);letter-spacing:.05em;text-transform:uppercase;color:var(--ink);width:130px;padding-top:12px}
+.matrix td{color:var(--ink-2)}
+.pick{margin-top:28px;padding:18px 22px;border-radius:12px;background:#fff;box-shadow:0 0 0 1px var(--rule);font-size:15px;max-width:80ch}
+.pick b{font-family:var(--display);font-weight:600}
+
+/* ---------- B · Compact ---------- */
+.cmp{width:476px}
+.cmp .hero{margin:0 16px 4px;padding:14px 16px;border-radius:12px;display:flex;gap:14px;align-items:center;background:linear-gradient(120deg,rgba(110,198,234,.10),rgba(198,138,238,.10) 55%,rgba(237,187,122,.08));border:1px solid var(--hair)}
+.cmp .hero .tx{flex:1}.cmp .hero .tx b{display:block;font-size:14px;font-weight:600}.cmp .hero .tx span{color:var(--t2);font-size:12px}
+.cmp .hero.warn{background:linear-gradient(90deg,rgba(237,187,122,.16),rgba(237,187,122,.05));border-color:rgba(237,187,122,.3)}
+.cmp .sect{padding:12px 20px 10px;border-top:1px solid var(--hair)}
+.cmp .sect:first-of-type{border-top:0}
+.cmp h5{margin:0 0 4px;font:600 11px var(--sys);letter-spacing:.05em;text-transform:uppercase;color:var(--t3)}
+.cmp .r{display:flex;align-items:center;gap:12px;min-height:34px;padding:3px 0}
+.cmp .r .l{flex:1}
+.cmp .disc{display:flex;align-items:center;gap:8px;padding:12px 20px;border-top:1px solid var(--hair);color:var(--t2)}
+.cmp .disc .tri{width:0;height:0;border-left:5px solid var(--t2);border-top:4px solid transparent;border-bottom:4px solid transparent}
+.cmp .disc.open .tri{transform:rotate(90deg)}
+.cmp .dimmed{opacity:.32;pointer-events:none}
+.check{display:flex;flex-direction:column;gap:2px;margin:0 16px 4px;padding:12px 14px;border-radius:12px;background:var(--panel);border:1px solid var(--hair)}
+.check .h{display:flex;justify-content:space-between;align-items:baseline;margin-bottom:6px}
+.check .h b{font-size:14px;font-weight:600}
+.check .c{display:flex;align-items:center;gap:10px;min-height:32px}
+.check .c .l{flex:1}
+.check .c .l span{display:block;font-size:11.5px;color:var(--t2)}
+.tick{width:18px;height:18px;border-radius:50%;display:grid;place-items:center;flex:none;border:1.5px solid var(--t3)}
+.tick.done{background:var(--ok);border-color:var(--ok);color:#10202a}
+.tick.busy{border-color:var(--s3);border-right-color:transparent;animation:spin 1s linear infinite}
+@keyframes spin{to{transform:rotate(360deg)}}
+
+/* ---------- C · Journal ---------- */
+.jr{width:880px;height:590px;display:flex;flex-direction:column}
+.jr .tb{height:52px;display:flex;align-items:center;gap:10px;padding:0 14px;border-bottom:1px solid var(--hair);flex:none}
+.jr .tb .lights{margin-right:14px}
+.spill{display:inline-flex;align-items:center;gap:9px;height:28px;padding:0 12px 0 10px;border-radius:14px;background:#141416;border:1px solid var(--hair-2);font-weight:500;white-space:nowrap}
+.spill .meta{font:500 11.5px var(--mono);color:var(--t2)}
+.jr .tb .grow{flex:1}
+.jr .tb .search-f{flex:0 0 220px}
+.ibtn{width:28px;height:28px;border-radius:7px;display:grid;place-items:center;color:var(--t2);background:#2F2F34}
+.jr .feed{flex:1;overflow:hidden;padding:18px 0 0;display:flex;flex-direction:column;align-items:center;position:relative}
+.jr .feed .stats{width:620px;display:flex;justify-content:space-between;align-items:baseline;margin-bottom:12px}
+.jr .feed .stats b{font:600 20px var(--sys);letter-spacing:-.02em}
+.jr .feed .stats span{color:var(--t2);font-size:12px}
+.card{width:620px;background:var(--panel);border:1px solid var(--hair);border-radius:12px;padding:12px 16px 12px;margin-bottom:10px}
+.card .ch{display:flex;align-items:center;gap:8px;font-size:12px;color:var(--t2);margin-bottom:6px}
+.card .app{width:18px;height:18px;border-radius:5px;display:grid;place-items:center;font:700 10px var(--sys);color:#fff}
+.card .ch .sp{flex:1}
+.card .ch .m{font:500 11px var(--mono);color:var(--t3)}
+.card p{margin:0;font-size:14px;line-height:1.5}
+.card .acts{display:flex;gap:6px;margin-top:10px}
+.card .acts .btn{height:22px;font-size:12px;padding:0 9px}
+.card.ghost{background:transparent;border:1.5px dashed rgba(154,138,230,.5)}
+.scrim{position:absolute;inset:52px 0 0 0;background:rgba(0,0,0,.45)}
+.sheet{position:absolute;top:64px;left:50%;transform:translateX(-50%);width:480px;background:#27272B;border-radius:12px;border:1px solid var(--hair-2);box-shadow:0 24px 60px rgba(0,0,0,.6);padding:18px 20px 16px}
+.sheet h4{margin:0 0 12px;font:600 15px var(--sys)}
+.sheet .r{display:flex;align-items:center;gap:12px;min-height:38px;border-top:1px solid var(--hair)}
+.sheet .r .l{flex:1}
+.sheet .foot{display:flex;gap:8px;margin-top:14px;align-items:center}
+
+/* ---------- D · Popover ---------- */
+.pscreen{width:330px;border-radius:12px;padding-bottom:16px;position:relative;overflow:hidden;
+  background:radial-gradient(120% 140% at 15% 0%,#5B6FA8 0%,transparent 55%),radial-gradient(120% 140% at 90% 10%,#B0719B 0%,transparent 50%),linear-gradient(180deg,#3D3A5C,#2A2638);box-shadow:0 20px 40px -18px rgba(40,20,70,.5)}
+.pop{margin:8px 10px 0;border-radius:14px;background:rgba(28,27,34,.88);backdrop-filter:blur(30px);border:1px solid rgba(255,255,255,.14);box-shadow:0 18px 40px rgba(0,0,0,.5);padding:10px;color:#fff;font:13px/1.4 var(--sys);display:flex;flex-direction:column;gap:8px}
+.ptabs{display:flex;background:rgba(255,255,255,.07);border-radius:8px;padding:2px}
+.ptabs span{flex:1;text-align:center;padding:4px 0;border-radius:6px;color:rgba(255,255,255,.6);font-size:12px;font-weight:500}
+.ptabs span.on{background:rgba(255,255,255,.16);color:#fff}
+.tile{background:rgba(255,255,255,.07);border-radius:12px;padding:12px}
+.tile.big{display:flex;align-items:center;gap:14px;padding:14px}
+.tile.big .tx{flex:1}.tile.big b{display:block;font-size:14px;font-weight:600}.tile.big span{color:rgba(255,255,255,.55);font-size:12px}
+.tile.warn{background:rgba(237,187,122,.14);box-shadow:inset 0 0 0 1px rgba(237,187,122,.3)}
+.lgrid{display:grid;grid-template-columns:repeat(3,1fr);gap:6px}
+.lgrid .lt-i{background:rgba(255,255,255,.07);border-radius:10px;padding:9px 10px;display:flex;flex-direction:column;gap:2px}
+.lgrid .lt-i b{font-weight:600;font-size:12.5px}.lgrid .lt-i span{font:500 10.5px var(--mono);color:rgba(255,255,255,.5)}
+.lgrid .lt-i.on{background:var(--accent)}.lgrid .lt-i.on span{color:rgba(255,255,255,.8)}
+.pop .lbl-s{font:600 10.5px var(--sys);letter-spacing:.05em;text-transform:uppercase;color:rgba(255,255,255,.4);padding:2px 4px 0}
+.pop .lastc{font-size:12.5px;line-height:1.45}
+.pop .lastc .meta{display:flex;align-items:center;gap:6px;color:rgba(255,255,255,.45);font-size:11px;margin-bottom:5px}
+.pop .lastc .meta .sp{flex:1}
+.pop .lastc .btn{height:20px;font-size:11.5px;padding:0 8px;background:rgba(255,255,255,.14);box-shadow:none}
+.pop .pfoot{display:flex;align-items:center;gap:8px;padding:2px 4px 0;color:rgba(255,255,255,.6);font-size:12px}
+.pop .pfoot .sp{flex:1}
+.pop .prow{display:flex;align-items:center;gap:10px;min-height:34px;padding:4px 4px}
+.pop .prow + .prow{border-top:1px solid rgba(255,255,255,.08)}
+.pop .prow .l{flex:1}
+.pop .prow .l span{display:block;font-size:11px;color:rgba(255,255,255,.5)}
+.pop .prow .chev{color:rgba(255,255,255,.4)}
+.pop .hi{padding:7px 4px}
+.pop .hi + .hi{border-top:1px solid rgba(255,255,255,.08)}
+.pop .hi p{margin:0;font-size:12.5px;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden}
+.pop .hi .m{font:500 10.5px var(--mono);color:rgba(255,255,255,.4);margin-bottom:2px}
+.pop .btn{background:rgba(255,255,255,.14);box-shadow:none}
+.pop .btn.primary{background:linear-gradient(180deg,#A797F0,#8A78DD)}
+
+/* ---------- E · Native light ---------- */
+.lt{--win:#E9E9EB;--win-2:#F4F4F5;--panel:#FFFFFF;--hair:rgba(0,0,0,.08);--hair-2:rgba(0,0,0,.14);--t1:#1D1D1F;--t2:#6E6E73;--t3:#A1A1A6;--accent:#0A7CFF;--ok:#1F9D55;--warn:#C77700}
+.win.lt{border-color:rgba(0,0,0,.22);box-shadow:0 0 0 .5px rgba(255,255,255,.6) inset,0 30px 60px -20px rgba(40,20,70,.35),0 12px 24px -12px rgba(0,0,0,.25)}
+.lt .titlebar .ttl{color:var(--t1)}
+.lt .btn{background:#fff;color:var(--t1);box-shadow:0 0 0 .5px rgba(0,0,0,.18),0 .5px 1px rgba(0,0,0,.12)}
+.lt .btn.primary{background:linear-gradient(180deg,#3D97FF,#0A74F0);color:#fff;box-shadow:0 .5px 1px rgba(0,0,0,.2)}
+.lt .btn.ghost{background:transparent;box-shadow:none;color:var(--accent)}
+.lt .sw{background:#DADADD}.lt .sw.on{background:var(--accent)}
+.lt .popup{background:#fff;box-shadow:0 0 0 .5px rgba(0,0,0,.18),0 .5px 1px rgba(0,0,0,.1)}
+.lt .seg{background:#DEDEE1}.lt .seg span.on{background:#fff;color:var(--t1);box-shadow:0 .5px 1.5px rgba(0,0,0,.2)}
+.lt kbd{background:#fff;color:var(--t1);box-shadow:inset 0 -1.5px 0 rgba(0,0,0,.1),0 0 0 .5px rgba(0,0,0,.2)}
+.lt .keyfield{background:#fff}.lt .keyfield.rec{background:rgba(10,124,255,.06);border-color:var(--accent)}
+.lt .meter{background:rgba(0,0,0,.08)}.lt .meter b{background:var(--accent)}
+.lt .lvl i{background:rgba(0,0,0,.1)}.lt .lvl i.on{background:#34C759}
+.lt .chip{background:#fff;box-shadow:0 0 0 .5px rgba(0,0,0,.18)}
+.lt .tag{background:rgba(31,157,85,.12);color:var(--ok)}
+.tbtabs{display:flex;justify-content:center;gap:2px;padding:0 12px 8px;border-bottom:1px solid var(--hair)}
+.tbtabs span{display:flex;flex-direction:column;align-items:center;gap:3px;width:82px;padding:5px 0 4px;border-radius:7px;color:var(--t2);font-size:11px}
+.tbtabs span.on{background:rgba(0,0,0,.07);color:var(--accent)}
+.tbtabs svg{width:20px;height:20px}
+.form{display:grid;grid-template-columns:190px 1fr;gap:14px 14px;align-items:center;padding:22px 40px 26px}
+.form > .k{text-align:right;color:var(--t1)}
+.form > .v{display:flex;align-items:center;gap:10px;flex-wrap:wrap}
+.form > .v .hint{flex-basis:100%;color:var(--t2);font-size:11.5px;margin-top:-6px}
+.form hr{grid-column:1/-1;border:0;height:1px;background:var(--hair);margin:2px 0}
+.cb{display:inline-flex;align-items:center;gap:7px}
+.cb i{width:14px;height:14px;border-radius:4px;background:#fff;box-shadow:0 0 0 .5px rgba(0,0,0,.3);display:grid;place-items:center;color:#fff;font-style:normal;font-size:10px;font-weight:700}
+.cb i.on{background:var(--accent);box-shadow:none}
+
+/* ---------- Overlay variants ---------- */
+.oscreen{width:330px;height:130px}
+.island{position:absolute;top:0;left:50%;transform:translateX(-50%);background:#000;border-radius:0 0 16px 16px;display:flex;align-items:center;gap:10px;color:#fff;font:600 12px var(--sys);white-space:nowrap;padding:0 16px;box-shadow:0 6px 18px rgba(0,0,0,.35)}
+.island .meta{font:500 11.5px var(--mono);color:rgba(255,255,255,.55)}
+.oscreen .menubar.dark{background:#000}
+.appwin{position:absolute;left:24px;right:24px;top:38px;bottom:-10px;background:#F6F6F7;border-radius:9px 9px 0 0;color:#1D1D1F;font:13px/1.45 var(--sys);padding:12px 14px;box-shadow:0 10px 30px rgba(0,0,0,.35)}
+.appwin .who{font-weight:600;font-size:12px;margin-bottom:4px;color:#555}
+.appwin .field{border:1px solid #D8D8DC;border-radius:8px;padding:7px 10px;background:#fff;position:relative}
+.appwin .caret{background:#1D1D1F}
+.bubble{position:absolute;display:inline-flex;align-items:center;gap:6px;height:26px;padding:0 9px;border-radius:13px;background:#111;color:#fff;font:600 11px var(--sys);box-shadow:0 6px 16px rgba(0,0,0,.35);white-space:nowrap}
+.bubble .bars{height:12px}.bubble .bars i{width:2.5px}
+.fresh{background:linear-gradient(90deg,rgba(110,198,234,.25),rgba(198,138,238,.25),rgba(237,187,122,.25));border-radius:3px}
+.edge{position:absolute;left:0;right:0;top:24px;height:3px;background:var(--spectrum);box-shadow:0 0 14px 3px rgba(198,138,238,.55),0 0 34px 6px rgba(110,198,234,.25)}
+.edge.pulse{animation:edgepulse .9s ease-in-out infinite alternate}
+@keyframes edgepulse{from{opacity:.55;transform:scaleX(.82)}to{opacity:1;transform:scaleX(1)}}
+.edge.travel{background:linear-gradient(90deg,transparent,var(--s2),var(--s4),var(--s6),transparent);background-size:40% 100%;background-repeat:no-repeat;animation:travel 1.4s ease-in-out infinite;box-shadow:none;height:2px}
+@keyframes travel{from{background-position:-40% 0}to{background-position:140% 0}}
+.edge.done{background:rgba(255,255,255,.85);box-shadow:0 0 12px 2px rgba(255,255,255,.5);opacity:.6;height:2px}
+#overlays figure.shot figcaption{max-width:330px}
+.oscreen.tall{height:156px}
+.recdot{display:inline-flex;align-items:center;gap:5px;font:600 11px var(--sys)}
+</style>
+</head>
+<body>
+<!-- reusable svg icons -->
+<svg width="0" height="0" style="position:absolute">
+  <symbol id="i-mic" viewBox="0 0 16 16"><rect x="5.5" y="1.5" width="5" height="8.5" rx="2.5" fill="none" stroke="currentColor" stroke-width="1.4"/><path d="M3 7.5a5 5 0 0 0 10 0M8 12.5V15" fill="none" stroke="currentColor" stroke-width="1.4" stroke-linecap="round"/></symbol>
+  <symbol id="i-key" viewBox="0 0 16 16"><rect x="1.5" y="3.5" width="13" height="9" rx="2" fill="none" stroke="currentColor" stroke-width="1.4"/><path d="M4 6.5h1M7 6.5h2M11 6.5h1M5 9.5h6" stroke="currentColor" stroke-width="1.4" stroke-linecap="round"/></symbol>
+  <symbol id="i-paste" viewBox="0 0 16 16"><rect x="3" y="2.5" width="10" height="12" rx="2" fill="none" stroke="currentColor" stroke-width="1.4"/><path d="M6 2.5h4v2H6zM5.5 8h5M5.5 11h3" fill="none" stroke="currentColor" stroke-width="1.4" stroke-linecap="round"/></symbol>
+  <symbol id="i-gear" viewBox="0 0 16 16"><circle cx="8" cy="8" r="2.3" fill="none" stroke="currentColor" stroke-width="1.4"/><path d="M8 1.5v2M8 12.5v2M1.5 8h2M12.5 8h2M3.4 3.4l1.4 1.4M11.2 11.2l1.4 1.4M3.4 12.6l1.4-1.4M11.2 4.8l1.4-1.4" stroke="currentColor" stroke-width="1.4" stroke-linecap="round"/></symbol>
+  <symbol id="i-globe" viewBox="0 0 16 16"><circle cx="8" cy="8" r="6.3" fill="none" stroke="currentColor" stroke-width="1.4"/><path d="M1.8 8h12.4M8 1.7c2 2 2 10.6 0 12.6M8 1.7c-2 2-2 10.6 0 12.6" fill="none" stroke="currentColor" stroke-width="1.2"/></symbol>
+  <symbol id="i-clock" viewBox="0 0 16 16"><circle cx="8" cy="8" r="6.3" fill="none" stroke="currentColor" stroke-width="1.4"/><path d="M8 4.5V8l2.5 1.6" fill="none" stroke="currentColor" stroke-width="1.4" stroke-linecap="round"/></symbol>
+  <symbol id="i-cube" viewBox="0 0 16 16"><path d="M8 1.8l5.6 3.1v6.2L8 14.2l-5.6-3.1V4.9zM2.6 5L8 8l5.4-3M8 8v6" fill="none" stroke="currentColor" stroke-width="1.3" stroke-linejoin="round"/></symbol>
+  <symbol id="i-doc" viewBox="0 0 16 16"><path d="M4 1.8h5.5L12.5 5v9.2H4z M9.3 2v3.2h3M6 8.5h4.5M6 11h3" fill="none" stroke="currentColor" stroke-width="1.3" stroke-linejoin="round"/></symbol>
+  <symbol id="i-check" viewBox="0 0 16 16"><path d="M3.5 8.5l3 3 6-7" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></symbol>
+  <symbol id="i-search" viewBox="0 0 16 16"><circle cx="7" cy="7" r="4.5" fill="none" stroke="currentColor" stroke-width="1.5"/><path d="M10.5 10.5l3.5 3.5" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/></symbol>
+  <symbol id="i-wave" viewBox="0 0 16 16"><path d="M2 7v2M4.5 5v6M7 3v10M9.5 5.5v5M12 4.5v7M14.5 7v2" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/></symbol>
+  <symbol id="i-lock" viewBox="0 0 16 16"><rect x="3.5" y="7" width="9" height="7" rx="1.5" fill="currentColor"/><path d="M5.5 7V5a2.5 2.5 0 0 1 5 0v2" fill="none" stroke="currentColor" stroke-width="1.5"/></symbol>
+  <symbol id="i-warn" viewBox="0 0 16 16"><path d="M8 2l6.5 11.5h-13z" fill="none" stroke="currentColor" stroke-width="1.4" stroke-linejoin="round"/><path d="M8 6.5v3M8 11.5v.01" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"/></symbol>
+  <symbol id="i-down" viewBox="0 0 16 16"><path d="M8 2v8.5M4.5 7.5L8 11l3.5-3.5M3 14h10" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></symbol>
+</svg>
+<div class="page">
+  <nav class="toc" aria-label="Sections">
+    <div class="mark"><span class="bars still"><i></i><i></i><i></i><i></i><i></i><i></i><i></i></span> VibeScribe</div>
+    <ol>
+      <li><a href="#compare">Side by side</a></li>
+      <li><a href="#a">A · Sidebar</a></li>
+      <li><a href="#b">B · Compact</a></li>
+      <li><a href="#c">C · Journal</a></li>
+      <li><a href="#d">D · Menu bar only</a></li>
+      <li><a href="#e">E · Native light</a></li>
+      <li><a href="#overlays">Overlay variants</a></li>
+    </ol>
+    <div class="foot">Five directions<br><a href="mockups.html">← Direction A, every state</a></div>
+  </nav>
+
+  <main>
+    <header class="hero" id="compare">
+      <div class="eyebrow">VibeScribe · design directions</div>
+      <h1>Five ways to <span class="wave">settle in</span>.</h1>
+      <p class="lede">Every direction keeps the overlay and language picker from today and changes where everything else lives. Each one is shown in the same states (ready, first launch, needs attention, plus one screen specific to it) so you can compare them directly. Overlay variants are at the end and work with any direction.</p>
+
+      <table class="matrix">
+        <thead><tr><th></th>
+          <th><span class="dir-tag">A</span>Sidebar</th><th><span class="dir-tag">B</span>Compact</th><th><span class="dir-tag">C</span>Journal</th><th><span class="dir-tag">D</span>Menu bar only</th><th><span class="dir-tag">E</span>Native light</th></tr></thead>
+        <tbody>
+          <tr><th>Idea</th><td>System Settings–style window with a page per topic</td><td>One short window, everything on it, advanced options folded away</td><td>The window is your transcript history. Settings open in a sheet.</td><td>No window at all. A popover under the menu bar icon, like Control Center.</td><td>Classic Mac preferences with toolbar tabs, in light mode</td></tr>
+          <tr><th>History</th><td>Settings page</td><td>Menu bar menu</td><td>The main view</td><td>Popover tab</td><td>Toolbar tab</td></tr>
+          <tr><th>First launch</th><td>4-step setup window</td><td>Checklist at the top of the window</td><td>Welcome screen in the main window</td><td>Checklist inside the popover</td><td>Checklist window</td></tr>
+          <tr><th>Best if you…</th><td>adjust settings now and then</td><td>set it up once and forget it</td><td>reuse what you dictated</td><td>never want a window</td><td>want it to look like Apple made it</td></tr>
+          <tr><th>Watch out</th><td>Six pages is a lot for a small app</td><td>Gets cramped if more features arrive</td><td>History becomes core, so storage has to be solid</td><td>Popovers close when you switch to System Settings during setup</td><td>Doesn’t match the dark overlay and picker</td></tr>
+          <tr><th>Effort</th><td>Medium</td><td>Low</td><td>Medium–high</td><td>Medium</td><td>Low</td></tr>
+        </tbody>
+      </table>
+      <p class="pick"><b>My pick: B, with A’s menu bar menu.</b> You use a push-to-talk app by holding a key, not by opening a window. Settings should fit on one screen you rarely visit, and the menu bar menu (last transcript, languages, history) handles daily needs. Go with C instead if you find yourself reusing old transcripts often.</p>
+    </header>
+
+    <!-- ================= A ================= -->
+    <section class="sec" id="a">
+      <div class="sec-head">
+        <div><div class="eyebrow">Direction A · from the first page</div><h2><span class="dir-tag">A</span>Sidebar<small>dark glass · 780 × 560 · six pages</small></h2></div>
+        <p>A page per topic, the way System Settings works. It holds everything, and problems show as a banner and a sidebar dot. <a href="mockups.html">All states for A are on the first page.</a></p>
+      </div>
+      <div class="proscons"><div><b>Good</b><ul><li>Room to grow</li><li>Familiar layout</li><li>Diagnostics stay out of the way</li></ul></div><div><b>Costs</b><ul><li>The most navigation for a small app</li><li>Setup needs its own separate window</li></ul></div></div>
+      <div class="shots">
+        <figure class="shot">
+          <div class="win set" style="height:470px">
+            <aside class="side">
+              <div class="titlebar"><div class="lights"><span></span><span></span><span></span></div></div>
+              <nav class="nav">
+                <a class="on"><span class="ni" style="background:#5E5E66"><svg width="13" height="13"><use href="#i-gear"/></svg></span>General</a>
+                <a><span class="ni" style="background:#5B7FD6"><svg width="13" height="13"><use href="#i-key"/></svg></span>Shortcut</a>
+                <a><span class="ni" style="background:#8A73D8"><svg width="13" height="13"><use href="#i-globe"/></svg></span>Language</a>
+                <a><span class="ni" style="background:#C06FA6"><svg width="13" height="13"><use href="#i-clock"/></svg></span>History</a>
+                <a><span class="ni" style="background:#D98972"><svg width="13" height="13"><use href="#i-cube"/></svg></span>Speech model</a>
+                <a><span class="ni" style="background:#4A4A50"><svg width="13" height="13"><use href="#i-doc"/></svg></span>About &amp; diagnostics</a>
+              </nav>
+              <div class="status-card"><b><span class="dot" style="background:var(--ok)"></span>Ready</b>large-v3 · offline<br>Right ⌥ to dictate</div>
+            </aside>
+            <div class="main">
+              <div class="titlebar"><h4>General</h4></div>
+              <div class="content">
+                <div class="group-label">Recording</div>
+                <div class="group">
+                  <div class="row"><div class="lbl"><b>Microphone</b></div><span class="lvl"><i class="on"></i><i class="on"></i><i class="on"></i><i class="on"></i><i class="on"></i><i></i><i></i><i></i><i></i><i></i></span><span class="popup">System default (MacBook Pro)</span></div>
+                  <div class="row"><div class="lbl"><b>Play sounds</b><span>A soft click when recording starts and stops</span></div><span class="sw on"></span></div>
+                </div>
+                <div class="group-label">When text is ready</div>
+                <div class="group">
+                  <div class="row"><div class="lbl"><b>Send text to</b></div><span class="seg"><span class="on">Active app</span><span>Clipboard only</span></span></div>
+                  <div class="row"><div class="lbl"><b>Restore clipboard after pasting</b></div><span class="sw on"></span></div>
+                </div>
+                <div class="group">
+                  <div class="row"><div class="lbl"><b>Open at login</b></div><span class="sw on"></span></div>
+                </div>
+              </div>
+            </div>
+          </div>
+          <figcaption><span class="state">A · Ready</span>General page. Other pages hold the shortcut, languages, history, model and logs.</figcaption>
+        </figure>
+      </div>
+    </section>
+
+    <!-- ================= B ================= -->
+    <section class="sec" id="b">
+      <div class="sec-head">
+        <div><div class="eyebrow">Direction B</div><h2><span class="dir-tag">B</span>Compact<small>dark glass · 476 wide · one screen</small></h2></div>
+        <p>Everything you’d change is on one screen, top to bottom, in the order people care about. The model, history retention and logs are folded under a single disclosure. First launch uses the same window, with a checklist at the top.</p>
+      </div>
+      <div class="proscons"><div><b>Good</b><ul><li>Nothing to navigate</li><li>Setup and settings are the same place, so nothing to learn twice</li><li>Smallest to build</li></ul></div><div><b>Costs</b><ul><li>History has to live in the menu bar menu</li><li>Each new feature competes for space</li></ul></div></div>
+      <div class="shots">
+        <figure class="shot">
+          <div class="win cmp">
+            <div class="titlebar"><div class="lights"><span></span><span></span><span></span></div><div class="ttl">VibeScribe</div></div>
+            <div class="hero"><span class="bars lg still"><i></i><i></i><i></i><i></i><i></i><i></i><i></i></span><div class="tx"><b>Ready</b><span>Hold Right ⌥ to dictate. Tap it for hands-free.</span></div></div>
+            <div class="sect"><h5>Shortcut</h5>
+              <div class="r"><div class="l">Dictation key</div><span class="keyfield"><kbd>Right ⌥</kbd></span></div>
+              <div class="r"><div class="l">Works by</div><span class="seg"><span class="on">Hold or tap</span><span>Hold</span><span>Tap</span></span></div>
+            </div>
+            <div class="sect"><h5>Language</h5>
+              <div class="r"><div class="l">Speaking</div><span class="popup">Automatic</span></div>
+              <div class="r"><div class="l">Pinned</div><div class="chips"><span class="chip" style="padding-right:10px">Auto</span><span class="chip" style="padding-right:10px">Norwegian</span><span class="chip" style="padding-right:10px">English</span><span class="chip add">+</span></div></div>
+            </div>
+            <div class="sect"><h5>Text</h5>
+              <div class="r"><div class="l">Send to</div><span class="seg"><span class="on">Active app</span><span>Clipboard</span></span></div>
+              <div class="r"><div class="l">Restore clipboard after pasting</div><span class="sw on"></span></div>
+            </div>
+            <div class="sect"><h5>Microphone</h5>
+              <div class="r"><span class="lvl"><i class="on"></i><i class="on"></i><i class="on"></i><i class="on"></i><i></i><i></i><i></i><i></i><i></i><i></i></span><div class="l"></div><span class="popup">MacBook Pro Microphone</span></div>
+              <div class="r"><div class="l">Play sounds</div><span class="sw on"></span></div>
+              <div class="r"><div class="l">Open at login</div><span class="sw on"></span></div>
+            </div>
+            <div class="disc"><span class="tri"></span>Speech model, history &amp; diagnostics<span style="margin-left:auto" class="small dim">1.4</span></div>
+          </div>
+          <figcaption><span class="state">B · Ready</span>Tall and narrow, like a utility panel. The hero strip is the only coloured element and shows status.</figcaption>
+        </figure>
+
+        <figure class="shot">
+          <div class="win cmp">
+            <div class="titlebar"><div class="lights"><span></span><span></span><span></span></div><div class="ttl">VibeScribe</div></div>
+            <div class="check">
+              <div class="h"><b>Getting ready</b><span class="small muted">2 of 4 done</span></div>
+              <div class="c"><span class="tick done"><svg width="11" height="11"><use href="#i-check"/></svg></span><div class="l">Microphone</div><span class="small" style="color:var(--ok)">Allowed</span></div>
+              <div class="c"><span class="tick busy"></span><div class="l">Speech model<span>308 of 626 MB · about 1 min left</span></div><div class="meter" style="width:110px"><b style="width:49%;--full:204%"></b></div></div>
+              <div class="c"><span class="tick"></span><div class="l">Input Monitoring<span>To notice Right ⌥ in other apps</span></div><span class="btn primary">Allow</span></div>
+              <div class="c"><span class="tick"></span><div class="l">Accessibility<span>To paste for you. Optional: without it, text is copied.</span></div><span class="btn">Allow</span></div>
+            </div>
+            <div class="dimmed">
+              <div class="sect"><h5>Shortcut</h5>
+                <div class="r"><div class="l">Dictation key</div><span class="keyfield"><kbd>Right ⌥</kbd></span></div>
+                <div class="r"><div class="l">Works by</div><span class="seg"><span class="on">Hold or tap</span><span>Hold</span><span>Tap</span></span></div>
+              </div>
+              <div class="sect"><h5>Language</h5>
+                <div class="r"><div class="l">Speaking</div><span class="popup">Automatic</span></div>
+              </div>
+              <div class="sect"><h5>Text</h5>
+                <div class="r"><div class="l">Send to</div><span class="seg"><span class="on">Active app</span><span>Clipboard</span></span></div>
+              </div>
+            </div>
+          </div>
+          <figcaption><span class="state">B · First launch</span>No separate setup flow. The checklist sits where the status goes, and the settings below come to life when it’s finished.</figcaption>
+        </figure>
+
+        <figure class="shot">
+          <div class="win cmp">
+            <div class="titlebar"><div class="lights"><span></span><span></span><span></span></div><div class="ttl">VibeScribe</div></div>
+            <div class="hero warn"><svg width="22" height="22" style="color:var(--warn);flex:none"><use href="#i-warn"/></svg><div class="tx"><b>Pasting is off</b><span>Accessibility permission was removed. Text is copied instead, and you press ⌘V.</span></div><span class="btn">Fix</span></div>
+            <div class="sect"><h5>Shortcut</h5>
+              <div class="r"><div class="l">Dictation key</div><span class="keyfield"><kbd>Right ⌥</kbd></span></div>
+              <div class="r"><div class="l">Works by</div><span class="seg"><span class="on">Hold or tap</span><span>Hold</span><span>Tap</span></span></div>
+            </div>
+            <div class="sect"><h5>Language</h5>
+              <div class="r"><div class="l">Speaking</div><span class="popup">Automatic</span></div>
+            </div>
+            <div class="disc"><span class="tri"></span>Speech model, history &amp; diagnostics</div>
+          </div>
+          <figcaption><span class="state">B · Needs attention</span>The status strip turns into the problem and its fix. Nothing else moves.</figcaption>
+        </figure>
+
+        <figure class="shot">
+          <div class="win cmp">
+            <div class="titlebar"><div class="lights"><span></span><span></span><span></span></div><div class="ttl">VibeScribe</div></div>
+            <div class="sect"><h5>Microphone</h5>
+              <div class="r"><div class="l">Open at login</div><span class="sw on"></span></div>
+            </div>
+            <div class="disc open"><span class="tri"></span>Speech model, history &amp; diagnostics</div>
+            <div class="sect" style="border-top:0;padding-top:0">
+              <div class="r"><div class="l">Speech model<div class="small muted">Whisper large-v3 · 626 MB · works offline</div></div><span class="btn ghost">Show in Finder</span></div>
+              <div class="r"><div class="l">Faster model<div class="small muted">large-v3 turbo · about 3× faster · 632 MB</div></div><span class="btn">Download</span></div>
+            </div>
+            <div class="sect">
+              <div class="r"><div class="l">Keep transcripts</div><span class="popup">30 days</span></div>
+              <div class="r"><div class="l">History</div><span class="btn ghost">Clear…</span><span class="btn">Open history</span></div>
+            </div>
+            <div class="sect">
+              <div class="r"><div class="l">Diagnostics<div class="small muted">Version, permissions and the last 200 log lines</div></div><span class="btn ghost">Show log</span><span class="btn">Copy report</span></div>
+            </div>
+          </div>
+          <figcaption><span class="state">B · Advanced, expanded</span>Rarely needed things are one click away, not a page each. “Open history” opens a separate list window.</figcaption>
+        </figure>
+      </div>
+    </section>
+
+    <!-- ================= C ================= -->
+    <section class="sec" id="c">
+      <div class="sec-head">
+        <div><div class="eyebrow">Direction C</div><h2><span class="dir-tag">C</span>Journal<small>dark glass · 880 × 590 · transcripts first</small></h2></div>
+        <p>Opening the app shows what you’ve said, not a form. Each dictation is a card showing where it went, with Copy and Paste again. Settings are a sheet over the list, because you rarely need them.</p>
+      </div>
+      <div class="proscons"><div><b>Good</b><ul><li>The window has a reason to be opened</li><li>Recovers text lost to the wrong window</li><li>Shows the app working in real time</li></ul></div><div><b>Costs</b><ul><li>Needs reliable local storage and search</li><li>Some people don’t want their dictations kept</li></ul></div></div>
+      <div class="shots">
+        <figure class="shot">
+          <div class="win jr">
+            <div class="tb"><div class="lights"><span></span><span></span><span></span></div>
+              <span class="spill"><span class="bars still"><i></i><i></i><i></i><i></i><i></i><i></i><i></i></span>Ready<span class="meta">hold Right ⌥</span></span>
+              <span class="grow"></span><span class="search-f"><svg width="13" height="13"><use href="#i-search"/></svg>Search</span><span class="popup">Automatic</span><span class="ibtn"><svg width="15" height="15"><use href="#i-gear"/></svg></span></div>
+            <div class="feed">
+              <div class="stats"><b>Today</b><span>6 dictations · 412 words</span></div>
+              <div class="card"><div class="ch"><span class="app" style="background:#4A154B">S</span>Slack<span class="sp"></span><span class="m">NO · 0:06 · 14:00</span></div><p>Kan du sende meg utkastet til presentasjonen før lunsj i morgen? Da rekker jeg å se på det.</p><div class="acts"><span class="btn">Copy</span><span class="btn">Paste again</span></div></div>
+              <div class="card"><div class="ch"><span class="app" style="background:#2B2B2B;border:1px solid #555">›_</span>Terminal<span class="sp"></span><span class="m">EN · 0:09 · 11:42</span></div><p>Refactor the recording session so the overlay observes a single state enum instead of three booleans, then update the tests.</p></div>
+              <div class="card"><div class="ch"><span class="app" style="background:#E8B730">N</span>Notes<span class="sp"></span><span class="m">EN · 0:05 · 09:15</span></div><p>Reminder to self: check whether the turbo model is fast enough for long dictation on the M1 Air.</p></div>
+            </div>
+          </div>
+          <figcaption><span class="state">C · Ready</span>The status pill, search, language and settings are in the toolbar. Cards show which app each dictation went to.</figcaption>
+        </figure>
+
+        <figure class="shot">
+          <div class="win jr" style="height:360px">
+            <div class="tb"><div class="lights"><span></span><span></span><span></span></div>
+              <span class="spill" style="border-color:rgba(154,138,230,.6)"><span class="bars live"><i></i><i></i><i></i><i></i><i></i><i></i><i></i></span>Listening<span class="meta">0:04</span></span>
+              <span class="grow"></span><span class="search-f"><svg width="13" height="13"><use href="#i-search"/></svg>Search</span><span class="popup">Automatic</span><span class="ibtn"><svg width="15" height="15"><use href="#i-gear"/></svg></span></div>
+            <div class="feed">
+              <div class="stats"><b>Today</b><span>6 dictations · 412 words</span></div>
+              <div class="card ghost"><div class="ch"><span class="app" style="background:#1F6FEB">M</span>Mail<span class="sp"></span><span class="m">recording…</span></div><p class="muted">Your words appear here when you let go. <kbd>esc</kbd> cancels.</p></div>
+              <div class="card"><div class="ch"><span class="app" style="background:#4A154B">S</span>Slack<span class="sp"></span><span class="m">NO · 0:06 · 14:00</span></div><p>Kan du sende meg utkastet til presentasjonen før lunsj i morgen?</p></div>
+            </div>
+          </div>
+          <figcaption><span class="state">C · Recording with the window open</span>A placeholder card appears for the dictation in progress, then fills in. The feed doubles as live feedback.</figcaption>
+        </figure>
+
+        <figure class="shot">
+          <div class="win jr" style="height:520px">
+            <div class="tb"><div class="lights"><span></span><span></span><span></span></div>
+              <span class="spill"><span class="ring" style="--p:49"></span>Setting up<span class="meta">49%</span></span>
+              <span class="grow"></span></div>
+            <div class="feed" style="justify-content:center;padding-bottom:30px">
+              <div class="fillwave" style="margin-bottom:22px"><span><b style="height:100%"></b></span><span><b style="height:100%"></b></span><span><b style="height:100%"></b></span><span><b style="height:41%"></b></span><span></span><span></span><span></span></div>
+              <b style="font-size:22px;letter-spacing:-.02em">Your dictations will appear here</b>
+              <p class="muted" style="margin:6px 0 20px">While the speech model downloads, allow these two:</p>
+              <div style="width:440px">
+                <div class="perm"><div class="ic"><svg width="16" height="16"><use href="#i-key"/></svg></div><div class="tx"><b>Input Monitoring</b><span>To notice Right ⌥ in other apps</span></div><span class="btn primary">Allow</span></div>
+                <div class="perm"><div class="ic"><svg width="16" height="16"><use href="#i-paste"/></svg></div><div class="tx"><b>Accessibility</b><span>To paste for you. Optional.</span></div><span class="btn">Allow</span></div>
+              </div>
+              <div class="small dim" style="margin-top:16px">Microphone is allowed · 308 of 626 MB</div>
+            </div>
+          </div>
+          <figcaption><span class="state">C · First launch</span>The empty list becomes the welcome screen. The heading says what will live here, so the window makes sense from the start.</figcaption>
+        </figure>
+
+        <figure class="shot">
+          <div class="win jr">
+            <div class="tb"><div class="lights"><span></span><span></span><span></span></div>
+              <span class="spill"><span class="bars still"><i></i><i></i><i></i><i></i><i></i><i></i><i></i></span>Ready<span class="meta">hold Right ⌥</span></span>
+              <span class="grow"></span><span class="search-f"><svg width="13" height="13"><use href="#i-search"/></svg>Search</span><span class="popup">Automatic</span><span class="ibtn" style="color:#fff;background:#4A4A52"><svg width="15" height="15"><use href="#i-gear"/></svg></span></div>
+            <div class="feed">
+              <div class="stats"><b>Today</b><span>6 dictations · 412 words</span></div>
+              <div class="card"><div class="ch"><span class="app" style="background:#4A154B">S</span>Slack<span class="sp"></span><span class="m">NO · 0:06 · 14:00</span></div><p>Kan du sende meg utkastet til presentasjonen før lunsj i morgen?</p></div>
+              <div class="card"><div class="ch"><span class="app" style="background:#2B2B2B">›_</span>Terminal<span class="sp"></span><span class="m">EN · 0:09 · 11:42</span></div><p>Refactor the recording session so the overlay observes a single state enum.</p></div>
+            </div>
+            <div class="scrim"></div>
+            <div class="sheet">
+              <h4>Settings</h4>
+              <div class="r"><div class="l">Dictation key</div><span class="keyfield"><kbd>Right ⌥</kbd></span><span class="seg"><span class="on">Hold or tap</span><span>Hold</span><span>Tap</span></span></div>
+              <div class="r"><div class="l">Pinned languages</div><div class="chips"><span class="chip" style="padding-right:10px">Auto</span><span class="chip" style="padding-right:10px">NO</span><span class="chip" style="padding-right:10px">EN</span><span class="chip add">+</span></div></div>
+              <div class="r"><div class="l">Send text to</div><span class="seg"><span class="on">Active app</span><span>Clipboard</span></span></div>
+              <div class="r"><div class="l">Microphone</div><span class="popup">MacBook Pro</span></div>
+              <div class="r"><div class="l">Keep transcripts</div><span class="popup">30 days</span></div>
+              <div class="r"><div class="l">Open at login</div><span class="sw on"></span></div>
+              <div class="foot"><span class="btn ghost">Speech model…</span><span class="btn ghost">Diagnostics…</span><span style="flex:1"></span><span class="btn primary">Done</span></div>
+            </div>
+          </div>
+          <figcaption><span class="state">C · Settings sheet</span>Settings slide down over the list and go away with Done, so they never compete with the content.</figcaption>
+        </figure>
+      </div>
+    </section>
+
+    <!-- ================= D ================= -->
+    <section class="sec" id="d">
+      <div class="sec-head">
+        <div><div class="eyebrow">Direction D</div><h2><span class="dir-tag">D</span>Menu bar only<small>popover · 310 wide · no window</small></h2></div>
+        <p>Clicking the menu bar icon opens a Control Center–style panel with three tabs. Language tiles work like toggles. For a menu bar app this is the most at-home option, but the smallest canvas.</p>
+      </div>
+      <div class="proscons"><div><b>Good</b><ul><li>Everything is one click from anywhere</li><li>No Dock icon or window to manage</li><li>Language switching is a single click on a tile</li></ul></div><div><b>Costs</b><ul><li>Popovers close when you click away, which hurts during permission setup</li><li>Vocabulary and logs feel cramped</li></ul></div></div>
+      <div class="shots">
+        <figure class="shot">
+          <div class="pscreen"><div class="menubar"><div class="left"></div><span class="item sel"><svg width="14" height="14"><use href="#i-wave"/></svg><span class="code">AUTO</span></span><span>14:02</span></div>
+            <div class="pop">
+              <div class="ptabs"><span class="on">Now</span><span>History</span><span>Settings</span></div>
+              <div class="tile big"><span class="bars lg still"><i></i><i></i><i></i><i></i><i></i><i></i><i></i></span><div class="tx"><b>Ready</b><span>Hold Right ⌥ to dictate</span></div></div>
+              <div class="lgrid"><div class="lt-i on"><b>Automatic</b><span>⌘1</span></div><div class="lt-i"><b>Norwegian</b><span>⌘2</span></div><div class="lt-i"><b>English</b><span>⌘3</span></div></div>
+              <div class="tile lastc"><div class="meta">Last · Slack · 2 min ago<span class="sp"></span><span class="btn">Copy</span></div>Kan du sende meg utkastet til presentasjonen før lunsj i morgen?</div>
+              <div class="pfoot"><span class="sw" style="transform:scale(.85)"></span>Pause shortcut<span class="sp"></span>Quit</div>
+            </div></div>
+          <figcaption><span class="state">D · Ready</span>Status, languages as tiles, and the last transcript. The three things you’d open it for.</figcaption>
+        </figure>
+
+        <figure class="shot">
+          <div class="pscreen"><div class="menubar"><div class="left"></div><span class="item sel"><span class="ring" style="--p:49"></span><span class="code">49%</span></span><span>14:02</span></div>
+            <div class="pop">
+              <div class="tile big"><div class="fillwave" style="height:40px;gap:4px"><span style="width:6px"><b style="height:100%"></b></span><span style="width:6px"><b style="height:100%"></b></span><span style="width:6px"><b style="height:100%"></b></span><span style="width:6px"><b style="height:41%"></b></span><span style="width:6px"></span><span style="width:6px"></span><span style="width:6px"></span></div><div class="tx"><b>Setting up</b><span>308 of 626 MB · 1 min left</span></div></div>
+              <div class="prow"><span class="tick done"><svg width="11" height="11"><use href="#i-check"/></svg></span><div class="l">Microphone</div></div>
+              <div class="prow"><span class="tick"></span><div class="l">Input Monitoring<span>Notice Right ⌥ in other apps</span></div><span class="btn primary">Allow</span></div>
+              <div class="prow"><span class="tick"></span><div class="l">Accessibility<span>Paste for you · optional</span></div><span class="btn">Allow</span></div>
+              <div class="pfoot small">This panel reopens when you come back from System Settings.</div>
+            </div></div>
+          <figcaption><span class="state">D · First launch</span>The panel reopens on its own after each trip to System Settings, which works around the popover’s biggest weakness.</figcaption>
+        </figure>
+
+        <figure class="shot">
+          <div class="pscreen"><div class="menubar"><div class="left"></div><span class="item sel"><svg width="14" height="14"><use href="#i-wave"/></svg><span class="code">AUTO</span><span class="dot" style="background:var(--warn);width:6px;height:6px"></span></span><span>14:02</span></div>
+            <div class="pop">
+              <div class="ptabs"><span class="on">Now</span><span>History</span><span>Settings</span></div>
+              <div class="tile big warn"><svg width="22" height="22" style="color:var(--warn);flex:none"><use href="#i-warn"/></svg><div class="tx"><b>Pasting is off</b><span>Text is copied instead. Turn Accessibility back on.</span></div></div>
+              <div class="btn primary" style="justify-content:center;height:28px">Open System Settings</div>
+              <div class="lgrid"><div class="lt-i on"><b>Automatic</b><span>⌘1</span></div><div class="lt-i"><b>Norwegian</b><span>⌘2</span></div><div class="lt-i"><b>English</b><span>⌘3</span></div></div>
+            </div></div>
+          <figcaption><span class="state">D · Needs attention</span>The status tile becomes the warning, with the fix directly below it.</figcaption>
+        </figure>
+
+        <figure class="shot">
+          <div class="pscreen"><div class="menubar"><div class="left"></div><span class="item sel"><svg width="14" height="14"><use href="#i-wave"/></svg><span class="code">AUTO</span></span><span>14:02</span></div>
+            <div class="pop">
+              <div class="ptabs"><span>Now</span><span class="on">History</span><span>Settings</span></div>
+              <span class="search-f" style="flex:none;background:rgba(0,0,0,.25)"><svg width="12" height="12"><use href="#i-search"/></svg>Search</span>
+              <div>
+                <div class="hi"><div class="m">14:00 · NO · Slack</div><p>Kan du sende meg utkastet til presentasjonen før lunsj i morgen? Da rekker jeg å se på det.</p></div>
+                <div class="hi"><div class="m">11:42 · EN · Terminal</div><p>Refactor the recording session so the overlay observes a single state enum instead of three booleans.</p></div>
+                <div class="hi"><div class="m">09:15 · EN · Notes</div><p>Reminder to self: check whether the turbo model is fast enough.</p></div>
+                <div class="hi"><div class="m">Yesterday · NO · Messages</div><p>Takk for i dag! Vi snakkes på mandag.</p></div>
+              </div>
+            </div></div>
+          <figcaption><span class="state">D · History tab</span>Click an entry to copy it. <kbd>⌥</kbd>-click pastes it again.</figcaption>
+        </figure>
+
+        <figure class="shot">
+          <div class="pscreen"><div class="menubar"><div class="left"></div><span class="item sel"><svg width="14" height="14"><use href="#i-wave"/></svg><span class="code">AUTO</span></span><span>14:02</span></div>
+            <div class="pop">
+              <div class="ptabs"><span>Now</span><span>History</span><span class="on">Settings</span></div>
+              <div>
+                <div class="prow"><div class="l">Dictation key</div><kbd>Right ⌥</kbd></div>
+                <div class="prow"><div class="l">Hold or tap</div><span class="popup" style="background:rgba(255,255,255,.12);box-shadow:none">Both</span></div>
+                <div class="prow"><div class="l">Paste into active app</div><span class="sw on"></span></div>
+                <div class="prow"><div class="l">Restore clipboard</div><span class="sw on"></span></div>
+                <div class="prow"><div class="l">Play sounds</div><span class="sw on"></span></div>
+                <div class="prow"><div class="l">Open at login</div><span class="sw on"></span></div>
+                <div class="prow"><div class="l">Microphone<span>MacBook Pro Microphone</span></div><span class="chev">›</span></div>
+                <div class="prow"><div class="l">Vocabulary<span>6 words</span></div><span class="chev">›</span></div>
+                <div class="prow"><div class="l">Speech model &amp; diagnostics</div><span class="chev">›</span></div>
+              </div>
+            </div></div>
+          <figcaption><span class="state">D · Settings tab</span>Toggles fit; anything longer opens as a drill-in page inside the panel.</figcaption>
+        </figure>
+      </div>
+    </section>
+
+    <!-- ================= E ================= -->
+    <section class="sec" id="e">
+      <div class="sec-head">
+        <div><div class="eyebrow">Direction E</div><h2><span class="dir-tag">E</span>Native light<small>system appearance · toolbar tabs · form layout</small></h2></div>
+        <p>A deliberately conventional option: Safari-style toolbar tabs, right-aligned labels and system blue, following the Mac’s light or dark mode. It’s a baseline for judging whether the custom look is worth it.</p>
+      </div>
+      <div class="proscons"><div><b>Good</b><ul><li>Instantly familiar</li><li>Follows light and dark mode for free</li><li>Standard SwiftUI <code>Settings</code> scene with little custom code</li></ul></div><div><b>Costs</b><ul><li>Loses the spectrum identity</li><li>Clashes with the always-dark overlay and picker</li></ul></div></div>
+      <div class="shots">
+        <figure class="shot">
+          <div class="win lt" style="width:680px">
+            <div class="titlebar"><div class="lights"><span></span><span></span><span></span></div><div class="ttl">General</div></div>
+            <div class="tbtabs">
+              <span class="on"><svg><use href="#i-gear"/></svg>General</span><span><svg><use href="#i-key"/></svg>Shortcut</span><span><svg><use href="#i-globe"/></svg>Language</span><span><svg><use href="#i-clock"/></svg>History</span><span><svg><use href="#i-cube"/></svg>Model</span><span><svg><use href="#i-doc"/></svg>Advanced</span>
+            </div>
+            <div class="form">
+              <div class="k">Microphone:</div><div class="v"><span class="popup">System default (MacBook Pro)</span><span class="lvl"><i class="on"></i><i class="on"></i><i class="on"></i><i class="on"></i><i></i><i></i><i></i><i></i></span></div>
+              <div class="k"></div><div class="v"><span class="cb"><i class="on">✓</i>Play sounds when recording starts and stops</span></div>
+              <hr>
+              <div class="k">When text is ready:</div><div class="v"><span class="popup">Paste into the active app</span><span class="hint">If pasting isn’t allowed, text is copied to the clipboard.</span></div>
+              <div class="k"></div><div class="v"><span class="cb"><i class="on">✓</i>Restore clipboard after pasting</span></div>
+              <hr>
+              <div class="k">Startup:</div><div class="v"><span class="cb"><i class="on">✓</i>Open at login</span></div>
+              <div class="k">Menu bar:</div><div class="v"><span class="cb"><i class="on">✓</i>Show language next to icon</span></div>
+            </div>
+          </div>
+          <figcaption><span class="state">E · Ready</span>Checkboxes and right-aligned labels, the way Mac preferences looked for twenty years.</figcaption>
+        </figure>
+
+        <figure class="shot">
+          <div class="win lt" style="width:680px">
+            <div class="titlebar"><div class="lights"><span></span><span></span><span></span></div><div class="ttl">Shortcut</div></div>
+            <div class="tbtabs">
+              <span><svg><use href="#i-gear"/></svg>General</span><span class="on"><svg><use href="#i-key"/></svg>Shortcut</span><span><svg><use href="#i-globe"/></svg>Language</span><span><svg><use href="#i-clock"/></svg>History</span><span><svg><use href="#i-cube"/></svg>Model</span><span><svg><use href="#i-doc"/></svg>Advanced</span>
+            </div>
+            <div class="form">
+              <div class="k">Dictation key:</div><div class="v"><span class="keyfield rec" style="min-width:200px">Press a key…</span><span class="hint">Single modifier keys like Right ⌥ work best.</span></div>
+              <div class="k">Works by:</div><div class="v"><span class="seg"><span class="on">Hold or tap</span><span>Hold only</span><span>Tap only</span></span><span class="hint">Hold to talk and let go to paste. Tap to go hands-free, and tap again to stop.</span></div>
+              <hr>
+              <div class="k">Language picker:</div><div class="v"><span class="keyfield"><kbd>⌥</kbd><kbd>⇧</kbd></span></div>
+              <div class="k">Cancel recording:</div><div class="v"><kbd>esc</kbd></div>
+            </div>
+          </div>
+          <figcaption><span class="state">E · Shortcut, recording a key</span>Same content as A’s Shortcut page, in a standard form layout.</figcaption>
+        </figure>
+
+        <figure class="shot">
+          <div class="win lt" style="width:520px">
+            <div class="titlebar"><div class="lights"><span></span><span></span><span></span></div><div class="ttl">Welcome to VibeScribe</div></div>
+            <div style="padding:8px 32px 24px">
+              <p style="margin:0 0 16px;color:var(--t2)">Finish these steps to start dictating. You can do them in any order.</p>
+              <div class="check" style="margin:0;background:#fff">
+                <div class="c"><span class="tick done" style="color:#fff"><svg width="11" height="11"><use href="#i-check"/></svg></span><div class="l">Allow microphone</div></div>
+                <div class="c"><span class="tick busy" style="border-color:var(--accent);border-right-color:transparent"></span><div class="l">Download speech model<span>308 of 626 MB · about 1 min left</span></div><div class="meter" style="width:110px"><b style="width:49%"></b></div></div>
+                <div class="c"><span class="tick"></span><div class="l">Allow Input Monitoring<span>So Right ⌥ works in other apps</span></div><span class="btn primary">Allow…</span></div>
+                <div class="c"><span class="tick"></span><div class="l">Allow Accessibility<span>Optional. Lets VibeScribe paste for you.</span></div><span class="btn">Allow…</span></div>
+              </div>
+              <div style="display:flex;justify-content:flex-end;gap:8px;margin-top:18px"><span class="btn">Later</span><span class="btn primary" style="opacity:.45">Start dictating</span></div>
+            </div>
+          </div>
+          <figcaption><span class="state">E · First launch</span>A single checklist window. The main button stays disabled until the required items are done.</figcaption>
+        </figure>
+
+        <figure class="shot">
+          <div class="win lt" style="width:680px">
+            <div class="titlebar"><div class="lights"><span></span><span></span><span></span></div><div class="ttl">Model</div></div>
+            <div class="tbtabs">
+              <span><svg><use href="#i-gear"/></svg>General</span><span><svg><use href="#i-key"/></svg>Shortcut</span><span><svg><use href="#i-globe"/></svg>Language</span><span><svg><use href="#i-clock"/></svg>History</span><span class="on"><svg><use href="#i-cube"/></svg>Model</span><span><svg><use href="#i-doc"/></svg>Advanced</span>
+            </div>
+            <div class="form">
+              <div class="k">In use:</div><div class="v"><b>Whisper large-v3</b><span class="tag">Ready</span><span class="hint">Most accurate · 100 languages · 626 MB · works offline</span></div>
+              <div class="k"></div><div class="v"><span class="btn">Show in Finder</span></div>
+              <hr>
+              <div class="k">Faster model:</div><div class="v"><b>large-v3 turbo</b><span class="btn">Cancel</span><div class="meter" style="flex-basis:100%;max-width:320px"><b style="width:34%"></b></div><span class="hint">Downloading · 214 of 632 MB. Dictation keeps using large-v3 until it’s done.</span></div>
+            </div>
+          </div>
+          <figcaption><span class="state">E · Model, downloading</span>The same model content as A and B, in the classic form layout.</figcaption>
+        </figure>
+      </div>
+    </section>
+
+    <!-- ================= OVERLAYS ================= -->
+    <section class="sec" id="overlays">
+      <div class="sec-head">
+        <div><div class="eyebrow">Works with any direction</div><h2>Overlay variants</h2></div>
+        <p>You said you like the current overlay, so variant 1 keeps it. The other three change where recording feedback appears. Each row shows the same moments: listening, transcribing, and done.</p>
+      </div>
+
+      <h3 style="font:600 20px var(--display);margin:0 0 6px">1 · Pill <span style="font:400 14px var(--sys);color:var(--ink-2)">(today’s overlay, with waveform)</span></h3>
+      <p style="margin:0 0 18px;color:var(--ink-2);font-size:14px;max-width:70ch">Floats below the menu bar. Familiar, readable, and has room for hints.</p>
+      <div class="shots" style="margin-bottom:48px">
+        <figure class="shot"><div class="screen oscreen"><div class="menubar"><div class="left"></div><span class="item"><svg width="14" height="14"><use href="#i-wave"/></svg><span class="code">NO</span></span><span>14:02</span></div><div class="pill"><span class="bars live"><i></i><i></i><i></i><i></i><i></i><i></i><i></i></span>Listening<span class="meta">0:07</span></div></div><figcaption><span class="state">Listening</span></figcaption></figure>
+        <figure class="shot"><div class="screen oscreen"><div class="menubar"><div class="left"></div><span class="item"><svg width="14" height="14"><use href="#i-wave"/></svg><span class="code">NO</span></span><span>14:02</span></div><div class="pill shimmer"><span class="bars think"><i></i><i></i><i></i><i></i><i></i><i></i><i></i></span>Transcribing</div></div><figcaption><span class="state">Transcribing</span></figcaption></figure>
+        <figure class="shot"><div class="screen oscreen"><div class="menubar"><div class="left"></div><span class="item"><svg width="14" height="14"><use href="#i-wave"/></svg><span class="code">NO</span></span><span>14:02</span></div><div class="pill"><svg width="15" height="15" style="color:var(--s1)"><use href="#i-check"/></svg>Pasted<span class="meta">23 words</span></div></div><figcaption><span class="state">Done</span></figcaption></figure>
+      </div>
+
+      <h3 style="font:600 20px var(--display);margin:0 0 6px">2 · Island</h3>
+      <p style="margin:0 0 18px;color:var(--ink-2);font-size:14px;max-width:70ch">A black shape that grows out of the top edge, around the notch on newer MacBooks. It looks like part of the hardware rather than a floating window. On Macs without a notch it hangs from the menu bar.</p>
+      <div class="shots" style="margin-bottom:48px">
+        <figure class="shot"><div class="screen oscreen"><div class="menubar dark"><div class="left"><b>Slack</b></div><span>14:02</span></div><div class="island" style="height:34px;width:180px;justify-content:space-between"><span class="bars live"><i></i><i></i><i></i><i></i><i></i><i></i><i></i></span><span class="meta">0:07</span></div></div><figcaption><span class="state">Listening</span>Just the waveform and a timer. No label needed.</figcaption></figure>
+        <figure class="shot"><div class="screen oscreen"><div class="menubar dark"><div class="left"><b>Slack</b></div><span>14:02</span></div><div class="island" style="height:34px;width:180px;justify-content:space-between"><span class="bars think"><i></i><i></i><i></i><i></i><i></i><i></i><i></i></span><span style="font-weight:500;color:rgba(255,255,255,.7)">Transcribing</span></div></div><figcaption><span class="state">Transcribing</span></figcaption></figure>
+        <figure class="shot"><div class="screen oscreen"><div class="menubar dark"><div class="left"><b>Slack</b></div><span>14:02</span></div><div class="island" style="height:48px;width:200px;border-radius:0 0 20px 20px"><svg width="16" height="16" style="color:var(--s1)"><use href="#i-check"/></svg><div><div>Pasted into Slack</div><div class="meta" style="font-size:10.5px">23 words · NO</div></div></div></div><figcaption><span class="state">Done</span>Briefly grows to confirm where the text went.</figcaption></figure>
+      </div>
+
+      <h3 style="font:600 20px var(--display);margin:0 0 6px">3 · At the cursor</h3>
+      <p style="margin:0 0 18px;color:var(--ink-2);font-size:14px;max-width:70ch">A small bubble next to the text cursor, where you’re already looking. It uses Accessibility to find the cursor and falls back to the pill when an app doesn’t report it.</p>
+      <div class="shots" style="margin-bottom:48px">
+        <figure class="shot"><div class="screen oscreen tall"><div class="menubar"><div class="left"></div><span class="item"><svg width="14" height="14"><use href="#i-wave"/></svg><span class="code">NO</span></span></div><div class="appwin"><div class="who">Message to Kari</div><div class="field">Hei! <span class="caret"></span></div></div><div class="bubble" style="left:62px;top:112px"><span class="bars live"><i></i><i></i><i></i><i></i><i></i><i></i><i></i></span>0:07</div></div><figcaption><span class="state">Listening</span></figcaption></figure>
+        <figure class="shot"><div class="screen oscreen tall"><div class="menubar"><div class="left"></div><span class="item"><svg width="14" height="14"><use href="#i-wave"/></svg><span class="code">NO</span></span></div><div class="appwin"><div class="who">Message to Kari</div><div class="field">Hei! <span class="caret"></span></div></div><div class="bubble" style="left:62px;top:112px"><span class="bars think"><i></i><i></i><i></i><i></i><i></i><i></i><i></i></span></div></div><figcaption><span class="state">Transcribing</span></figcaption></figure>
+        <figure class="shot"><div class="screen oscreen tall"><div class="menubar"><div class="left"></div><span class="item"><svg width="14" height="14"><use href="#i-wave"/></svg><span class="code">NO</span></span></div><div class="appwin"><div class="who">Message to Kari</div><div class="field">Hei! <span class="fresh">Kan du sende meg utkastet før lunsj?</span><span class="caret"></span></div></div></div><figcaption><span class="state">Done</span>No confirmation popup. The new text glows briefly, then fades.</figcaption></figure>
+      </div>
+
+      <h3 style="font:600 20px var(--display);margin:0 0 6px">4 · Edge glow</h3>
+      <p style="margin:0 0 18px;color:var(--ink-2);font-size:14px;max-width:70ch">The quietest option: no box, just a thin spectrum line along the top of the screen that breathes with your voice. Nothing covers your content. The trade-off is less room for words, so errors still need the pill.</p>
+      <div class="shots">
+        <figure class="shot"><div class="screen oscreen"><div class="menubar"><div class="left"></div><span class="item"><span class="recdot"><span class="bars live" style="height:12px"><i></i><i></i><i></i><i></i><i></i><i></i><i></i></span>0:07</span></span><span>14:02</span></div><div class="edge pulse"></div></div><figcaption><span class="state">Listening</span></figcaption></figure>
+        <figure class="shot"><div class="screen oscreen"><div class="menubar"><div class="left"></div><span class="item"><span class="recdot"><span class="bars think mono" style="height:12px;color:#fff"><i></i><i></i><i></i><i></i><i></i><i></i><i></i></span>NO</span></span><span>14:02</span></div><div class="edge travel"></div></div><figcaption><span class="state">Transcribing</span>A spark travels along the edge.</figcaption></figure>
+        <figure class="shot"><div class="screen oscreen"><div class="menubar"><div class="left"></div><span class="item"><svg width="14" height="14" style="color:var(--s1)"><use href="#i-check"/></svg><span class="code">NO</span></span><span>14:02</span></div><div class="edge done"></div></div><figcaption><span class="state">Done</span>A single flash, and the menu bar icon shows a tick for a moment.</figcaption></figure>
+      </div>
+    </section>
+  </main>
+</div>
+</body>
+</html>

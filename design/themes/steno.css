@@ -1,0 +1,84 @@
+/* Steno — a stenographer's pad */
+@import url("https://fonts.googleapis.com/css2?family=Atkinson+Hyperlegible:wght@400;700&family=Courier+Prime:wght@400;700&display=swap");
+
+:root{
+  --s1:#1C2B4A; --s2:#23386A; --s3:#2A4B8F; --s4:#2A5BD7; --s5:#2A4B8F; --s6:#23386A; --s7:#1C2B4A;
+  --spectrum:linear-gradient(90deg,#FFE34D,#FFD91F);
+
+  --desk:#E6EAF0; --ink:#1C2B4A; --ink-2:#56627E; --rule:#C9D0DC; --card:#FFFFFF;
+
+  --win-bg:#F7F8FA;
+  --win-border:rgba(28,43,74,.28);
+  --win-shadow:0 1px 0 rgba(28,43,74,.06),0 24px 48px -28px rgba(28,43,74,.45);
+  --side-bg:#EEF1F5; --foot-bg:#EEF1F5;
+  --panel:#FFFFFF; --panel-border:rgba(28,43,74,.16);
+  --hair:rgba(28,43,74,.11); --hair-2:rgba(28,43,74,.2);
+  --t1:#1C2B4A; --t2:#5B6786; --t3:#98A2B8; --fx:#1C2B4A;
+  --accent:#1C2B4A; --ok:#2E9B63; --warn:#C97A00; --bad:#E5484D;
+  --field:#FFFFFF;
+  --ctl:#FFFFFF; --ctl-fg:#1C2B4A; --ctl-shadow:0 0 0 1px rgba(28,43,74,.28);
+  --primary:#1C2B4A; --primary-fg:#FFFFFF;
+  --sw-off:#D5DBE5; --knob:#FFFFFF;
+  --seg-bg:#E7EBF1; --seg-on:#FFE34D;
+  --kbd-bg:#FFFFFF; --kbd-fg:#1C2B4A; --kbd-shadow:0 0 0 1px rgba(28,43,74,.3),0 1.5px 0 rgba(28,43,74,.3);
+  --ic-bg:#EEF1F5;
+  --ni1:#FFFFFF; --ni2:#FFFFFF; --ni3:#FFFFFF; --ni4:#FFFFFF; --ni5:#FFFFFF; --ni6:#FFFFFF; --ni-fg:#1C2B4A;
+  --track:#E7EBF1;
+
+  --glass:#FFFFFF;
+  --glass-line:rgba(28,43,74,.3);
+  --glass-shadow:0 1px 0 rgba(28,43,74,.08),0 12px 26px -12px rgba(28,43,74,.4);
+  --gf:#1C2B4A;
+  --menu-bg:rgba(255,255,255,.97); --hl:#FFE34D; --hl-fg:#1C2B4A;
+
+  --wall:radial-gradient(100% 140% at 10% 0%,#CFE0F7 0%,transparent 60%),radial-gradient(100% 140% at 95% 10%,#E6DDF5 0%,transparent 55%),linear-gradient(180deg,#DCE5F1,#C7D3E4);
+  --menubar-bg:rgba(255,255,255,.55); --menubar-fg:#1C2B4A;
+
+  --r-win:10px; --r-panel:6px; --r-ctl:5px; --r-pill:8px; --r-bar:1px;
+  --row-y:10px; --row-x:14px; --content-gap:18px; --win-fs:13.5px;
+  --bar-w:2.5px; --bar-gap:2.5px;
+
+  --display:"Courier Prime", ui-monospace, monospace; --display-w:700; --display-track:-.03em;
+  --mono:"Courier Prime", ui-monospace, monospace;
+  --ui:"Atkinson Hyperlegible", system-ui, sans-serif;
+  --ui-title:"Courier Prime", ui-monospace, monospace; --ui-title-w:700;
+  --page:"Atkinson Hyperlegible", system-ui, sans-serif;
+  --appicon-bg:#FFFFFF; --appicon-r:10px;
+}
+h1 .wave{background:linear-gradient(transparent 58%,#FFE34D 58% 92%,transparent 92%);-webkit-background-clip:border-box;background-clip:border-box;color:var(--ink)}
+.brand-note{background:#fff}
+
+/* highlighter marks what's live or selected */
+.set .nav a.on{background:#FFE34D}
+.set .nav a .ni{box-shadow:0 0 0 1px rgba(28,43,74,.25)}
+.seg span.on{box-shadow:none;color:#1C2B4A}
+.picker .row.hl{background:#FFE34D}
+.picker mark{color:inherit;background:linear-gradient(transparent 55%,#FFE34D 55%)}
+.picker .row .chk{color:#2A5BD7}
+.pill .bars.live{padding:0 3px;background:#FFE34D;border-radius:3px;height:20px}
+.onb .steps i{height:2px}.onb .steps i.done{background:#98A2B8}.onb .steps i.now{background:#FFE34D;height:4px;margin-top:-1px}
+.meter{height:8px;border-radius:1px;box-shadow:inset 0 0 0 1px rgba(28,43,74,.15)}
+.meter b{border-radius:1px;transform:skewX(-8deg);transform-origin:left}
+.menu .last,.set .side .status-card{background:#FFFBE0;box-shadow:inset 0 0 0 1px rgba(201,170,0,.25)}
+.btn.ghost{color:#2A5BD7;text-decoration:underline;text-underline-offset:3px}
+.sw::after{box-shadow:0 0 0 1px rgba(28,43,74,.25),0 1px 2px rgba(28,43,74,.2)}
+.tag{background:#E6F4EC}
+.tag.v{background:#FFF6BF;color:#1C2B4A}
+.banner{background:#FFF7E0;border-color:rgba(201,122,0,.35)}
+
+/* ruled writing areas + typewriter transcripts */
+.tryfield,textarea.vocab,.logs{background-color:#fff;background-image:repeating-linear-gradient(180deg,transparent 0 20px,rgba(42,91,215,.14) 20px 21px);background-position:0 12px;line-height:21px;font-family:"Courier Prime",monospace;border-left:2px solid rgba(229,72,77,.45)}
+.tryfield{font-size:14.5px}
+.hist .it p,.menu .last,.card p{font-family:"Courier Prime",monospace;font-size:13.5px}
+.logs .w{color:#9A6100}
+.fillwave span{background:#E7EBF1;box-shadow:inset 0 0 0 1px rgba(28,43,74,.2)}
+.fillwave span b{background:#FFE34D;box-shadow:inset 0 0 0 1px rgba(28,43,74,.2)}
+.fillwave.paused span b{filter:grayscale(1) brightness(1.1)}
+.bars.xl i,.bars.lg i{border-radius:1px}
+.caret{background:#2A5BD7}
+.appicon .bars i{background:#1C2B4A}
+.appicon{box-shadow:0 0 0 1px rgba(28,43,74,.25)}
+/* align ruling with each area's first line of text */
+.tryfield{background-position:0 14px}
+textarea.vocab{background-position:0 8px}
+.logs{background-position:0 10px}

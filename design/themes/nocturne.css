@@ -1,0 +1,94 @@
+/* Nocturne — late-night quiet */
+@import url("https://fonts.googleapis.com/css2?family=Instrument+Serif:ital@0;1&family=Geist:wght@300..700&family=Geist+Mono:wght@400;500&display=swap");
+
+:root{
+  --s1:#8E86E8; --s2:#9E8FF0; --s3:#B7A5FF; --s4:#D4AEF0; --s5:#EDB0D0; --s6:#FFB59A; --s7:#FFC9A8;
+  --spectrum:linear-gradient(90deg,#8E86E8,#B7A5FF,#EDB0D0,#FFB59A);
+
+  --desk:#100F20; --ink:#ECE8FA; --ink-2:#9C97BD; --rule:#2A2745; --card:#1A1830;
+
+  --win-bg:linear-gradient(180deg,#1F1C3B,#18162F);
+  --win-border:rgba(183,165,255,.14);
+  --win-shadow:0 0 0 1px rgba(0,0,0,.4),0 40px 80px -30px rgba(0,0,0,.8),0 0 120px -40px rgba(183,165,255,.25);
+  --side-bg:rgba(10,9,24,.35); --foot-bg:rgba(10,9,24,.3);
+  --panel:#24204A; --panel-border:transparent;
+  --hair:rgba(200,190,255,.08); --hair-2:rgba(200,190,255,.16);
+  --t1:#EEEAFB; --t2:#A49FC4; --t3:#6E6993; --fx:#D9D2FF;
+  --accent:#B7A5FF; --ok:#8FE3CF; --warn:#FFCF8A; --bad:#FF8FA3;
+  --field:#131129;
+  --ctl:#302B5C; --ctl-fg:#EEEAFB; --ctl-shadow:none;
+  --primary:linear-gradient(180deg,#FFC4AB,#FFA886); --primary-fg:#1B1836;
+  --sw-off:#35305F; --knob:#EEEAFB;
+  --seg-bg:#1A1736; --seg-on:#3A3470;
+  --kbd-bg:#302B5C; --kbd-fg:#EEEAFB; --kbd-shadow:inset 0 -1px 0 rgba(0,0,0,.35);
+  --ic-bg:#302B5C;
+  --ni1:#302B5C; --ni2:#302B5C; --ni3:#302B5C; --ni4:#302B5C; --ni5:#302B5C; --ni6:#302B5C; --ni-fg:#B7A5FF;
+  --track:rgba(200,190,255,.08);
+
+  --glass:linear-gradient(160deg,rgba(30,27,60,.94),rgba(20,18,42,.9));
+  --glass-line:rgba(183,165,255,.2);
+  --glass-shadow:0 12px 30px rgba(5,4,15,.55),0 0 40px -10px rgba(183,165,255,.3);
+  --gf:#EEEAFB;
+  --menu-bg:rgba(28,25,56,.9); --hl:#3A3470; --hl-fg:#FFFFFF;
+
+  --wall:radial-gradient(120% 70% at 50% 120%,rgba(255,181,154,.55),transparent 60%),radial-gradient(80% 100% at 90% 0%,rgba(183,165,255,.25),transparent 60%),linear-gradient(180deg,#1A1740,#2A1F4A);
+  --menubar-bg:rgba(10,9,24,.35); --menubar-fg:#EEEAFB;
+
+  --r-win:16px; --r-panel:14px; --r-ctl:9px; --r-pill:18px; --r-bar:2px;
+  --row-y:13px; --row-x:18px; --content-gap:22px; --win-fs:13px;
+  --bar-w:1.5px; --bar-gap:3px;
+
+  --display:"Instrument Serif", Georgia, serif; --display-w:400; --display-track:-.02em;
+  --mono:"Geist Mono", ui-monospace, monospace;
+  --ui:"Geist", system-ui, sans-serif;
+  --ui-title:"Instrument Serif", Georgia, serif; --ui-title-w:400;
+  --page:"Geist", system-ui, sans-serif;
+  --appicon-bg:radial-gradient(circle at 50% 120%,#5A3F6B,#1B1836 70%); --appicon-r:12px;
+}
+h1{font-size:clamp(52px,7vw,104px);line-height:.92}
+h1 .wave{font-style:italic;background:linear-gradient(90deg,#B7A5FF,#FFB59A);-webkit-background-clip:text;background-clip:text}
+.sec-head h2{font-size:52px}
+.ledger h3{font-family:var(--display);font-weight:400;font-size:28px}
+.toc .mark{font-family:var(--display);font-weight:400;font-size:22px}
+.brand-note{background:#1A1830}
+.ledger kbd,.lede kbd,figcaption kbd{background:#24204A;color:var(--ink);box-shadow:none}
+
+.onb h3{font-size:32px;letter-spacing:-.01em;line-height:1.05}
+.onb p.sub{font-weight:300;font-size:14px}
+.set .main .titlebar h4{font-size:22px}
+.set .nav a{padding:7px 9px}
+.set .nav a.on{background:rgba(183,165,255,.14);color:#fff}
+.set .nav a .ni{background:transparent !important}
+.set .nav a.on .ni{color:#FFB59A}
+.group-label{font-weight:500;color:var(--t3);font-size:12px}
+.row .lbl b{font-weight:450}
+.btn{font-weight:500;height:26px}
+.btn.primary{font-weight:600}
+.seg span.on{box-shadow:none}
+.sw.on{background:#B7A5FF}.sw.on::after{background:#1B1836}
+.onb .steps i{height:2px}.onb .steps i.now{background:#FFB59A}
+
+/* thin oscilloscope trace */
+.bars i{box-shadow:0 0 6px color-mix(in srgb,var(--c) 80%,transparent)}
+.bars.xl{gap:12px}.bars.xl i{width:3px}
+.bars.lg{gap:4px}.bars.lg i{width:2px}
+.fillwave{gap:14px}
+.fillwave span{width:6px;box-shadow:none}
+.fillwave span b{box-shadow:0 0 12px var(--c)}
+.meter{height:2px}
+.meter b{box-shadow:0 0 10px rgba(255,181,154,.7)}
+
+.pill{padding:0 18px 0 16px;height:36px;font-weight:500;letter-spacing:.01em}
+.pill .badge{background:rgba(255,181,154,.16);color:#FFB59A}
+.picker .row.hl{background:rgba(183,165,255,.16)}
+.picker mark{color:#FFB59A}
+.picker .row .chk{color:#FFB59A}
+.menu{border-radius:14px}
+.menu .last{background:rgba(183,165,255,.08)}
+.tryfield{font-family:var(--display);font-size:19px;line-height:1.35;font-style:italic;border-color:transparent}
+.hist .it p{font-size:13.5px}
+.caret{background:#FFB59A}
+.banner{background:rgba(255,207,138,.08);border-color:rgba(255,207,138,.18)}
+.tag{background:rgba(143,227,207,.12)}
+/* roomier rows: let settings windows grow to fit instead of clipping */
+.set{height:auto !important;min-height:440px}

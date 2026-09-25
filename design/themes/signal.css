@@ -1,0 +1,111 @@
+/* Signal — loud and friendly */
+@import url("https://fonts.googleapis.com/css2?family=Unbounded:wght@500;700;800&family=Figtree:wght@400;500;600;700;800&family=Space+Mono:wght@400;700&display=swap");
+
+:root{
+  --s1:#3FB8FF; --s2:#3B3BF5; --s3:#22C98B; --s4:#FFC931; --s5:#FF5C47; --s6:#FF7AC6; --s7:#3B3BF5;
+  --spectrum:linear-gradient(90deg,#3B3BF5 0 25%,#22C98B 25% 50%,#FFC931 50% 75%,#FF5C47 75%);
+
+  --desk:#EDEBFF; --ink:#111111; --ink-2:#44435A; --rule:#C9C6EE; --card:#FFFFFF;
+
+  --win-bg:#FFFFFF;
+  --win-border:#111111;
+  --win-shadow:6px 6px 0 #111111;
+  --side-bg:#F4F3FF; --foot-bg:#F4F3FF;
+  --panel:#FFFFFF; --panel-border:#111111;
+  --hair:rgba(17,17,17,.12); --hair-2:#111111;
+  --t1:#111111; --t2:#55546B; --t3:#9391A8; --fx:#111111;
+  --accent:#3B3BF5; --ok:#15A873; --warn:#F2A900; --bad:#FF5C47;
+  --field:#FFFFFF;
+  --ctl:#FFFFFF; --ctl-fg:#111111; --ctl-shadow:0 0 0 2px #111111,2px 2px 0 2px #111111;
+  --primary:#3B3BF5; --primary-fg:#FFFFFF;
+  --sw-off:#E4E2F5; --knob:#FFFFFF;
+  --seg-bg:#FFFFFF; --seg-on:#111111;
+  --kbd-bg:#FFFFFF; --kbd-fg:#111111; --kbd-shadow:0 0 0 1.5px #111111,1.5px 1.5px 0 1.5px #111111;
+  --ic-bg:#FFC931;
+  --ni1:#FFC931; --ni2:#3FB8FF; --ni3:#22C98B; --ni4:#FF7AC6; --ni5:#FF5C47; --ni6:#E4E2F5; --ni-fg:#111111;
+  --track:#E4E2F5;
+
+  --glass:#FFFFFF;
+  --glass-line:#111111;
+  --glass-shadow:4px 4px 0 #111111;
+  --gf:#111111;
+  --menu-bg:#FFFFFF; --hl:#3B3BF5; --hl-fg:#FFFFFF;
+
+  --wall:radial-gradient(60% 90% at 85% 10%,#FF7AC6 0%,transparent 60%),radial-gradient(60% 90% at 10% 100%,#22C98B 0%,transparent 60%),linear-gradient(135deg,#3B3BF5,#5B4BFF);
+  --menubar-bg:rgba(255,255,255,.2); --menubar-fg:#FFFFFF;
+
+  --r-win:18px; --r-panel:14px; --r-ctl:10px; --r-pill:999px; --r-bar:99px;
+  --row-y:12px; --row-x:16px; --content-gap:20px; --win-fs:13.5px;
+  --bar-w:4px; --bar-gap:3px;
+
+  --display:"Unbounded", system-ui, sans-serif; --display-w:800; --display-track:-.04em;
+  --mono:"Space Mono", ui-monospace, monospace;
+  --ui:"Figtree", system-ui, sans-serif;
+  --ui-title:"Unbounded", system-ui, sans-serif; --ui-title-w:700;
+  --page:"Figtree", system-ui, sans-serif;
+  --appicon-bg:#111111; --appicon-r:14px;
+}
+h1{font-size:clamp(40px,5.4vw,76px);line-height:1}
+h1 .wave{background:#FFC931;color:#111;-webkit-background-clip:border-box;background-clip:border-box;padding:0 .12em;border-radius:.2em;box-shadow:4px 4px 0 #111}
+.sec-head h2{font-size:34px}
+.brand-note{box-shadow:0 0 0 2px #111,4px 4px 0 2px #111;background:#fff}
+
+.win{border-width:2px}
+.btn{font-weight:700;height:26px;border-radius:999px;margin:2px}
+.btn.lg{height:32px}
+.btn.primary{box-shadow:0 0 0 2px #111111,2px 2px 0 2px #111111}
+.btn.ghost{color:#3B3BF5;font-weight:700}
+.popup{border-radius:999px;font-weight:600;margin:2px}
+.popup::after{border-color:#111}
+.sw{width:38px;height:22px;border-radius:99px;box-shadow:0 0 0 2px #111}
+.sw::after{top:3px;left:3px;width:16px;height:16px;box-shadow:0 0 0 2px #111}
+.sw.on{background:#22C98B}.sw.on::after{left:19px}
+.seg{border-radius:999px;box-shadow:0 0 0 2px #111;padding:3px}
+.seg span{border-radius:999px;font-weight:600}
+.seg span.on{color:#fff;box-shadow:none}
+.group,.perm,.banner{border-width:2px;box-shadow:3px 3px 0 #111}
+.row + .row{border-top:2px solid rgba(17,17,17,.08)}
+.group-label{font-family:var(--mono);text-transform:uppercase;letter-spacing:.06em;font-size:10.5px;color:#111}
+.onb h3{font-size:22px;letter-spacing:-.03em}
+.onb .steps i{height:6px;border-radius:99px;background:#E4E2F5}
+.onb .steps i.done{background:#22C98B}.onb .steps i.now{background:#3B3BF5}
+.set .nav a{font-weight:600;border-radius:12px}
+.set .nav a.on{background:#FFFFFF;box-shadow:0 0 0 2px #111,2px 2px 0 2px #111}
+.set .nav a .ni{border-radius:8px;box-shadow:0 0 0 1.5px #111}
+.set .side{border-right:2px solid #111}
+.set .side .status-card{background:#22C98B;color:#111;box-shadow:0 0 0 2px #111}
+.set .side .status-card b{color:#111}
+.set .side .status-card .dot{background:#111 !important}
+.meter{height:8px;border-radius:99px;box-shadow:0 0 0 1.5px #111}
+.fillwave span{border-radius:99px;box-shadow:0 0 0 2px #111;background:#fff}
+.fillwave span b{border-radius:0}
+.bars i{box-shadow:0 0 0 1px rgba(17,17,17,.9)}
+.pill .bars i,.tray .bars i,.menubar .bars i{box-shadow:none}
+.tryfield,textarea.vocab,.logs,.keyfield,.search-f{border:2px solid #111;border-radius:12px}
+.logs{background:#111;color:#E4E2F5}.logs time{color:#9391A8}.logs .w{color:#FFC931}.logs .e{color:#FF8A7A}
+.chip{background:#FFC931;box-shadow:0 0 0 1.5px #111;font-weight:600}
+.chip.add{border:2px dashed #111;background:#fff}
+.tag{background:#22C98B;color:#111;box-shadow:0 0 0 1.5px #111;border-radius:99px}
+.tag.v{background:#FFC931;color:#111}
+.hist .it.hov{background:#EDEBFF}
+.model-card .mi,.appicon{border-radius:14px;box-shadow:0 0 0 2px #111}
+.appicon .bars i{box-shadow:none}
+
+.pill{border-width:2px;font-weight:700;height:36px}
+.pill .badge{background:#FFC931;color:#111;border-radius:99px;padding:2px 7px}
+.picker{border-width:2px;box-shadow:5px 5px 0 #111;border-radius:18px}
+.picker .row{border-radius:10px;font-weight:500}
+.picker .row.hl{background:#3B3BF5;color:#fff}
+.picker .row.hl .nat,.picker .row.hl .code{color:rgba(255,255,255,.75)}
+.picker .row.hl kbd{color:#fff}
+.picker mark{color:#FF5C47;font-weight:800}.picker .row.hl mark{color:#FFC931}
+.menu{border-width:2px;box-shadow:4px 4px 0 #111;border-radius:14px}
+.menu .mi{border-radius:8px;font-weight:500}
+.menu .last{background:#FFF4CC;box-shadow:0 0 0 1.5px #111}
+.tray .cell{border-radius:12px;box-shadow:0 0 0 2px #111}
+.screen{box-shadow:0 0 0 2px #111,5px 5px 0 2px #111}
+/* chunkier rows + hard shadows: let windows grow, keep shadows inside the frame */
+.set{height:auto !important;min-height:440px}
+.set .content{padding-right:30px;padding-bottom:26px}
+.onb .body{padding-right:42px}
+.perm{margin-right:4px}

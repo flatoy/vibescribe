@@ -1,0 +1,90 @@
+/* Studio — a piece of studio gear */
+@import url("https://fonts.googleapis.com/css2?family=Archivo:wdth,wght@62..125,400..800&family=JetBrains+Mono:wght@400;500;700&display=swap");
+
+:root{
+  /* VU scale: green → amber → red */
+  --s1:#8FD14F; --s2:#A9D647; --s3:#CFD23E; --s4:#FFC21A; --s5:#FFA41A; --s6:#FF7A2A; --s7:#FF4B3A;
+  --spectrum:linear-gradient(90deg,#8FD14F 0 55%,#FFC21A 55% 82%,#FF4B3A 82%);
+
+  --desk:#CDCFD0; --ink:#1B1B1A; --ink-2:#4F5153; --rule:#B3B6B8; --card:#E4E5E6;
+
+  --win-bg:repeating-linear-gradient(0deg,rgba(255,255,255,.014) 0 1px,transparent 1px 3px),linear-gradient(180deg,#2A2826,#1F1E1C);
+  --win-border:#0E0D0C;
+  --win-shadow:inset 0 1px 0 rgba(255,255,255,.07),0 2px 0 #0E0D0C,0 28px 50px -22px rgba(0,0,0,.6);
+  --side-bg:#1A1917; --foot-bg:#1A1917;
+  --panel:#262422; --panel-border:#0F0E0D;
+  --hair:rgba(237,230,216,.07); --hair-2:rgba(237,230,216,.14);
+  --t1:#EDE6D8; --t2:#A39B8C; --t3:#6E675D; --fx:#EDE6D8;
+  --accent:#FFB000; --ok:#8FD14F; --warn:#FFB000; --bad:#FF4B3A;
+  --field:#131211;
+  --ctl:linear-gradient(180deg,#46423D,#35322E); --ctl-fg:#EDE6D8;
+  --ctl-shadow:inset 0 1px 0 rgba(255,255,255,.12),0 2px 0 #0E0D0C,0 3px 4px rgba(0,0,0,.35);
+  --primary:linear-gradient(180deg,#FFC23A,#F2A200); --primary-fg:#1F1E1C;
+  --sw-off:#131211; --knob:linear-gradient(180deg,#D9D2C4,#A8A091);
+  --seg-bg:#131211; --seg-on:#3E3A35;
+  --kbd-bg:linear-gradient(180deg,#46423D,#35322E); --kbd-fg:#EDE6D8; --kbd-shadow:inset 0 1px 0 rgba(255,255,255,.12),0 2px 0 #0E0D0C;
+  --ic-bg:#131211;
+  --ni1:#3A3733; --ni2:#3A3733; --ni3:#3A3733; --ni4:#3A3733; --ni5:#3A3733; --ni6:#3A3733; --ni-fg:#FFB000;
+  --track:#131211;
+
+  --glass:linear-gradient(180deg,#252321,#1A1917);
+  --glass-line:#3A3632;
+  --glass-shadow:inset 0 1px 0 rgba(255,255,255,.08),0 2px 0 #0B0A09,0 10px 24px rgba(0,0,0,.5);
+  --gf:#EDE6D8;
+  --menu-bg:#221F1D; --hl:#FFB000; --hl-fg:#1F1E1C;
+
+  --wall:radial-gradient(90% 120% at 80% 0%,rgba(255,160,40,.35),transparent 60%),radial-gradient(80% 120% at 10% 100%,rgba(143,209,79,.12),transparent 60%),linear-gradient(180deg,#3A332C,#1C1916);
+  --menubar-bg:rgba(15,13,11,.5); --menubar-fg:#F2ECE0;
+
+  --r-win:6px; --r-panel:4px; --r-ctl:3px; --r-pill:6px; --r-bar:1px;
+  --row-y:9px; --row-x:14px; --content-gap:16px;
+  --bar-w:4px; --bar-gap:2px;
+
+  --display:"Archivo", system-ui, sans-serif; --display-w:800; --display-track:-.01em;
+  --mono:"JetBrains Mono", ui-monospace, monospace;
+  --ui:"Archivo", system-ui, sans-serif;
+  --ui-title:"Archivo", system-ui, sans-serif; --ui-title-w:700;
+  --page:"Archivo", system-ui, sans-serif;
+  --label-tt:uppercase; --label-ls:.12em;
+  --appicon-bg:linear-gradient(180deg,#3A3733,#1F1E1C); --appicon-r:8px;
+}
+h1,.sec-head h2,.ledger h3,.toc .mark{font-stretch:125%}
+h1 .wave{background:none;color:#E03A2B;-webkit-text-fill-color:#E03A2B}
+.win{font-stretch:92%}
+.onb h3,.set .main .titlebar h4{text-transform:uppercase;letter-spacing:.06em;font-stretch:80%}
+.onb h3{font-size:22px}
+.group-label,.hist .day,.picker .grp,.menu .hdr{font-size:10.5px;letter-spacing:.14em;font-stretch:85%}
+.titlebar .ttl{text-transform:uppercase;letter-spacing:.14em;font-size:11px}
+
+/* segmented LED meters */
+.bars i,.fillwave span b{-webkit-mask:repeating-linear-gradient(to top,#000 0 2px,transparent 2px 3px);mask:repeating-linear-gradient(to top,#000 0 2px,transparent 2px 3px)}
+.bars i{box-shadow:0 0 6px color-mix(in srgb,var(--c) 60%,transparent)}
+.bars.xl i{-webkit-mask:repeating-linear-gradient(to top,#000 0 6px,transparent 6px 9px);mask:repeating-linear-gradient(to top,#000 0 6px,transparent 6px 9px)}
+.fillwave span{border-radius:2px;box-shadow:inset 0 1px 2px rgba(0,0,0,.6)}
+.fillwave span b{border-radius:0;-webkit-mask:repeating-linear-gradient(to top,#000 0 5px,transparent 5px 8px);mask:repeating-linear-gradient(to top,#000 0 5px,transparent 5px 8px)}
+.meter{height:6px;border-radius:1px;box-shadow:inset 0 1px 2px rgba(0,0,0,.6)}
+.meter b{border-radius:0;-webkit-mask:repeating-linear-gradient(90deg,#000 0 4px,transparent 4px 6px);mask:repeating-linear-gradient(90deg,#000 0 4px,transparent 4px 6px)}
+.lvl i{border-radius:0;height:10px}
+
+/* switches: hardware toggles with an LED */
+.sw{box-shadow:inset 0 1px 3px rgba(0,0,0,.8);border-radius:3px}
+.sw::after{border-radius:2px;box-shadow:0 1px 0 rgba(255,255,255,.3) inset,0 2px 3px rgba(0,0,0,.6)}
+.sw.on{background:#131211;box-shadow:inset 0 1px 3px rgba(0,0,0,.8),inset 0 0 0 1px rgba(255,176,0,.5)}
+.sw.on::after{background:linear-gradient(180deg,#FFD166,#FFB000);box-shadow:0 0 8px rgba(255,176,0,.7)}
+.seg{box-shadow:inset 0 1px 3px rgba(0,0,0,.8)}
+.seg span{text-transform:uppercase;font-size:11px;letter-spacing:.06em}
+.seg span.on{color:#FFB000;box-shadow:inset 0 1px 0 rgba(255,255,255,.1),0 1px 0 #0E0D0C}
+.btn{text-transform:uppercase;font-size:11.5px;letter-spacing:.06em;font-weight:600}
+.btn.ghost{color:#FFB000}
+
+.set .nav a.on{background:#131211;box-shadow:inset 0 1px 2px rgba(0,0,0,.7)}
+.set .nav a.on .ni{box-shadow:0 0 8px rgba(255,176,0,.35)}
+.group{box-shadow:inset 0 1px 0 rgba(255,255,255,.04)}
+.perm{box-shadow:inset 0 1px 0 rgba(255,255,255,.04)}
+.picker .row.hl{background:#FFB000;color:#1F1E1C}
+.picker .row.hl .nat,.picker .row.hl .code{color:rgba(31,30,28,.65)}
+.picker mark{color:#FFB000}.picker .row.hl mark{color:#1F1E1C;text-decoration:underline}
+.pill{font-stretch:88%;text-transform:uppercase;letter-spacing:.08em;font-size:11px}
+.pill .hint{text-transform:none;letter-spacing:0}
+.tryfield,.logs,textarea.vocab{box-shadow:inset 0 2px 4px rgba(0,0,0,.6);font-family:var(--mono);font-size:12.5px}
+.caret{background:#FFB000;width:7px}
