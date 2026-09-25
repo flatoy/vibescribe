@@ -1,4 +1,6 @@
+import AudioToolbox
 import AVFoundation
+import CoreAudio
 import Foundation
 
 struct AudioStreamFormat {
@@ -12,6 +14,8 @@ final class AudioCaptureController: NSObject {
 
     var onBuffer: ((AVAudioPCMBuffer) -> Void)?
     var onConfigurationChanged: (() -> Void)?
+    /// Core Audio UID of the microphone to use. `nil` follows the system default.
+    var inputDeviceUID: String?
 
     override init() {
         super.init()
@@ -32,6 +36,9 @@ final class AudioCaptureController: NSObject {
 
         resetEngine()
         let inputNode = engine.inputNode
+        if let uid = inputDeviceUID, let deviceID = AudioInputDevices.deviceID(forUID: uid) {
+            AudioInputDevices.select(deviceID, on: inputNode)
+        }
         let format = inputNode.outputFormat(forBus: 0)
 
         inputNode.installTap(onBus: 0, bufferSize: 1024, format: format) { [weak self] buffer, _ in

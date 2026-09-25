@@ -16,7 +16,7 @@ final class LanguagePickerWindowController {
     init(preferences: Preferences, logger: Logger) {
         self.preferences = preferences
         self.logger = logger
-        self.model = LanguagePickerModel()
+        self.model = LanguagePickerModel(preferences: preferences)
         self.model.onCommit = { [weak self] language in
             self?.commit(language: language)
         }
@@ -35,14 +35,17 @@ final class LanguagePickerWindowController {
         }
     }
 
-    func show() {
+    func show(mode: LanguagePickerModel.Mode = .choose) {
         if panel == nil {
             panel = makePanel()
         }
         guard let panel else { return }
-        guard !isShowing else { return }
+        guard !isShowing else {
+            model.reset(mode: mode)
+            return
+        }
 
-        model.reset()
+        model.reset(mode: mode)
 
         let ownBundleID = Bundle.main.bundleIdentifier
         if let frontmost = NSWorkspace.shared.frontmostApplication,
@@ -99,13 +102,22 @@ final class LanguagePickerWindowController {
     }
 
     private func commit(language: WhisperLanguage) {
-        preferences.language = language
-        logger.append("Language set to \(language.displayName).", level: .info)
-        hide()
+        switch model.mode {
+        case .choose:
+            preferences.select(language)
+            logger.append("Language set to \(language.displayName).", level: .info)
+            hide()
+        case .pin:
+            if !preferences.togglePin(language) {
+                NSSound.beep()
+                return
+            }
+            hide()
+        }
     }
 
     private func makePanel() -> NSPanel {
-        let size = NSSize(width: 380, height: 340)
+        let size = LanguagePickerView.size
         let view = LanguagePickerView(model: model)
         let hosting = NSHostingController(rootView: view)
         hosting.view.frame = NSRect(origin: .zero, size: size)
@@ -141,6 +153,16 @@ final class LanguagePickerWindowController {
             guard self.isShowing else { return event }
             guard self.panel?.isKeyWindow == true else { return event }
 
+            let command = event.modifierFlags.intersection(.deviceIndependentFlagsMask) == .command
+            if command, let number = ["1": 1, "2": 2, "3": 3][event.charactersIgnoringModifiers ?? ""] {
+                self.model.commitPinned(number)
+                return nil
+            }
+            if command, event.charactersIgnoringModifiers?.lowercased() == "p", self.model.mode == .choose {
+                self.model.togglePinHighlighted()
+                return nil
+            }
+
             switch Int(event.keyCode) {
             case kVK_UpArrow:
                 self.model.moveHighlight(by: -1)
@@ -158,7 +180,11 @@ final class LanguagePickerWindowController {
                 self.model.commit()
                 return nil
             case kVK_Escape:
-                self.model.cancel()
+                if self.model.query.isEmpty {
+                    self.model.cancel()
+                } else {
+                    self.model.query = ""
+                }
                 return nil
             default:
                 return event

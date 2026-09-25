@@ -6,6 +6,7 @@ import Foundation
 private final class FakeAudioCapture: RecordingSessionAudioCapture {
     var onBuffer: ((AVAudioPCMBuffer) -> Void)?
     var onConfigurationChanged: (() -> Void)?
+    var inputDeviceUID: String?
 
     var startError: Error?
     var startCalls = 0
@@ -100,7 +101,11 @@ func runRecordingSessionTests(_ t: TestHarness) {
     t.run("stop waits for local transcription before pasting") {
         let (session, audio, transcription, buffer, _) = makeSession()
         var finalized: [String] = []
-        session.onFinalized = { finalized.append($0) }
+        var ends: [SessionEnd] = []
+        session.onEnded = { end in
+            ends.append(end)
+            if case .transcript(let transcript) = end { finalized.append(transcript.text) }
+        }
 
         session.start(language: .english)
         session.stop()
@@ -119,7 +124,11 @@ func runRecordingSessionTests(_ t: TestHarness) {
     t.run("empty speech finishes without pasting") {
         let (session, _, transcription, _, _) = makeSession()
         var finalized: [String] = []
-        session.onFinalized = { finalized.append($0) }
+        var ends: [SessionEnd] = []
+        session.onEnded = { end in
+            ends.append(end)
+            if case .transcript(let transcript) = end { finalized.append(transcript.text) }
+        }
 
         session.start(language: .english)
         session.stop()
@@ -127,14 +136,20 @@ func runRecordingSessionTests(_ t: TestHarness) {
         t.expectEqual(session.state, .idle)
         t.expectEqual(session.statusMessage, "No speech detected.")
         t.expectEqual(finalized, [])
+        t.expectEqual(ends, [.noSpeech])
     }
 
     t.run("transcription failure is visible and does not paste") {
         let (session, _, transcription, _, _) = makeSession()
         var finalized: [String] = []
         var errors = 0
-        session.onFinalized = { finalized.append($0) }
-        session.onError = { errors += 1 }
+        session.onEnded = { end in
+            switch end {
+            case .transcript(let transcript): finalized.append(transcript.text)
+            case .failed, .couldNotStart: errors += 1
+            default: break
+            }
+        }
 
         session.start(language: .english)
         session.stop()
@@ -148,7 +163,11 @@ func runRecordingSessionTests(_ t: TestHarness) {
     t.run("cancel during recording does not paste") {
         let (session, audio, transcription, buffer, _) = makeSession()
         var finalized: [String] = []
-        session.onFinalized = { finalized.append($0) }
+        var ends: [SessionEnd] = []
+        session.onEnded = { end in
+            ends.append(end)
+            if case .transcript(let transcript) = end { finalized.append(transcript.text) }
+        }
 
         session.start(language: .english)
         session.cancel()
@@ -162,7 +181,11 @@ func runRecordingSessionTests(_ t: TestHarness) {
     t.run("cancel during transcription ignores late completion") {
         let (session, _, transcription, _, _) = makeSession()
         var finalized: [String] = []
-        session.onFinalized = { finalized.append($0) }
+        var ends: [SessionEnd] = []
+        session.onEnded = { end in
+            ends.append(end)
+            if case .transcript(let transcript) = end { finalized.append(transcript.text) }
+        }
 
         session.start(language: .english)
         session.stop()
@@ -190,7 +213,9 @@ func runRecordingSessionTests(_ t: TestHarness) {
         let (session, audio, transcription, _, _) = makeSession()
         audio.startError = TestFailure(message: "Microphone unavailable")
         var errors = 0
-        session.onError = { errors += 1 }
+        session.onEnded = { end in
+            if case .couldNotStart = end { errors += 1 }
+        }
         t.expect(!session.start(language: .english))
         t.expectEqual(session.state, .idle)
         t.expectEqual(transcription.cancelCalls, 1)
@@ -216,5 +241,47 @@ func runRecordingSessionTests(_ t: TestHarness) {
         transcription.complete(.success(""))
         session.start(language: .english)
         t.expect(firstID != session.sessionStartID, "sessionStartID should change on second start")
+    }
+
+    t.run("transcript carries detected language, duration and word count") {
+        let (session, _, transcription, _, _) = makeSession()
+        var result: FinalTranscript?
+        session.onEnded = { end in
+            if case .transcript(let transcript) = end { result = transcript }
+        }
+        session.start(language: .automatic)
+        session.stop()
+        transcription.complete(.success("hei på deg", language: "no"))
+        let transcript = try t.require(result)
+        t.expectEqual(transcript.languageCode, "no")
+        t.expectEqual(transcript.wordCount, 3)
+        t.expect(transcript.duration >= 0)
+    }
+
+    t.run("chosen language is used when the model reports none") {
+        let (session, _, transcription, _, _) = makeSession()
+        var result: FinalTranscript?
+        session.onEnded = { end in
+            if case .transcript(let transcript) = end { result = transcript }
+        }
+        session.start(language: .english)
+        session.stop()
+        transcription.complete(.success("hello"))
+        t.expectEqual(result?.languageCode, "en")
+    }
+
+    t.run("start passes the chosen microphone to capture") {
+        let (session, audio, _, _, _) = makeSession()
+        session.start(language: .english, inputDeviceUID: "usb-mic")
+        t.expectEqual(audio.inputDeviceUID, "usb-mic")
+    }
+
+    t.run("microphone change mid-recording reports an interruption") {
+        let (session, audio, _, _, _) = makeSession()
+        var ends: [SessionEnd] = []
+        session.onEnded = { ends.append($0) }
+        session.start(language: .english)
+        audio.fireConfigurationChanged()
+        t.expectEqual(ends, [.interrupted])
     }
 }

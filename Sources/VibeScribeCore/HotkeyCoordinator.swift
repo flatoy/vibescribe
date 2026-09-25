@@ -2,9 +2,20 @@ import Foundation
 
 public enum HotkeyIntent: Equatable, Sendable {
     case startRecording
+    /// The recording keeps going without holding the key.
+    case handsFree
     case stopRecording
     case cancelRecording
     case openLanguagePicker
+}
+
+public enum HotkeyTriggerMode: Sendable {
+    /// Hold to talk, or tap to start and tap again to stop.
+    case holdOrTap
+    /// Recording lasts only while the key is held.
+    case holdOnly
+    /// Each press toggles recording.
+    case tapOnly
 }
 
 @MainActor
@@ -19,6 +30,9 @@ public protocol HotkeyCancellable: AnyObject, Sendable {
 @MainActor
 public final class HotkeyCoordinator {
     public var onIntent: ((HotkeyIntent) -> Void)?
+    public var mode: HotkeyTriggerMode = .holdOrTap {
+        didSet { if mode != oldValue { reset() } }
+    }
 
     public let comboDebounce: TimeInterval
     public let tapThreshold: TimeInterval
@@ -28,6 +42,9 @@ public final class HotkeyCoordinator {
 
     private var recording = false
     private var latched = false
+    /// Set while the picker combo is held: its keys overlap the dictation key, and the
+    /// two listeners see the same key event in either order.
+    private var comboHeld = false
     private var pressedAt: TimeInterval?
     private var pendingStart: (any HotkeyCancellable)?
     private var pendingStop: (any HotkeyCancellable)?
@@ -45,6 +62,11 @@ public final class HotkeyCoordinator {
     }
 
     public func primaryDown(at now: TimeInterval) {
+        guard !comboHeld else { return }
+        if mode == .tapOnly {
+            tapOnlyDown()
+            return
+        }
         pendingStop?.cancel()
         pendingStop = nil
         pressedAt = now
@@ -57,10 +79,19 @@ public final class HotkeyCoordinator {
     }
 
     public func primaryUp(at now: TimeInterval) {
+        guard !comboHeld else { return }
+        guard mode != .tapOnly else { return }
         guard let pressedAt else { return }
         let duration = now - pressedAt
         self.pressedAt = nil
-        let isTap = duration <= tapThreshold
+        let isTap = duration <= tapThreshold && mode == .holdOrTap
+
+        if mode == .holdOnly, let pending = pendingStart {
+            // Released before recording began: too short to be speech.
+            pending.cancel()
+            pendingStart = nil
+            return
+        }
 
         if let pending = pendingStart {
             pending.cancel()
@@ -70,6 +101,7 @@ public final class HotkeyCoordinator {
                 latched = true
                 pendingStop?.cancel()
                 pendingStop = nil
+                onIntent?(.handsFree)
             }
             return
         }
@@ -85,6 +117,7 @@ public final class HotkeyCoordinator {
                 latched = true
                 pendingStop?.cancel()
                 pendingStop = nil
+                onIntent?(.handsFree)
             }
             return
         }
@@ -97,6 +130,7 @@ public final class HotkeyCoordinator {
     }
 
     public func comboTriggered() {
+        comboHeld = true
         pendingStart?.cancel()
         pendingStart = nil
         pendingStop?.cancel()
@@ -111,6 +145,23 @@ public final class HotkeyCoordinator {
         onIntent?(.openLanguagePicker)
     }
 
+    public func comboReleased() {
+        comboHeld = false
+        pressedAt = nil
+    }
+
+    /// Escape while recording throws the audio away.
+    public func cancelRequested() {
+        guard recording || pendingStart != nil else { return }
+        let wasRecording = recording
+        reset()
+        if wasRecording {
+            onIntent?(.cancelRecording)
+        }
+    }
+
+    public var isRecording: Bool { recording }
+
     public func reset() {
         pendingStart?.cancel()
         pendingStart = nil
@@ -119,6 +170,23 @@ public final class HotkeyCoordinator {
         pressedAt = nil
         recording = false
         latched = false
+        comboHeld = false
+    }
+
+    private func tapOnlyDown() {
+        if recording {
+            guard pendingStop == nil else { return }
+            pendingStop = scheduler.schedule(after: 0) { [weak self] in
+                self?.commitStop()
+            }
+            return
+        }
+        guard pendingStart == nil else { return }
+        pendingStart = scheduler.schedule(after: comboDebounce) { [weak self] in
+            guard let self else { return }
+            self.commitStart()
+            self.onIntent?(.handsFree)
+        }
     }
 
     private func commitStart() {

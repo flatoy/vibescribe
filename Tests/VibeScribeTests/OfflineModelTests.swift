@@ -50,8 +50,8 @@ func runOfflineModelSmoke(
         print("  Selected transcription finished at \(String(format: "%.1f", ProcessInfo.processInfo.systemUptime - startedAt))s")
         t.run("local WhisperKit model transcribes audio as \(language.displayName)") {
             switch selectedOutcome {
-            case .success(let text):
-                print("  Transcript: \(text)")
+            case .success(let text, let detected):
+                print("  Transcript (\(detected ?? "?")): \(text)")
                 t.expect(!text.isEmpty, "Expected a nonempty transcript")
                 for term in requiredTerms {
                     t.expect(text.localizedCaseInsensitiveContains(term), "Missing expected term: \(term)")
@@ -65,9 +65,25 @@ func runOfflineModelSmoke(
         print("  Automatic transcription finished at \(String(format: "%.1f", ProcessInfo.processInfo.systemUptime - startedAt))s")
         t.run("automatic language detection transcribes local audio") {
             switch automaticOutcome {
-            case .success(let text):
-                print("  Automatic transcript: \(text)")
+            case .success(let text, let detected):
+                print("  Automatic transcript (\(detected ?? "?")): \(text)")
                 t.expect(!text.isEmpty, "Expected a nonempty transcript")
+            case .failure(let message):
+                t.expect(false, "Transcription failed: \(message)")
+            }
+        }
+
+        client.setVocabulary("VibeScribe, WhisperKit, Flåtøy")
+        let vocabularyOutcome = try await transcribe(language)
+        client.setVocabulary("")
+        t.run("vocabulary prompt still transcribes local audio") {
+            switch vocabularyOutcome {
+            case .success(let text, _):
+                print("  Transcript with vocabulary: \(text)")
+                t.expect(!text.isEmpty, "Expected a nonempty transcript")
+                for term in requiredTerms {
+                    t.expect(text.localizedCaseInsensitiveContains(term), "Missing expected term: \(term)")
+                }
             case .failure(let message):
                 t.expect(false, "Transcription failed: \(message)")
             }

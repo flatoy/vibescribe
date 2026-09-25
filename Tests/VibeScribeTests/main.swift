@@ -16,12 +16,34 @@ func main() async {
 
     print("Preferences")
     runPreferencesTests(harness)
+    runSettingsPreferencesTests(harness)
+
+    print("Hotkey")
+    runHotkeyTests(harness)
 
     print("WhisperLanguage")
     runWhisperLanguageTests(harness)
 
     print("LanguagePickerLayout")
     runLanguagePickerLayoutTests(harness)
+
+    print("LanguagePickerModel")
+    runLanguagePickerModelTests(harness)
+
+    print("History")
+    runHistoryTests(harness)
+
+    print("AppStatus")
+    runAppStatusTests(harness)
+
+    print("Format")
+    runFormatTests(harness)
+
+    print("SpeechDetector")
+    runSpeechDetectorTests(harness)
+
+    print("PermissionHelper")
+    runPermissionHelperTests(harness)
 
     print("Logger")
     runLoggerTests(harness)

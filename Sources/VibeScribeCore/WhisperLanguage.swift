@@ -36,5 +36,17 @@ struct WhisperLanguage: Hashable, Identifiable, Sendable {
         return name.capitalized
     }
 
+    /// The language's name for itself, when it differs from the English name.
+    var nativeName: String? {
+        guard self != .automatic else { return "detect" }
+        let locale = Locale(identifier: rawValue)
+        guard let name = locale.localizedString(forLanguageCode: rawValue) else { return nil }
+        let native = name.prefix(1).uppercased(with: locale) + name.dropFirst()
+        return native.localizedCaseInsensitiveCompare(displayName) == .orderedSame ? nil : native
+    }
+
+    /// Short code for badges and the menu bar.
+    var badge: String { self == .automatic ? "AUTO" : rawValue.uppercased() }
+
     private static let englishLocale = Locale(identifier: "en")
 }

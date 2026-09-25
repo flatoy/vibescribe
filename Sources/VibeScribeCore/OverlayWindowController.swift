@@ -1,115 +1,74 @@
 import AppKit
+import Combine
 import SwiftUI
 
+/// A click-through panel below the menu bar that hosts the overlay pill.
 @MainActor
 final class OverlayWindowController {
-    private let recordingSession: RecordingSession
+    private let model: OverlayModel
     private var panel: NSPanel?
-    private var isShowing = false
-    private var animationID = UUID()
+    private var cancellable: AnyCancellable?
+    private var hideWork: DispatchWorkItem?
 
-    init(recordingSession: RecordingSession) {
-        self.recordingSession = recordingSession
+    private static let size = NSSize(width: 620, height: 64)
+
+    init(model: OverlayModel) {
+        self.model = model
+        cancellable = model.$phase
+            .map { $0 != .hidden }
+            .removeDuplicates()
+            .sink { [weak self] visible in
+                if visible { self?.show() } else { self?.scheduleOrderOut() }
+            }
     }
 
-    func show() {
+    private func show() {
+        hideWork?.cancel()
+        hideWork = nil
         if panel == nil {
             panel = makePanel()
         }
         guard let panel else { return }
-        guard !isShowing else { return }
-        isShowing = true
-        animationID = UUID()
-
-        guard let screenFrame = NSScreen.main?.visibleFrame else {
-            panel.orderFrontRegardless()
-            return
+        if let screen = NSScreen.main {
+            panel.setFrame(frame(on: screen), display: false)
         }
-
-        let target = targetFrame(in: screenFrame)
-        let offscreen = offscreenFrame(in: screenFrame, width: target.width, height: target.height)
-
-        panel.alphaValue = 0
-        panel.setFrame(offscreen, display: false)
         panel.orderFrontRegardless()
-
-        NSAnimationContext.runAnimationGroup { context in
-            context.duration = 0.22
-            context.timingFunction = CAMediaTimingFunction(name: .easeOut)
-            panel.animator().alphaValue = 1
-            panel.animator().setFrame(target, display: true)
-        }
     }
 
-    func hide() {
-        guard let panel else { return }
-        guard isShowing else { return }
-        isShowing = false
-        let hideID = animationID
-
-        guard let screenFrame = NSScreen.main?.visibleFrame else {
-            panel.orderOut(nil)
-            return
+    /// The pill animates out in SwiftUI; the panel leaves once that has finished.
+    private func scheduleOrderOut() {
+        let work = DispatchWorkItem { [weak self] in
+            self?.panel?.orderOut(nil)
         }
-
-        let target = targetFrame(in: screenFrame)
-        let offscreen = offscreenFrame(in: screenFrame, width: target.width, height: target.height)
-
-        NSAnimationContext.runAnimationGroup { context in
-            context.duration = 0.18
-            context.timingFunction = CAMediaTimingFunction(name: .easeIn)
-            panel.animator().alphaValue = 0
-            panel.animator().setFrame(offscreen, display: true)
-        } completionHandler: {
-            Task { @MainActor [weak self] in
-                guard let self else { return }
-                guard self.animationID == hideID, !self.isShowing else { return }
-                self.panel?.orderOut(nil)
-            }
-        }
+        hideWork = work
+        DispatchQueue.main.asyncAfter(deadline: .now() + 0.4, execute: work)
     }
 
     private func makePanel() -> NSPanel {
-        let overlayView = OverlayView(recordingSession: recordingSession)
-        let hosting = NSHostingController(rootView: overlayView)
-
+        let hosting = NSHostingView(rootView: OverlayView(model: model))
         let panel = NSPanel(
-            contentRect: NSRect(x: 0, y: 0, width: 180, height: 32),
+            contentRect: NSRect(origin: .zero, size: Self.size),
             styleMask: [.borderless, .nonactivatingPanel],
             backing: .buffered,
             defer: false
         )
-        panel.contentViewController = hosting
-        if let contentView = panel.contentView {
-            hosting.view.frame = contentView.bounds
-            hosting.view.autoresizingMask = [.width, .height]
-        }
+        panel.contentView = hosting
         panel.isOpaque = false
         panel.backgroundColor = .clear
-        panel.hasShadow = true
+        panel.hasShadow = false
         panel.level = .statusBar
         panel.ignoresMouseEvents = true
-        panel.collectionBehavior = [.canJoinAllSpaces, .fullScreenAuxiliary, .ignoresCycle]
-
-        if let screenFrame = NSScreen.main?.visibleFrame {
-            let target = targetFrame(in: screenFrame)
-            panel.setFrame(target, display: false)
-        }
-
+        panel.collectionBehavior = [.canJoinAllSpaces, .fullScreenAuxiliary, .ignoresCycle, .stationary]
         return panel
     }
 
-    private func targetFrame(in screenFrame: CGRect) -> CGRect {
-        let width = min(180, screenFrame.width - 80)
-        let height: CGFloat = 32
-        let x = screenFrame.midX - width / 2
-        let y = screenFrame.maxY - height - 28
-        return CGRect(x: x, y: y, width: width, height: height)
-    }
-
-    private func offscreenFrame(in screenFrame: CGRect, width: CGFloat, height: CGFloat) -> CGRect {
-        let x = screenFrame.midX - width / 2
-        let y = screenFrame.maxY + 8
-        return CGRect(x: x, y: y, width: width, height: height)
+    private func frame(on screen: NSScreen) -> NSRect {
+        let visible = screen.visibleFrame
+        return NSRect(
+            x: visible.midX - Self.size.width / 2,
+            y: visible.maxY - Self.size.height - 10,
+            width: Self.size.width,
+            height: Self.size.height
+        )
     }
 }
