@@ -38,6 +38,14 @@ func runModelDownloadTests(_ t: TestHarness) async {
         }
     }
 
+    t.run("turbo manifest pins a complete remote download") {
+        let manifest = try WhisperModelManifest.load(from: root.appendingPathComponent("scripts/whisper_model_manifest_turbo.json"))
+        t.expect(manifest.totalBytes > 600_000_000)
+        t.expect(manifest.files.contains { $0.path == "TextDecoder.mlmodelc/weights/weight.bin" })
+        t.expect(manifest.files.contains { $0.path == "tokenizer.json" })
+        t.expect(manifest.files.allSatisfy { $0.source != "model" || $0.sourcePath.hasPrefix("openai_whisper-large-v3-v20240930_turbo_632MB/") })
+    }
+
     let folder = FileManager.default.temporaryDirectory
         .appendingPathComponent("VibeScribeModelTests-\(UUID().uuidString)", isDirectory: true)
     defer { try? FileManager.default.removeItem(at: folder) }

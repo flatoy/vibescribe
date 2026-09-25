@@ -147,6 +147,7 @@ if [[ -d "$APP_RESOURCES_DIR" ]]; then
 fi
 cp "$ROOT/LICENSE" "$APP/Contents/Resources/Licenses/VibeScribe-LICENSE.txt"
 cp "$ROOT/scripts/whisper_model_manifest.json" "$APP/Contents/Resources/whisper_model_manifest.json"
+cp "$ROOT/scripts/whisper_model_manifest_turbo.json" "$APP/Contents/Resources/whisper_model_manifest_turbo.json"
 
 # SwiftPM resource bundles are emitted next to the built binary.
 PREFERRED_BUILD_DIR="$(dirname "$(build_product_path "$APP_NAME" "${ARCH_LIST[0]}")")"
