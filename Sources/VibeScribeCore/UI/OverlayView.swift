@@ -13,7 +13,7 @@ struct OverlayView: View {
             Spacer(minLength: 0)
 
             VStack(alignment: .leading, spacing: 2) {
-                Text("Listening")
+                Text(recordingSession.state == .finalizing ? "Transcribing" : "Listening")
                     .font(.system(size: 12, weight: .semibold))
                     .foregroundStyle(.white)
             }
@@ -39,7 +39,7 @@ struct OverlayView: View {
             pulse = recordingSession.isRecording
             shimmer = recordingSession.isRecording
             withAnimation(.spring(response: 0.42, dampingFraction: 0.72, blendDuration: 0.2)) {
-                appear = recordingSession.isRecording
+                appear = recordingSession.isActive
             }
         }
         .onDisappear {
@@ -47,10 +47,12 @@ struct OverlayView: View {
             pulse = false
             shimmer = false
         }
-        .onChange(of: recordingSession.isRecording) { isRecording in
+        .onChange(of: recordingSession.isRecording) { _, isRecording in
             pulse = isRecording
             shimmer = isRecording
-            if isRecording {
+        }
+        .onChange(of: recordingSession.isActive) { _, isActive in
+            if isActive {
                 withAnimation(.spring(response: 0.42, dampingFraction: 0.72, blendDuration: 0.2)) {
                     appear = true
                 }

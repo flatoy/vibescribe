@@ -94,28 +94,32 @@ final class LanguagePickerWindowController {
         }
 
         if let appToRestore, !appToRestore.isTerminated {
-            appToRestore.activate(options: [.activateIgnoringOtherApps])
+            appToRestore.activate()
         }
     }
 
-    private func commit(language: DeepgramLanguage) {
-        preferences.deepgramLanguage = language
-        logger.append("Language set to \(language.displayName) (\(language.deepgramCode)).", level: .info)
+    private func commit(language: WhisperLanguage) {
+        preferences.language = language
+        logger.append("Language set to \(language.displayName).", level: .info)
         hide()
     }
 
     private func makePanel() -> NSPanel {
+        let size = NSSize(width: 380, height: 340)
         let view = LanguagePickerView(model: model)
         let hosting = NSHostingController(rootView: view)
-        hosting.view.frame = NSRect(x: 0, y: 0, width: 380, height: 340)
+        hosting.view.frame = NSRect(origin: .zero, size: size)
 
         let panel = KeyableLanguagePanel(
-            contentRect: NSRect(x: 0, y: 0, width: 380, height: 340),
+            contentRect: NSRect(origin: .zero, size: size),
             styleMask: [.borderless, .nonactivatingPanel, .fullSizeContentView],
             backing: .buffered,
             defer: false
         )
         panel.contentViewController = hosting
+        panel.minSize = size
+        panel.maxSize = size
+        panel.setContentSize(size)
         if let contentView = panel.contentView {
             hosting.view.frame = contentView.bounds
             hosting.view.autoresizingMask = [.width, .height]

@@ -7,11 +7,18 @@ struct MainView: View {
     @ObservedObject var permissions: Permissions
     @ObservedObject var preferences: Preferences
     @ObservedObject var logger: Logger
+    @ObservedObject var modelSetup: WhisperModelSetup
 
     var body: some View {
         TabView {
-            homeTab
-                .tabItem { Text("Home") }
+            Group {
+                if modelSetup.isReady {
+                    homeTab
+                } else {
+                    setupTab
+                }
+            }
+            .tabItem { Text("Home") }
             logsTab
                 .tabItem { Text("Logs") }
         }
@@ -19,14 +26,67 @@ struct MainView: View {
         .frame(minWidth: 560, minHeight: 560)
     }
 
-    private var homeTab: some View {
-        VStack(alignment: .leading, spacing: 20) {
+    private var setupTab: some View {
+        VStack(alignment: .leading, spacing: 24) {
             header
-            permissionsSection
-            Divider()
-            settingsSection
-            transcriptSection
             Spacer()
+            GroupBox("Speech model") {
+                VStack(alignment: .leading, spacing: 16) {
+                    switch modelSetup.state {
+                    case .checking:
+                        Text("Checking for a downloaded speech model…")
+                            .font(.headline)
+                        ProgressView()
+                    case .downloading(let completed, let total):
+                        Text("Downloading for offline transcription")
+                            .font(.headline)
+                        Text("This one-time download is about 630 MB. After setup, transcription works without internet.")
+                            .foregroundStyle(.secondary)
+                        ProgressView(value: Double(completed), total: Double(max(total, 1)))
+                            .accessibilityLabel("Speech model download")
+                        HStack {
+                            Text("\(Int(Double(completed) / Double(max(total, 1)) * 100))%")
+                            Spacer()
+                            Text("\(Self.bytes(completed)) of \(Self.bytes(total))")
+                        }
+                        .font(.caption)
+                        .foregroundStyle(.secondary)
+                    case .preparing:
+                        Text("Preparing the speech model…")
+                            .font(.headline)
+                        Text("Loading the model can take about a minute. Your download is complete.")
+                            .foregroundStyle(.secondary)
+                        ProgressView()
+                    case .ready:
+                        EmptyView()
+                    case .failed(let message):
+                        Text("Speech model setup stopped")
+                            .font(.headline)
+                        Text(message)
+                            .foregroundStyle(.secondary)
+                        Button("Try Again") {
+                            modelSetup.start()
+                        }
+                    }
+                }
+                .frame(maxWidth: .infinity, alignment: .leading)
+                .padding(12)
+            }
+            Spacer()
+        }
+    }
+
+    private var homeTab: some View {
+        ScrollView {
+            VStack(alignment: .leading, spacing: 20) {
+                header
+                permissionsSection
+                Divider()
+                settingsSection
+                transcriptSection
+            }
+            .frame(maxWidth: .infinity, alignment: .leading)
+            .padding(.bottom, 8)
         }
         .onAppear {
             permissions.refresh()
@@ -82,7 +142,7 @@ struct MainView: View {
         VStack(alignment: .leading, spacing: 6) {
             Text("VibeScribe")
                 .font(.system(size: 28, weight: .semibold))
-            Text("Push-to-talk transcription powered by Deepgram")
+            Text("Private transcription powered by WhisperKit")
                 .foregroundStyle(.secondary)
         }
     }
@@ -123,19 +183,17 @@ struct MainView: View {
                 .frame(maxWidth: .infinity, alignment: .leading)
             }
 
-            GroupBox("Deepgram") {
+            GroupBox("Transcription") {
                 VStack(alignment: .leading, spacing: 12) {
-                    TextField("API Key", text: $preferences.apiKey)
-                    Picker("Language", selection: $preferences.deepgramLanguage) {
-                        ForEach(DeepgramLanguage.allCases) { language in
+                    Picker("Language", selection: $preferences.language) {
+                        ForEach(WhisperLanguage.allCases) { language in
                             Text(language.displayName).tag(language)
                         }
                     }
-                    Text("Automatic uses Deepgram multilingual mode (language=multi).")
+                    Text("The downloaded model supports 100 languages. Accuracy varies by language and recording. Automatic detects the language on your Mac.")
                         .font(.caption)
                         .foregroundStyle(.secondary)
                 }
-                .textFieldStyle(.roundedBorder)
                 .frame(maxWidth: .infinity, alignment: .leading)
             }
         }
@@ -143,11 +201,16 @@ struct MainView: View {
 
     private var transcriptSection: some View {
         GroupBox("Latest Transcript") {
-            ScrollView {
-                Text(transcriptText)
-                    .frame(maxWidth: .infinity, alignment: .leading)
+            VStack(alignment: .leading, spacing: 8) {
+                Text(recordingSession.statusMessage)
+                    .font(.caption)
+                    .foregroundStyle(.secondary)
+                ScrollView {
+                    Text(transcriptText)
+                        .frame(maxWidth: .infinity, alignment: .leading)
+                }
+                .frame(height: 100)
             }
-            .frame(height: 120)
         }
     }
 
@@ -158,7 +221,14 @@ struct MainView: View {
         if !transcript.last.isEmpty {
             return transcript.last
         }
-        return "Waiting for transcription..."
+        switch recordingSession.state {
+        case .recording:
+            return "Listening..."
+        case .finalizing:
+            return "Transcribing..."
+        case .idle:
+            return "No transcript yet."
+        }
     }
 
     private func copyLogEntry(_ entry: LogEntry) {
@@ -166,6 +236,10 @@ struct MainView: View {
         let pasteboard = NSPasteboard.general
         pasteboard.clearContents()
         pasteboard.setString(text, forType: .string)
+    }
+
+    private static func bytes(_ value: Int64) -> String {
+        ByteCountFormatter.string(fromByteCount: value, countStyle: .file)
     }
 }
 

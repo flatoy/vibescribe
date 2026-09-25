@@ -47,36 +47,63 @@ func runTranscriptBufferTests(_ t: TestHarness) {
 
 @MainActor
 func runPreferencesTests(_ t: TestHarness) {
-    let apiKeyDefaultsKey = "VibeScribe.ApiKey"
-    let languageDefaultsKey = "VibeScribe.DeepgramLanguage"
-
-    func reset() {
-        UserDefaults.standard.removeObject(forKey: apiKeyDefaultsKey)
-        UserDefaults.standard.removeObject(forKey: languageDefaultsKey)
+    func withDefaults(_ body: (UserDefaults) -> Void) {
+        let suite = "VibeScribeTests.\(UUID().uuidString)"
+        let defaults = UserDefaults(suiteName: suite)!
+        defer { defaults.removePersistentDomain(forName: suite) }
+        body(defaults)
     }
 
-    t.run("deepgramLanguage defaults to automatic") {
-        reset()
-        let prefs = Preferences()
-        t.expectEqual(prefs.deepgramLanguage, .automatic)
+    t.run("language defaults to automatic") {
+        withDefaults { defaults in
+            let prefs = Preferences(defaults: defaults)
+            t.expectEqual(prefs.language, .automatic)
+        }
     }
 
-    t.run("deepgramLanguage persists across instances") {
-        reset()
-        let prefs = Preferences()
-        prefs.deepgramLanguage = .french
-        let restored = Preferences()
-        t.expectEqual(restored.deepgramLanguage, .french)
-        reset()
+    t.run("language persists across instances") {
+        withDefaults { defaults in
+            let prefs = Preferences(defaults: defaults)
+            prefs.language = WhisperLanguage(rawValue: "fr")!
+            let restored = Preferences(defaults: defaults)
+            t.expectEqual(restored.language, WhisperLanguage(rawValue: "fr")!)
+        }
     }
 
-    t.run("apiKey persists across instances") {
-        reset()
-        let prefs = Preferences()
-        prefs.apiKey = "test-key-123"
-        let restored = Preferences()
-        t.expectEqual(restored.apiKey, "test-key-123")
-        reset()
+    t.run("migrates regional Deepgram choice and deletes old credentials") {
+        withDefaults { defaults in
+            defaults.set("en-GB", forKey: "VibeScribe.DeepgramLanguage")
+            defaults.set("old-secret", forKey: "VibeScribe.ApiKey")
+            let prefs = Preferences(defaults: defaults)
+            t.expectEqual(prefs.language, .english)
+            t.expectEqual(defaults.string(forKey: "VibeScribe.WhisperLanguage"), "en")
+            t.expectNil(defaults.string(forKey: "VibeScribe.DeepgramLanguage"))
+            t.expectNil(defaults.string(forKey: "VibeScribe.ApiKey"))
+        }
+    }
+
+    t.run("unsupported saved language falls back to automatic") {
+        withDefaults { defaults in
+            defaults.set("en-US", forKey: "VibeScribe.WhisperLanguage")
+            let prefs = Preferences(defaults: defaults)
+            t.expectEqual(prefs.language, .automatic)
+        }
+    }
+}
+
+@MainActor
+func runWhisperLanguageTests(_ t: TestHarness) {
+    t.run("picker contains automatic and the 100 Whisper languages") {
+        t.expectEqual(WhisperLanguage.allCases.count, 101)
+        t.expectEqual(WhisperLanguage.allCases.first, .automatic)
+        t.expect(WhisperLanguage(rawValue: "yue") != nil)
+        t.expectNil(WhisperLanguage(rawValue: "en-US"))
+        t.expect(WhisperLanguage.allCases.allSatisfy { !$0.displayName.isEmpty })
+    }
+
+    t.run("automatic uses detection and selected language uses its token code") {
+        t.expectNil(WhisperLanguage.automatic.whisperCode)
+        t.expectEqual(WhisperLanguage.english.whisperCode, "en")
     }
 }
 

@@ -122,4 +122,16 @@ func runHotkeyCoordinatorTests(_ t: TestHarness) {
         s.advance(by: 0.5)
         t.expectEqual(intents(), [.startRecording])
     }
+
+    t.run("reset clears a rejected tap so the next tap can start") {
+        let (c, _, intents) = makeCoordinator()
+        c.primaryDown(at: 0)
+        c.primaryUp(at: 0.03)
+        t.expectEqual(intents(), [.startRecording])
+        c.reset()
+
+        c.primaryDown(at: 1)
+        c.primaryUp(at: 1.03)
+        t.expectEqual(intents(), [.startRecording, .startRecording])
+    }
 }

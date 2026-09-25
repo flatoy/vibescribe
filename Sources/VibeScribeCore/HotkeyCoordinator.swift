@@ -111,6 +111,16 @@ public final class HotkeyCoordinator {
         onIntent?(.openLanguagePicker)
     }
 
+    public func reset() {
+        pendingStart?.cancel()
+        pendingStart = nil
+        pendingStop?.cancel()
+        pendingStop = nil
+        pressedAt = nil
+        recording = false
+        latched = false
+    }
+
     private func commitStart() {
         pendingStart = nil
         recording = true

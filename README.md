@@ -2,74 +2,76 @@
 
 ![VibeScribe header](assets/readme-header.png)
 
-A blazing fast transcription app with smart formatting, powered by Deepgram.
+A menu bar, push-to-talk transcription app for Mac. Speech is transcribed on your Mac with [WhisperKit](https://github.com/argmaxinc/argmax-oss-swift). On first launch, VibeScribe downloads its multilingual model with visible progress; afterward transcription works offline. No account or API key is needed.
 
-## What this gives you
-- Menu bar status item (Settings + Quit)
-- Minimal settings window (API key + language)
-- Push-to-talk hotkey (hold to record)
-- Listening overlay
-- WebSocket streaming to Deepgram
-- Logs tab for connection/debugging
-- Auto-paste transcript on release (requires Accessibility permission)
+## Features
+
+- Hold Right Option to record, then release to transcribe and paste into the active app.
+- Tap Right Option to toggle recording on and off.
+- Press Option+Shift to search the language list.
+- Choose Automatic language detection or one of the 100 languages supported by the downloaded Whisper large-v3 model.
+- View the latest transcript and local logs in the app window.
+- Restore the previous clipboard contents after pasting.
+
+Local transcription starts after recording stops, so pasting may take a moment. The overlay shows “Transcribing” until it finishes.
 
 ## Requirements
-- macOS 13+
-- Xcode or the Swift toolchain that ships with your current macOS
+
+- macOS 14 or later on an Apple Silicon Mac
+- An internet connection for the one-time speech model download (about 630 MB)
+- Microphone permission
+- Input Monitoring permission for global hotkeys and Accessibility permission for automatic pasting
+
+Building from source requires a Swift 6.2 or newer toolchain. The optional model prefetch script uses Python 3.
 
 ## Install
-Package a `.app` bundle for permanent install:
+
+Run the packaging script:
+
 ```bash
 bash package_app.sh
 ```
-This creates `VibeScribe.app` in the repo root. Move it to `/Applications`, launch it once, then add it to Login Items to run at login (System Settings > General > Login Items).
 
-To customize the bundle name, id, or version, edit `version.env`.
+This creates a small `VibeScribe.app` without model weights. Move it to `/Applications` and open it. On first launch, the app downloads and verifies the pinned [Whisper large-v3 Core ML model](https://huggingface.co/argmaxinc/whisperkit-coreml/tree/main/openai_whisper-large-v3-v20240930_626MB) and [tokenizer](https://huggingface.co/openai/whisper-large-v3), showing progress in its window. Files are stored in Application Support, reused on later launches, and never downloaded during transcription. If a download fails, use **Try Again**; completed files are kept. You can add the app to Login Items in System Settings if desired.
 
-## Deepgram API Key
-Sign up for a free Deepgram API key at https://console.deepgram.com (new accounts typically include ~$200 in free credit).
+The default local build is ad-hoc signed. Distribution to other Macs requires Developer ID signing and notarization for a smooth first launch.
 
-## Run
-From source (development):
+To customize the bundle ID or version, edit `version.env`. The script supports the existing `ARCHES`, `SIGNING_MODE`, and `APP_IDENTITY` build settings.
+
+## Develop
+
+Run from source with the same first-launch download flow:
+
 ```bash
 swift run
 ```
 
-## Build
+To prefetch the model into the ignored build cache for development or offline smoke tests, run `python3 scripts/download_whisper_model.py`.
+
+Build and run the tests with:
+
 ```bash
 swift build
-```
-
-## Test
-```bash
 swift run VibeScribeTests
 ```
-The test target is a small executable harness (no XCTest dependency), so it runs on toolchains without Xcode installed.
 
-## Usage
-1. Launch the app (it appears in the menu bar).
-2. Open the main window and paste your Deepgram API key.
-3. Hold the Option hotkey to listen while pressed (push-to-talk).
-4. Tap the Option hotkey to toggle listening on/off.
-5. The app restores your previous clipboard contents after pasting the transcript.
+The tests use a small executable harness, so Xcode is not required.
 
-## Permissions
-- Microphone access is required.
-- For global hotkeys, macOS may prompt for Input Monitoring or Accessibility permissions.
+## Languages
+
+The language picker includes the 100 language codes in WhisperKit, all of which have tokens in the downloaded multilingual Whisper large-v3 tokenizer. The language list shows what the model can be asked to transcribe; accuracy still varies by language and recording quality. Older saved Deepgram regional selections are mapped to their base language where available, and the old API key is removed from local preferences.
 
 ## Customization
-- Hotkey: `Sources/VibeScribeCore/HotkeyListener.swift`
-- Overlay UI: `Sources/VibeScribeCore/UI/OverlayView.swift`
-- Deepgram model/language options: `Sources/VibeScribeCore/DeepgramClient.swift` and `Sources/VibeScribeCore/DeepgramLanguage.swift`
+
+- Hotkeys: `Sources/VibeScribeCore/HotkeyListener.swift`
+- Overlay: `Sources/VibeScribeCore/UI/OverlayView.swift`
+- Language choices: `Sources/VibeScribeCore/WhisperLanguage.swift`
+- Pinned model download: `scripts/whisper_model_manifest.json`
 
 ## Contributing
-Issues and PRs are welcome.
-1. Open an issue describing the change or bug.
-2. Keep changes focused and avoid adding backward-compatibility logic unless needed.
-3. If you add tests, include updates in the same PR and run `bash scripts/test.sh`.
+
+Issues and PRs are welcome. Keep changes focused and run `swift run VibeScribeTests` before submitting.
 
 ## License
-MIT license. In short, you can use, modify, and distribute the code (including commercially) as long as you keep the copyright notice and license text, and there is no warranty. See `LICENSE`.
 
-## Notes
-This is intentionally minimal to keep the architecture easy to extend. The API key is stored in `UserDefaults` in plaintext for convenience.
+VibeScribe is MIT licensed; see `LICENSE`. Licenses and notices for WhisperKit and the downloaded speech model are in `Sources/VibeScribe/Resources/Licenses`.

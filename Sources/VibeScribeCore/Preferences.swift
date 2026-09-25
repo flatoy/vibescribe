@@ -2,24 +2,34 @@ import Foundation
 
 @MainActor
 final class Preferences: ObservableObject {
-    private static let apiKeyKey = "VibeScribe.ApiKey"
-    private static let languageKey = "VibeScribe.DeepgramLanguage"
+    private static let languageKey = "VibeScribe.WhisperLanguage"
+    private static let oldLanguageKey = "VibeScribe.DeepgramLanguage"
+    private static let oldApiKey = "VibeScribe.ApiKey"
 
-    @Published var apiKey: String {
-        didSet {
-            UserDefaults.standard.set(apiKey, forKey: Self.apiKeyKey)
-        }
-    }
+    private let defaults: UserDefaults
 
-    @Published var deepgramLanguage: DeepgramLanguage {
+    @Published var language: WhisperLanguage {
         didSet {
-            UserDefaults.standard.set(deepgramLanguage.rawValue, forKey: Self.languageKey)
+            defaults.set(language.rawValue, forKey: Self.languageKey)
         }
     }
 
     init(defaults: UserDefaults = .standard) {
-        self.apiKey = defaults.string(forKey: Self.apiKeyKey) ?? ""
-        let saved = defaults.string(forKey: Self.languageKey)
-        self.deepgramLanguage = saved.flatMap(DeepgramLanguage.init(rawValue:)) ?? .automatic
+        self.defaults = defaults
+        if let saved = defaults.string(forKey: Self.languageKey),
+           let language = WhisperLanguage(rawValue: saved) {
+            self.language = language
+        } else {
+            self.language = Self.migrateLanguage(defaults.string(forKey: Self.oldLanguageKey))
+            defaults.set(language.rawValue, forKey: Self.languageKey)
+        }
+        defaults.removeObject(forKey: Self.oldLanguageKey)
+        defaults.removeObject(forKey: Self.oldApiKey)
+    }
+
+    private static func migrateLanguage(_ saved: String?) -> WhisperLanguage {
+        guard let saved, saved != "automatic" else { return .automatic }
+        let code = String(saved.split(separator: "-").first ?? Substring(saved))
+        return WhisperLanguage(rawValue: code) ?? .automatic
     }
 }

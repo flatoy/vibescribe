@@ -6,19 +6,29 @@ import PackageDescription
 let package = Package(
     name: "VibeScribe",
     platforms: [
-        .macOS(.v13),
+        .macOS(.v14),
+    ],
+    dependencies: [
+        .package(url: "https://github.com/argmaxinc/argmax-oss-swift.git", exact: "1.1.0"),
     ],
     targets: [
         .target(
-            name: "VibeScribeCore"
+            name: "VibeScribeCore",
+            dependencies: [
+                .product(name: "WhisperKit", package: "argmax-oss-swift"),
+            ]
         ),
         .executableTarget(
             name: "VibeScribe",
-            dependencies: ["VibeScribeCore"]
+            dependencies: ["VibeScribeCore"],
+            exclude: ["Resources"]
         ),
         .executableTarget(
             name: "VibeScribeTests",
-            dependencies: ["VibeScribeCore"],
+            dependencies: [
+                "VibeScribeCore",
+                .product(name: "WhisperKit", package: "argmax-oss-swift"),
+            ],
             path: "Tests/VibeScribeTests"
         ),
     ]

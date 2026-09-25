@@ -25,7 +25,8 @@ public final class VibeScribeApp: NSObject, NSApplicationDelegate {
     private var languagePickerHotkeyListener: HotkeyListener!
     private var hotkeyCoordinator: HotkeyCoordinator!
     private var audioCapture: AudioCaptureController!
-    private var deepgramClient: DeepgramClient!
+    private var whisperKitClient: WhisperKitClient!
+    private var modelSetup: WhisperModelSetup!
     private var recordingSession: RecordingSession!
     private var cancellables = Set<AnyCancellable>()
     private let clipboardRestoreDelay: TimeInterval = 0.2
@@ -39,39 +40,44 @@ public final class VibeScribeApp: NSObject, NSApplicationDelegate {
         preferences = Preferences()
         logger = Logger()
         audioCapture = AudioCaptureController()
-        deepgramClient = DeepgramClient(
-            onTranscriptEvent: { [weak self] text, isFinal in
-                Task { @MainActor in
-                    self?.recordingSession.handleTranscriptEvent(text, isFinal: isFinal)
-                }
-            },
+        let modelFolder = WhisperModelLocator.modelFolder()
+        let client = WhisperKitClient(
+            modelFolder: modelFolder,
             onLog: { [weak self] message, level in
                 Task { @MainActor in
                     self?.logger.append(message, level: level)
                 }
             }
         )
+        whisperKitClient = client
+        modelSetup = WhisperModelSetup(
+            manifestURL: WhisperModelLocator.manifestURL(),
+            modelFolder: modelFolder,
+            logger: logger,
+            prepareModel: { try await client.prepare() }
+        )
 
         recordingSession = RecordingSession(
             audioCapture: audioCapture,
-            transcription: deepgramClient,
+            transcription: whisperKitClient,
             transcript: transcript,
             logger: logger
         )
         recordingSession.onFinalized = { [weak self] text in
             self?.pasteFinalTranscript(text)
         }
-        recordingSession.onMissingApiKey = { [weak self] in
+        recordingSession.onError = { [weak self] in
             self?.openMainWindow()
         }
-
         mainWindowController = MainWindowController(
             recordingSession: recordingSession,
             transcript: transcript,
             permissions: permissions,
             preferences: preferences,
-            logger: logger
+            logger: logger,
+            modelSetup: modelSetup
         )
+        modelSetup.onNeedsAttention = { [weak self] in self?.openMainWindow() }
         overlayWindowController = OverlayWindowController(recordingSession: recordingSession)
         languagePickerWindowController = LanguagePickerWindowController(
             preferences: preferences,
@@ -82,7 +88,7 @@ public final class VibeScribeApp: NSObject, NSApplicationDelegate {
             .removeDuplicates()
             .sink { [weak self] state in
                 guard let self else { return }
-                if state == .recording {
+                if state != .idle {
                     self.overlayWindowController.show()
                 } else {
                     self.overlayWindowController.hide()
@@ -123,8 +129,9 @@ public final class VibeScribeApp: NSObject, NSApplicationDelegate {
             object: nil
         )
 
-        permissions.requestInitialIfNeeded()
         logger.append("VibeScribe launched.", level: .info)
+        modelSetup.start()
+        permissions.requestInitialIfNeeded()
     }
 
     public func applicationWillTerminate(_ notification: Notification) {
@@ -146,7 +153,18 @@ public final class VibeScribeApp: NSObject, NSApplicationDelegate {
     private func handle(intent: HotkeyIntent) {
         switch intent {
         case .startRecording:
-            recordingSession.start(apiKey: preferences.apiKey, language: preferences.deepgramLanguage)
+            guard modelSetup.isReady else {
+                openMainWindow()
+                DispatchQueue.main.async { [weak self] in
+                    self?.hotkeyCoordinator.reset()
+                }
+                return
+            }
+            if !recordingSession.start(language: preferences.language) {
+                DispatchQueue.main.async { [weak self] in
+                    self?.hotkeyCoordinator.reset()
+                }
+            }
         case .stopRecording:
             recordingSession.stop()
         case .cancelRecording:

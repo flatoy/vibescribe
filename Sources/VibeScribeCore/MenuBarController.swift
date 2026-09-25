@@ -29,12 +29,12 @@ final class MenuBarController {
             button.imageHugsTitle = true
         }
 
-        updateFlagTitle(for: preferences.deepgramLanguage)
+        updateLanguageTitle(for: preferences.language)
 
-        preferences.$deepgramLanguage
+        preferences.$language
             .receive(on: RunLoop.main)
             .sink { [weak self] language in
-                self?.updateFlagTitle(for: language)
+                self?.updateLanguageTitle(for: language)
             }
             .store(in: &cancellables)
 
@@ -53,8 +53,8 @@ final class MenuBarController {
         statusItem.menu = menu
     }
 
-    private func updateFlagTitle(for language: DeepgramLanguage) {
-        statusItem.button?.title = " " + language.flag
+    private func updateLanguageTitle(for language: WhisperLanguage) {
+        statusItem.button?.title = " " + language.menuBarLabel
     }
 
     @objc private func openMainWindow() {

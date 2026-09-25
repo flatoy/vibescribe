@@ -9,11 +9,16 @@ protocol RecordingSessionAudioCapture: AnyObject {
     func stop()
 }
 
-protocol RecordingSessionTranscription: AnyObject {
-    func connect(apiKey: String, format: AudioStreamFormat, language: DeepgramLanguage)
+enum TranscriptionOutcome: Sendable, Equatable {
+    case success(String)
+    case failure(String)
+}
+
+protocol RecordingSessionTranscription: AnyObject, Sendable {
+    func start(language: WhisperLanguage) throws
     func sendAudio(buffer: AVAudioPCMBuffer)
-    func closeStream(onClosed: @Sendable @escaping () -> Void)
-    func disconnect()
+    func finish(onFinished: @Sendable @escaping (TranscriptionOutcome) -> Void)
+    func cancel()
 }
 
 @MainActor
@@ -34,9 +39,10 @@ final class RecordingSession: ObservableObject {
     private let logger: Logger
 
     var onFinalized: ((String) -> Void)?
-    var onMissingApiKey: (() -> Void)?
+    var onError: (() -> Void)?
 
     var isRecording: Bool { state == .recording }
+    var isActive: Bool { state != .idle }
 
     init(
         audioCapture: any RecordingSessionAudioCapture,
@@ -56,45 +62,46 @@ final class RecordingSession: ObservableObject {
         }
     }
 
-    func start(apiKey: String, language: DeepgramLanguage) {
-        guard state == .idle else { return }
-
-        let trimmedKey = apiKey.trimmed
-        guard !trimmedKey.isEmpty else {
-            statusMessage = "Add a Deepgram API key in Settings."
-            logger.append("Missing API key. Open Settings to add one.", level: .warning)
-            onMissingApiKey?()
-            return
-        }
+    @discardableResult
+    func start(language: WhisperLanguage) -> Bool {
+        guard state == .idle else { return false }
 
         do {
+            try transcription.start(language: language)
             transcript.reset()
+            let transcription = self.transcription
+            audioCapture.onBuffer = { buffer in
+                transcription.sendAudio(buffer: buffer)
+            }
             let format = try audioCapture.start()
             logger.append("Audio capture started (\(format.sampleRate) Hz, \(format.channels) ch).", level: .info)
-            transcription.connect(apiKey: trimmedKey, format: format, language: language)
-            audioCapture.onBuffer = { [weak self] buffer in
-                self?.transcription.sendAudio(buffer: buffer)
-            }
             state = .recording
             sessionStartID = UUID()
             statusMessage = "Listening..."
-            logger.append("Language: \(language.displayName) (\(language.deepgramCode)).", level: .info)
+            logger.append("Language: \(language.displayName).", level: .info)
             logger.append("Listening started.", level: .info)
+            return true
         } catch {
-            statusMessage = "Failed to start audio capture: \(error.localizedDescription)"
-            logger.append("Failed to start audio capture: \(error.localizedDescription)", level: .error)
+            audioCapture.stop()
+            audioCapture.onBuffer = nil
+            transcription.cancel()
+            statusMessage = "Failed to start recording: \(error.localizedDescription)"
+            logger.append(statusMessage, level: .error)
+            onError?()
+            return false
         }
     }
 
     func stop() {
         guard state == .recording else { return }
         audioCapture.stop()
+        audioCapture.onBuffer = nil
         state = .finalizing
-        statusMessage = "Finalizing..."
+        statusMessage = "Transcribing..."
 
-        transcription.closeStream { @Sendable [weak self] in
+        transcription.finish { @Sendable [weak self] outcome in
             self?.hopToMain {
-                self?.finalizeStop()
+                self?.finalizeStop(outcome)
             }
         }
     }
@@ -102,27 +109,33 @@ final class RecordingSession: ObservableObject {
     func cancel() {
         guard state != .idle else { return }
         audioCapture.stop()
-        transcription.disconnect()
+        audioCapture.onBuffer = nil
+        transcription.cancel()
         state = .idle
         statusMessage = "Idle"
         transcript.reset()
     }
 
-    func handleTranscriptEvent(_ text: String, isFinal: Bool) {
-        transcript.handle(text, isFinal: isFinal)
-    }
-
-    private func finalizeStop() {
+    private func finalizeStop(_ outcome: TranscriptionOutcome) {
         guard state == .finalizing else { return }
         state = .idle
-        statusMessage = "Idle"
         logger.append("Listening stopped.", level: .info)
-        let text = transcript.effectiveText
-        if text.isEmpty {
-            logger.append("No transcript to paste.", level: .warning)
-            return
+        switch outcome {
+        case .success(let text):
+            transcript.handle(text, isFinal: true)
+            let finalized = transcript.effectiveText
+            if finalized.isEmpty {
+                statusMessage = "No speech detected."
+                logger.append("No transcript to paste.", level: .warning)
+            } else {
+                statusMessage = "Ready"
+                onFinalized?(finalized)
+            }
+        case .failure(let message):
+            statusMessage = "Transcription failed: \(message)"
+            logger.append(statusMessage, level: .error)
+            onError?()
         }
-        onFinalized?(text)
     }
 
     private func handleAudioConfigurationChanged() {
@@ -146,4 +159,3 @@ final class RecordingSession: ObservableObject {
 }
 
 extension AudioCaptureController: RecordingSessionAudioCapture {}
-extension DeepgramClient: RecordingSessionTranscription {}

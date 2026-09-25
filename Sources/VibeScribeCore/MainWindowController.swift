@@ -8,6 +8,7 @@ final class MainWindowController: NSObject, NSWindowDelegate {
     private let permissions: Permissions
     private let preferences: Preferences
     private let logger: Logger
+    private let modelSetup: WhisperModelSetup
     private var window: NSWindow?
 
     init(
@@ -15,13 +16,15 @@ final class MainWindowController: NSObject, NSWindowDelegate {
         transcript: TranscriptBuffer,
         permissions: Permissions,
         preferences: Preferences,
-        logger: Logger
+        logger: Logger,
+        modelSetup: WhisperModelSetup
     ) {
         self.recordingSession = recordingSession
         self.transcript = transcript
         self.permissions = permissions
         self.preferences = preferences
         self.logger = logger
+        self.modelSetup = modelSetup
     }
 
     func show() {
@@ -31,7 +34,8 @@ final class MainWindowController: NSObject, NSWindowDelegate {
                 transcript: transcript,
                 permissions: permissions,
                 preferences: preferences,
-                logger: logger
+                logger: logger,
+                modelSetup: modelSetup
             )
             let hosting = NSHostingController(rootView: rootView)
 

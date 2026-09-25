@@ -4,11 +4,11 @@ import SwiftUI
 @MainActor
 final class LanguagePickerModel: ObservableObject {
     @Published var query: String = ""
-    @Published private(set) var results: [DeepgramLanguage] = DeepgramLanguage.allCases
+    @Published private(set) var results: [WhisperLanguage] = WhisperLanguage.allCases
     @Published var highlightIndex: Int = 0
     @Published private(set) var keyboardNavTick: Int = 0
 
-    var onCommit: (DeepgramLanguage) -> Void = { _ in }
+    var onCommit: (WhisperLanguage) -> Void = { _ in }
     var onCancel: () -> Void = {}
 
     init() {
@@ -43,13 +43,14 @@ final class LanguagePickerModel: ObservableObject {
         onCancel()
     }
 
-    private static func compute(for query: String) -> [DeepgramLanguage] {
+    private static func compute(for query: String) -> [WhisperLanguage] {
         let trimmed = query.trimmingCharacters(in: .whitespaces)
         guard !trimmed.isEmpty else {
-            return DeepgramLanguage.allCases
+            return WhisperLanguage.allCases
         }
-        let scored: [(DeepgramLanguage, Int)] = DeepgramLanguage.allCases.compactMap { lang in
-            guard let score = fuzzyScore(query: trimmed, in: lang.displayName) else { return nil }
+        let scored: [(WhisperLanguage, Int)] = WhisperLanguage.allCases.compactMap { lang in
+            guard let score = fuzzyScore(query: trimmed, in: lang.displayName)
+                ?? fuzzyScore(query: trimmed, in: lang.rawValue).map({ $0 + 100_000 }) else { return nil }
             return (lang, score)
         }
         return scored.sorted { $0.1 < $1.1 }.map { $0.0 }
@@ -85,14 +86,21 @@ struct LanguagePickerView: View {
         VStack(alignment: .leading, spacing: 0) {
             searchBar
 
-            if !model.results.isEmpty {
-                Rectangle()
-                    .fill(Color.white.opacity(0.08))
-                    .frame(height: 1)
+            Rectangle()
+                .fill(Color.white.opacity(0.08))
+                .frame(height: 1)
 
+            if model.results.isEmpty {
+                Text("No matching languages")
+                    .font(.system(size: 13))
+                    .foregroundStyle(Color.white.opacity(0.6))
+                    .frame(maxWidth: .infinity)
+                    .frame(height: 280)
+            } else {
                 resultsList
             }
         }
+        .frame(width: 380, height: 340, alignment: .top)
         .background(cardBackground)
         .clipShape(.rect(cornerRadius: 12))
         .overlay(cardBorder)
@@ -120,7 +128,7 @@ struct LanguagePickerView: View {
                     .foregroundStyle(.white)
                     .tint(Color.white.opacity(0.7))
                     .focused($focused)
-                    .onChange(of: model.query) { _ in
+                    .onChange(of: model.query) {
                         model.highlightIndex = 0
                     }
             }
@@ -152,8 +160,8 @@ struct LanguagePickerView: View {
                 }
                 .padding(.vertical, 4)
             }
-            .frame(maxHeight: 280)
-            .onChange(of: model.keyboardNavTick) { _ in
+            .frame(height: 280)
+            .onChange(of: model.keyboardNavTick) {
                 let index = model.highlightIndex
                 guard model.results.indices.contains(index) else { return }
                 let lang = model.results[index]
@@ -194,7 +202,7 @@ struct LanguagePickerView: View {
 }
 
 private struct LanguageRow: View {
-    let language: DeepgramLanguage
+    let language: WhisperLanguage
     let isHighlighted: Bool
 
     var body: some View {
@@ -203,7 +211,7 @@ private struct LanguageRow: View {
                 .font(.system(size: 13))
                 .foregroundStyle(.white)
             Spacer(minLength: 8)
-            Text(language.deepgramCode)
+            Text(language.whisperCode ?? "auto")
                 .font(.system(size: 11, weight: .medium))
                 .foregroundStyle(Color.white.opacity(0.5))
                 .monospaced()

@@ -17,6 +17,7 @@ final class OverlayWindowController {
             panel = makePanel()
         }
         guard let panel else { return }
+        guard !isShowing else { return }
         isShowing = true
         animationID = UUID()
 
