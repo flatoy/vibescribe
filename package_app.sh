@@ -36,13 +36,10 @@ APP="$ROOT/${APP_NAME}.app"
 rm -rf "$APP"
 mkdir -p "$APP/Contents/MacOS" "$APP/Contents/Resources" "$APP/Contents/Frameworks"
 
-# Convert Icon.icon or Icon.png to Icon.icns if present (requires iconutil).
-ICON_SOURCE="$ROOT/Icon.icon"
+# Convert the image exported from Icon Composer to Icon.icns (requires iconutil).
 ICON_PNG_SOURCE="$ROOT/Icon.png"
 ICON_TARGET="$ROOT/Icon.icns"
-if [[ -f "$ICON_SOURCE" ]]; then
-  iconutil --convert icns --output "$ICON_TARGET" "$ICON_SOURCE"
-elif [[ -f "$ICON_PNG_SOURCE" ]]; then
+if [[ -f "$ICON_PNG_SOURCE" ]]; then
   ICONSET_DIR="$ROOT/.build/icon.iconset"
   mkdir -p "$ICONSET_DIR"
   sips -z 16 16 "$ICON_PNG_SOURCE" --out "$ICONSET_DIR/icon_16x16.png" >/dev/null

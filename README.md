@@ -38,6 +38,8 @@ The default local build is ad-hoc signed. Distribution to other Macs requires De
 
 To customize the bundle ID or version, edit `version.env`. The script supports the existing `ARCHES`, `SIGNING_MODE`, and `APP_IDENTITY` build settings.
 
+The editable app icon is `Icon.icon`. After changing it in Icon Composer, export the macOS Default image at 1024 pt and 1× to `Icon.png`; the packaging script converts that image to `Icon.icns`.
+
 ## Develop
 
 Run from source with the same first-launch download flow:
