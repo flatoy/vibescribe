@@ -24,6 +24,11 @@ let package = Package(
             exclude: ["Resources"]
         ),
         .executableTarget(
+            name: "VibeScribeScreenshots",
+            dependencies: ["VibeScribeCore"],
+            path: "Tools/VibeScribeScreenshots"
+        ),
+        .executableTarget(
             name: "VibeScribeTests",
             dependencies: [
                 "VibeScribeCore",
