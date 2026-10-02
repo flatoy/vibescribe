@@ -1,0 +1,4284 @@
+{
+  "schema": "vibescribe-video-spec/1",
+  "title": "A Day Out Loud",
+  "logline": "One person, one Thursday, four places to type, zero typing. Kinetic type carries the story; the only voice is hers, talking to her Mac.",
+  "treatments_considered": [
+    {
+      "title": "A Day Out Loud",
+      "duration_s": 58.0,
+      "preview": "Hold. Talk. Pasted. (29.5 s)",
+      "verdict": "chosen spine"
+    }
+  ],
+  "treatments_note": "The brief mentioned two director treatments but only one arrived. It is used as the spine, with producer corrections listed in STORYBOARD.md.",
+  "output": {
+    "width": 1920,
+    "height": 1080,
+    "fps": 60,
+    "world": {
+      "width": 1440,
+      "height": 810
+    },
+    "dpr": 1.3333333333,
+    "codec": "H.264 High, yuv420p, BT.709 tagged, CRF 14, AAC 256 kb/s 48 kHz stereo",
+    "render": "Playwright page with a paused clock advanced one frame per tick; camera keys {t, s, cx, cy} in world units, clamped so the view never leaves the world",
+    "out_dir": "video/out (gitignored)"
+  },
+  "duration": 58.4,
+  "theme": {
+    "spectrum": [
+      "#6EC6EA",
+      "#7BA3F0",
+      "#9A8AE6",
+      "#C68AEE",
+      "#D884C4",
+      "#EE9A8F",
+      "#EDBB7A"
+    ],
+    "accent": "#9A8AE6",
+    "primary_fill": [
+      "#A797F0",
+      "#8A78DD"
+    ],
+    "settings_window": [
+      "#232327",
+      "#1E1E21"
+    ],
+    "keycap_fill": "#34343A",
+    "glass": {
+      "gradient": [
+        "rgba(0,0,0,0.92)",
+        "rgba(0,0,0,0.72)"
+      ],
+      "direction": "topLeading->bottomTrailing",
+      "border": "rgba(255,255,255,0.12)",
+      "radius": 12,
+      "corner_style": "continuous"
+    },
+    "wallpaper": {
+      "base_linear": [
+        "#3D3A5C",
+        "#2A2638"
+      ],
+      "radial_1": {
+        "color": "#5B6FA8",
+        "center": [
+          0.15,
+          0.0
+        ],
+        "radius": 700
+      },
+      "radial_2": {
+        "color": "#B0719B",
+        "opacity": 0.9,
+        "center": [
+          0.9,
+          0.1
+        ],
+        "radius": 650
+      },
+      "source": "Tools/VibeScribeScreenshots/main.swift Wallpaper (copy the recipe, do not import the file)"
+    },
+    "host_window": {
+      "body": "#1C1C1F",
+      "titlebar": "#2A2A2E",
+      "hairline": "rgba(255,255,255,0.08)",
+      "radius": 12,
+      "shadow": "0 24px 60px rgba(0,0,0,0.45)",
+      "traffic_lights": [
+        "#FF5F57",
+        "#FEBC2E",
+        "#28C840"
+      ]
+    }
+  },
+  "fonts": {
+    "ui": "-apple-system, 'SF Pro Text', system-ui (Chromium on macOS resolves this to SF Pro; never bundle or commit SF font files)",
+    "display": "-apple-system, 'SF Pro Display', system-ui",
+    "mono": "'SF Mono' loaded via @font-face from /System/Applications/Utilities/Terminal.app/Contents/Resources/Fonts/SF-Mono-{Regular,Medium,Semibold,Bold}.otf at render time (local file URL, not copied into the repo)",
+    "numerals": "font-variant-numeric: tabular-nums for every timer and count"
+  },
+  "styles": {
+    "hero_xl": {
+      "font": "display",
+      "size": 128,
+      "weight": 800,
+      "tracking": "-0.025em",
+      "color": "#FFFFFF",
+      "space": "screen",
+      "enter": "slam: scale 1.18->1.0 over 0.18 s easeOutBack, opacity 0->1 over 0.08 s",
+      "exit": "blur 0->12 px + opacity 1->0 over 0.2 s"
+    },
+    "hero": {
+      "font": "display",
+      "size": 72,
+      "weight": 700,
+      "tracking": "-0.02em",
+      "color": "#FFFFFF",
+      "space": "screen",
+      "enter": "rise 18 px + opacity over 0.28 s easeOutCubic, per word stagger 0.06 s",
+      "exit": "opacity over 0.18 s"
+    },
+    "caption": {
+      "font": "display",
+      "size": 34,
+      "weight": 650,
+      "tracking": "-0.01em",
+      "color": "#FFFFFF",
+      "shadow": "0 2px 18px rgba(0,0,0,0.45)",
+      "space": "screen",
+      "anchor": "bottom-left",
+      "position": [
+        72,
+        738
+      ],
+      "max_width": 900,
+      "scrim": "bottom 220 px gradient rgba(0,0,0,0)->rgba(0,0,0,0.35) while any caption is up",
+      "enter": "per word: rise 10 px + opacity over 0.22 s, stagger 0.05 s",
+      "exit": "opacity + 6 px drift up over 0.2 s"
+    },
+    "caption_center": {
+      "font": "display",
+      "size": 54,
+      "weight": 700,
+      "tracking": "-0.015em",
+      "color": "#FFFFFF",
+      "shadow": "0 2px 24px rgba(0,0,0,0.5)",
+      "space": "screen",
+      "anchor": "center",
+      "enter": "rise 14 px + opacity over 0.24 s",
+      "exit": "opacity over 0.2 s"
+    },
+    "sub": {
+      "font": "ui",
+      "size": 22,
+      "weight": 500,
+      "color": "rgba(255,255,255,0.72)",
+      "space": "screen",
+      "enter": "opacity over 0.3 s, 0.12 s after its headline"
+    },
+    "chip": {
+      "font": "ui",
+      "size": 17,
+      "weight": 600,
+      "color": "#FFFFFF",
+      "fill": "rgba(255,255,255,0.08)",
+      "border": "1px rgba(255,255,255,0.16)",
+      "padding": [
+        7,
+        14
+      ],
+      "radius": "capsule",
+      "space": "screen",
+      "enter": "scale 0.92->1 + opacity over 0.22 s easeOutBack"
+    },
+    "keycap_inline": {
+      "note": "inline mini keycap inside a caption: fill #34343A, radius 6, 1px rgba(255,255,255,0.14) border, 0.8 em glyph"
+    },
+    "end_title": {
+      "font": "display",
+      "size": 64,
+      "weight": 700,
+      "tracking": "-0.02em",
+      "color": "#FFFFFF",
+      "space": "screen"
+    },
+    "end_sub": {
+      "font": "display",
+      "size": 26,
+      "weight": 600,
+      "color": "rgba(255,255,255,0.88)",
+      "space": "screen"
+    },
+    "end_url": {
+      "font": "mono",
+      "size": 20,
+      "weight": 500,
+      "color": "rgba(255,255,255,0.60)",
+      "space": "screen"
+    },
+    "spectrum_rule": {
+      "note": "7 equal segments in theme.spectrum order, height 6 px, radius 3, drawn left to right over 0.3 s"
+    }
+  },
+  "styles_note": "Sizes are in world/screen units (1440x810 frame). Output pixels = units x 4/3. 'screen' text ignores the camera; 'world' elements move with it. Title-safe margin 72 units.",
+  "stage": {
+    "menubar": {
+      "height": 26,
+      "fill": "rgba(20,18,30,0.35) + backdrop blur 20",
+      "text": "13 pt medium white; app name 13 pt bold",
+      "layout": "matches StoreMenuBar in Tools/VibeScribeScreenshots/AppStoreShots.swift: padding 18 each side; apple.logo 14 pt then 21 gap; app name then 19 gap; each menu then 19 gap; spacer; VibeScribe status item then 14 gap; wifi glyph then 16 gap; battery.75percent then 16 gap; clock text (24-hour, like History)",
+      "status_item": {
+        "idle": "SF Symbol waveform (template, white) + ' ' + language badge (EN / DE / AUTO), NSFont.monospacedDigitSystemFont 11 pt semibold",
+        "recording": "StatusIcons.bars: 7 bars in theme.spectrum, barWidth 2.2, gap 1.6, height 15; wobble = 0.72 + 0.28*sin(t*(7+i) + i*1.3); fraction = clamp(0.22 + 0.78*level*profile[i]*wobble, 0.2, 1). Title = Format.duration(t - started_at) which ROUNDS (so it reads 0:01 after 0.5 s). Redraw at 12 fps. No highlight capsule (the real status item is not highlighted).",
+        "transcribing": "StatusIcons.thinking: white template bars, fraction 0.25 + 0.55*max(0, sin(4.4t - 0.55i)); title back to the language badge",
+        "anchor_world_approx": {
+          "status_item_center": [
+            1241,
+            13
+          ],
+          "wifi_center": [
+            1288,
+            13
+          ],
+          "battery_center": [
+            1326,
+            13
+          ]
+        },
+        "source": "Sources/VibeScribeCore/MenuBarController.swift refreshButton(), StatusIcons"
+      },
+      "app_menus": {
+        "Inbox": [
+          "File",
+          "Edit",
+          "View",
+          "Message",
+          "Window",
+          "Help"
+        ],
+        "Terminal": [
+          "Shell",
+          "Edit",
+          "View",
+          "Window",
+          "Help"
+        ],
+        "Chat": [
+          "File",
+          "Edit",
+          "View",
+          "Conversation",
+          "Window",
+          "Help"
+        ],
+        "Notes": [
+          "File",
+          "Edit",
+          "Format",
+          "View",
+          "Window",
+          "Help"
+        ]
+      }
+    },
+    "pill": {
+      "geometry": "height 34, radius 12 continuous, padding leading 13 trailing 14, HStack spacing 10, title 12 pt semibold white, meta 11.5 pt mono white 55%",
+      "placement_world": {
+        "center_x": 720,
+        "top": 42,
+        "note": "overlay panel 620x64 sits 10 pt below the visible top (menu bar 26) with 6 pt top padding, so the pill top is 16 pt below the menu bar"
+      },
+      "enter": "spring(response 0.38, dampingFraction 0.78): scale 0.8 -> 1 anchored top, opacity 0 -> 1, y -12 -> 0",
+      "exit": "opacity 1 -> 0, y 0 -> -8 on the same spring",
+      "state_change": "title crossfades (contentTransition .opacity); width springs between sprite widths (crossfade both sprites over 0.22 s while scaling X from old width to new width about the centre)",
+      "bars": {
+        "region_pt": {
+          "x": [
+            13,
+            46
+          ],
+          "height": 16,
+          "note": "7 bars, barWidth 3, spacing 2, vertically centred; drawn by the stage on top of the clean-plated sprite"
+        },
+        "profile": [
+          0.34,
+          0.72,
+          0.48,
+          1.0,
+          0.56,
+          0.78,
+          0.34
+        ],
+        "speeds": [
+          7.9,
+          10.4,
+          6.9,
+          9.0,
+          7.6,
+          9.7,
+          6.6
+        ],
+        "phases": [
+          0.2,
+          1.9,
+          3.1,
+          0.8,
+          2.6,
+          4.2,
+          5.0
+        ],
+        "live": "fraction = clamp(0.2 + 0.03*sin(3t + phase[i]) + 0.8*level*profile[i]*(0.72 + 0.28*sin(t*speed[i] + phase[i])), 0.18, 1); bar height = max(barWidth, 16*fraction); refresh at 30 fps (TimelineView minimumInterval 1/30), hold between refreshes",
+        "thinking": "fraction = 0.22 + 0.42*max(0, sin(4.4t - 0.55i)); opacity 0.45 + 0.55*wave",
+        "breathing": "live formula with level = 0.6 + 0.3*sin(1.4t)",
+        "colours": "theme.spectrum[i]",
+        "source": "Sources/VibeScribeCore/UI/Spectrum.swift SpectrumBars"
+      },
+      "level": "per 1024-sample window at 48 kHz (21.3 ms) of the dry voice: target = clamp((20*log10(rms) + 50)/40, 0, 1); level += (target - level) * (target > level ? 0.6 : 0.15). Silence before the voice gives level ~0.",
+      "timer": "Listening/Hands-free meta = Format.duration of whole seconds since started_at, advancing only at started_at + n (TimelineView .periodic by 1), i.e. floor. Starts at 0:00.",
+      "shimmer": "Transcribing only: band of white 10% (clear-white-clear gradient), width 50% of pill, x offset = width*(1.5*p - 0.5), p = (t mod 1.6)/1.6, clipped to the pill shape",
+      "durations": "Pasted shows 1.3 s then exits; Copied would show 2.2 s (not used)",
+      "source": "Sources/VibeScribeCore/UI/OverlayView.swift, OverlayWindowController.swift"
+    },
+    "picker": {
+      "size": [
+        380,
+        372
+      ],
+      "placement_world": {
+        "center_x": 720,
+        "top": 106,
+        "note": "visible top (26) + 80"
+      },
+      "enter": "from top = -358 (panel bottom 12 pt above the visible top) to 106, alpha 0 -> 1, 0.18 s easeOut",
+      "exit": "up 16 pt, alpha 1 -> 0, 0.14 s easeIn",
+      "shadow": "stage-drawn: 0 18px 50px rgba(0,0,0,0.5)",
+      "source": "Sources/VibeScribeCore/LanguagePickerWindowController.swift, UI/LanguagePickerView.swift"
+    },
+    "keycap_hud": {
+      "what": "Film device, not app UI: shows which key the person presses. Uses the real Keycap view sprites (fill #34343A).",
+      "position_screen": [
+        720,
+        742
+      ],
+      "scale": 2.2,
+      "press": "keycap translates down 2 units and its top face brightens 12% while held; release springs back over 0.12 s",
+      "enter_exit": "fade + 8 unit rise over 0.15 s; leaves 0.4 s after the last release",
+      "tap_label": "for taps, a small 'tap' label (sub style, 15 units) under the keycap"
+    },
+    "pointer": "generic macOS arrow cursor drawn as an SVG by the stage, 18 units tall, with a soft shadow",
+    "camera_eases": {
+      "linear": "t",
+      "easeInOutCubic": "standard",
+      "easeInOutSine": "standard",
+      "easeOutCubic": "standard",
+      "whip": "easeInOutExpo with 6-frame directional motion blur along the move"
+    }
+  },
+  "timing_rules": {
+    "source": "Sources/VibeScribeCore/HotkeyCoordinator.swift, OverlayView.swift, VibeScribeApp.swift",
+    "combo_debounce_s": 0.05,
+    "tap_threshold_s": 0.25,
+    "stop_delay_s": 0.2,
+    "pasted_visible_s": 1.3,
+    "hold_loop": "key_down = voice_start - 0.30; recording_start = key_down + 0.05; key_up = voice_end + 0.20; stop/Transcribing = key_up + 0.20; Pasted = stop + transcribing_hold; hidden = Pasted + 1.3",
+    "tap_loop": "tap1_down = voice_start - 0.50 (held 0.15 s); recording_start = tap1_down + 0.05; Hands-free at tap1_up; tap2_down = voice_end + 0.25 (held 0.12 s); stop = tap2_up + 0.20",
+    "transcribing_hold_s": {
+      "B-inbox": 1.2,
+      "C-agent": 0.9,
+      "D-chat": 0.8,
+      "E-note": 0.8,
+      "minimum": 0.8,
+      "why": "never imply instant transcription; large-v3 takes a moment"
+    },
+    "timelines": "overlay, menubar_status and keycap_hud entries are evaluated on the global clock; an entry may land after its scene's end (E's pill exit at 42.52 is repeated in F for clarity)",
+    "history_duration": "recordedDuration = stop - recording_start; shown with Format.duration (rounded)",
+    "retime": "Start times are targets. After synthesis, re-anchor every voice-driven event to the measured clip using the formulas above, push later events in the same scene by the delta, then shift following scenes so transitions keep their cover points. If the film runs past 60.0 s, trim holds in this order: B establishing (4.35-5.2), the F 'Nothing leaves it.' hold, the H tail. Keep montage cards at 1.6 s. Regenerate the music to the final section times.",
+    "derived": {
+      "B": {
+        "key_down": 5.5,
+        "start": 5.55,
+        "key_up": 11.72,
+        "stop": 11.92,
+        "pasted": 13.12,
+        "hidden": 14.42,
+        "rec": 6.37
+      },
+      "C": {
+        "key_down": 16.35,
+        "start": 16.4,
+        "key_up": 23.2,
+        "stop": 23.4,
+        "pasted": 24.3,
+        "hidden": 25.6,
+        "rec": 7.0
+      },
+      "D": {
+        "key_down": 28.5,
+        "start": 28.55,
+        "key_up": 32.1,
+        "stop": 32.3,
+        "pasted": 33.1,
+        "hidden": 34.4,
+        "rec": 3.75
+      },
+      "E": {
+        "tap1_down": 35.9,
+        "start": 35.95,
+        "tap1_up": 36.05,
+        "tap2_down": 40.1,
+        "tap2_up": 40.22,
+        "stop": 40.42,
+        "pasted": 41.22,
+        "hidden": 42.52,
+        "rec": 4.47
+      },
+      "pill_timer_max": {
+        "B": 6,
+        "C": 6,
+        "D": 3,
+        "E": 4
+      }
+    }
+  },
+  "scenes": [
+    {
+      "id": "A-free",
+      "title": "Cold open: Free",
+      "start": 0.0,
+      "end": 4.0,
+      "background": {
+        "kind": "wallpaper",
+        "blur": 24,
+        "dim": 0.35,
+        "fade_from_black": [
+          0.0,
+          0.4
+        ],
+        "menubar": {
+          "visible_from": 3.7,
+          "enter": "slides down from y -26 over 0.2 s",
+          "app": null,
+          "menus": [],
+          "clock": "Thu 09:12",
+          "language": "EN",
+          "wifi": "wifi"
+        }
+      },
+      "windows": [
+        {
+          "id": "inbox",
+          "visible_from": 3.7,
+          "note": "the scene-B Inbox window fades in under the transition (opacity 0 -> 1, 3.7-4.0)"
+        }
+      ],
+      "elements": [
+        {
+          "id": "hero_bars",
+          "kind": "stage_bars",
+          "space": "screen",
+          "center": [
+            720,
+            330
+          ],
+          "bar_width": 18,
+          "gap": 12,
+          "height": 96,
+          "corner": "capsule",
+          "mode": "live",
+          "level": "music:kick_bass_envelope (clamped 0..0.9)",
+          "math": "pill.bars.live with the same profile, speeds and phases",
+          "visible": [
+            0.0,
+            4.0
+          ],
+          "beats": [
+            {
+              "t": 0.8,
+              "note": "level spike to 1.0 on the 'Free' impact, then release at 0.15/step"
+            }
+          ]
+        }
+      ],
+      "overlay": [],
+      "menubar_status": [
+        {
+          "t": 3.7,
+          "state": "idle",
+          "title": "EN"
+        }
+      ],
+      "sprites": [
+        "glyph_waveform",
+        "glyph_wifi",
+        "glyph_battery_75",
+        "glyph_apple_logo"
+      ],
+      "text": [
+        {
+          "id": "free",
+          "text": "Free",
+          "style": "hero_xl",
+          "start": 0.8,
+          "end": 1.6,
+          "position": [
+            720,
+            470
+          ],
+          "anchor": "center",
+          "note": "lands on the impact; spectrum_rule draws under it 0.9-1.2"
+        },
+        {
+          "id": "free_line1",
+          "text": "Free voice transcription",
+          "style": "hero",
+          "start": 1.6,
+          "end": 3.5,
+          "position": [
+            720,
+            462
+          ],
+          "anchor": "center",
+          "note": "'Free' shrinks from hero_xl into the first word of this line (shared-element morph over 0.3 s); the other words rise in"
+        },
+        {
+          "id": "free_line2",
+          "text": "for your Mac.",
+          "style": "hero",
+          "start": 2.4,
+          "end": 3.5,
+          "position": [
+            720,
+            548
+          ],
+          "anchor": "center"
+        }
+      ],
+      "transitions": {
+        "out": {
+          "id": "T1-bars-to-glyph",
+          "start": 3.6,
+          "end": 4.0,
+          "kind": "bars_to_glyph",
+          "note": "hero bars shrink, desaturate to white and fly to the status item glyph position (computed from the camera at 4.0), crossfading into glyph_waveform; wallpaper blur 24 -> 0 and dim 0.35 -> 0; text exits by 3.6"
+        }
+      },
+      "camera": [
+        {
+          "t": 0.0,
+          "s": 1.0,
+          "cx": 720,
+          "cy": 405,
+          "ease": "linear"
+        },
+        {
+          "t": 3.6,
+          "s": 1.0,
+          "cx": 720,
+          "cy": 405,
+          "ease": "linear"
+        },
+        {
+          "t": 4.0,
+          "s": 2.0,
+          "cx": 1080,
+          "cy": 202.5,
+          "ease": "easeInOutCubic",
+          "note": "world zoom lands on the status item while the bars fly into it"
+        }
+      ],
+      "music_section": "intro + hit"
+    },
+    {
+      "id": "B-inbox",
+      "title": "Email reply: the core loop, taught slowly",
+      "start": 4.0,
+      "end": 15.6,
+      "background": {
+        "kind": "desktop",
+        "menubar": {
+          "app": "Inbox",
+          "menus": [
+            "File",
+            "Edit",
+            "View",
+            "Message",
+            "Window",
+            "Help"
+          ],
+          "clock": "Thu 09:12",
+          "language": "EN",
+          "wifi": "wifi"
+        }
+      },
+      "windows": [
+        {
+          "id": "inbox",
+          "kind": "mail_compose_generic",
+          "title": "Re: Offsite agenda for Thursday",
+          "rect": [
+            300,
+            96,
+            840,
+            520
+          ],
+          "chrome": "generic dark window, traffic lights, title centred 13 pt; toolbar right: a 'Send' capsule button (accent #7BA3F0 fill, white 13 pt semibold). No Mail.app look-alike icons or sidebar.",
+          "content": {
+            "fields": [
+              {
+                "label": "To:",
+                "value": "Priya Raman",
+                "y": 40
+              },
+              {
+                "label": "Subject:",
+                "value": "Re: Offsite agenda for Thursday",
+                "y": 72
+              }
+            ],
+            "body_origin": [
+              324,
+              216
+            ],
+            "body_font": "ui 14 pt, line height 21, white 92%",
+            "caret": "1.5 px #FFFFFF blinking 0.53 s on/off, at body start until the paste",
+            "quote_origin": [
+              324,
+              262
+            ],
+            "quote_style": "ui 13 pt, white 50%, 2 px left rule white 18%; five lines, so it ends above the caption plate in the 1.75x punch-in",
+            "quote": [
+              "On Wed, 09:40, Priya Raman wrote:",
+              "09:30  Coffee and kickoff",
+              "10:00  Team workshop",
+              "13:00  Lunch, then the trail walk",
+              "15:30  Budget review"
+            ],
+            "paste": {
+              "t": 13.12,
+              "text": "Hi Priya, looks great! Could we do the budget review first, so we end on the fun stuff? Thanks.",
+              "mode": "whole text in one frame (single Cmd+V), caret jumps to the end",
+              "flash": "text-land glow: 0.25 s white 18% -> 0 behind the inserted run"
+            }
+          }
+        }
+      ],
+      "events": [
+        {
+          "t": 5.5,
+          "type": "key_down",
+          "key": "Right ⌥"
+        },
+        {
+          "t": 5.55,
+          "type": "recording_start",
+          "note": "start commits 0.05 s after key down (comboDebounce)"
+        },
+        {
+          "t": 11.72,
+          "type": "key_up",
+          "key": "Right ⌥"
+        },
+        {
+          "t": 11.92,
+          "type": "recording_stop",
+          "note": "stop commits 0.2 s after release (stopDelay)"
+        },
+        {
+          "t": 13.12,
+          "type": "paste",
+          "words": 19
+        },
+        {
+          "t": 14.55,
+          "type": "pointer",
+          "from": [
+            980,
+            360
+          ],
+          "to": [
+            1100,
+            116
+          ],
+          "duration": 0.35,
+          "note": "generic macOS arrow cursor sprite drawn by the stage"
+        },
+        {
+          "t": 14.9,
+          "type": "click",
+          "target": "Send"
+        },
+        {
+          "t": 15.0,
+          "type": "window_out",
+          "window": "inbox",
+          "duration": 0.3,
+          "note": "compose window scales 1 -> 0.96 and fades, as if sent"
+        }
+      ],
+      "keycap_hud": [
+        {
+          "t": 5.5,
+          "key": "keycap_right_option",
+          "down": true
+        },
+        {
+          "t": 11.72,
+          "key": "keycap_right_option",
+          "down": false
+        }
+      ],
+      "overlay": [
+        {
+          "t": 5.55,
+          "phase": "listening",
+          "started_at": 5.55,
+          "sprite": "pill_listening_t{n}",
+          "n": "floor(t - started_at), 0..6",
+          "bars": {
+            "mode": "live",
+            "level": "voice:L1"
+          },
+          "enter": "pill.enter"
+        },
+        {
+          "t": 11.92,
+          "phase": "transcribing",
+          "badge": "EN",
+          "sprite": "pill_transcribing_en",
+          "bars": {
+            "mode": "thinking"
+          },
+          "shimmer": true
+        },
+        {
+          "t": 13.12,
+          "phase": "pasted",
+          "words": 19,
+          "sprite": "pill_pasted_19"
+        },
+        {
+          "t": 14.42,
+          "phase": "hidden",
+          "exit": "pill.exit"
+        }
+      ],
+      "menubar_status": [
+        {
+          "t": 5.55,
+          "state": "recording",
+          "started_at": 5.55,
+          "title": "Format.duration(t - started_at) (rounded)",
+          "level": "same as pill"
+        },
+        {
+          "t": 11.92,
+          "state": "transcribing",
+          "title": "EN"
+        },
+        {
+          "t": 13.12,
+          "state": "idle",
+          "title": "EN"
+        }
+      ],
+      "voice": "L1",
+      "sprites": [
+        "pill_listening_t0..t6",
+        "pill_transcribing_en",
+        "pill_pasted_19",
+        "keycap_right_option",
+        "glyph_waveform",
+        "glyph_wifi",
+        "glyph_battery_75",
+        "glyph_apple_logo"
+      ],
+      "text": [
+        {
+          "id": "b_cap1",
+          "text": "Hold Right ⌥ and talk.",
+          "style": "caption",
+          "start": 5.7,
+          "end": 9.6,
+          "note": "'Right ⌥' set as an inline keycap"
+        },
+        {
+          "id": "b_cap2a",
+          "text": "Let go.",
+          "style": "caption",
+          "start": 11.8,
+          "end": 14.4
+        },
+        {
+          "id": "b_cap2b",
+          "text": "It's pasted.",
+          "style": "caption",
+          "start": 13.149999999999999,
+          "end": 14.4,
+          "note": "appended to 'Let go.' on the same line, lands with the text"
+        }
+      ],
+      "transitions": {
+        "in": "T1-bars-to-glyph",
+        "out": {
+          "id": "T2-bars-rise",
+          "start": 15.2,
+          "end": 16.0,
+          "cover": 15.6,
+          "kind": "bars_rise",
+          "note": "seven full-height columns (1/7 width each, theme.spectrum order) rise from below with 0.04 s stagger and profile-shaped leading edges; full cover at 15.6, then continue up and off to reveal C by 16.0"
+        }
+      },
+      "camera": [
+        {
+          "t": 4.0,
+          "s": 2.0,
+          "cx": 1080,
+          "cy": 202.5,
+          "ease": "linear"
+        },
+        {
+          "t": 4.35,
+          "s": 2.0,
+          "cx": 1080,
+          "cy": 202.5,
+          "ease": "linear"
+        },
+        {
+          "t": 5.2,
+          "s": 1.15,
+          "cx": 720,
+          "cy": 352,
+          "ease": "easeInOutCubic"
+        },
+        {
+          "t": 11.92,
+          "s": 1.38,
+          "cx": 770,
+          "cy": 293,
+          "ease": "easeInOutSine",
+          "note": "cx keeps the colourful status item (world right edge ~1274) in frame while recording"
+        },
+        {
+          "t": 12.3,
+          "s": 1.75,
+          "cx": 720,
+          "cy": 231.5,
+          "ease": "easeOutCubic",
+          "note": "punch in on Transcribing; pill and body both in frame"
+        },
+        {
+          "t": 13.9,
+          "s": 1.75,
+          "cx": 720,
+          "cy": 231.5,
+          "ease": "linear"
+        },
+        {
+          "t": 14.6,
+          "s": 1.15,
+          "cx": 720,
+          "cy": 352,
+          "ease": "easeInOutCubic"
+        },
+        {
+          "t": 15.6,
+          "s": 1.17,
+          "cx": 720,
+          "cy": 348,
+          "ease": "linear"
+        }
+      ],
+      "history_entry": {
+        "time": "09:12",
+        "text": "Hi Priya, looks great! Could we do the budget review first, so we end on the fun stuff? Thanks.",
+        "language": "EN",
+        "duration_s": 6.37,
+        "duration_label": "0:06",
+        "app": "Inbox"
+      },
+      "music_section": "verse_1"
+    },
+    {
+      "id": "C-agent",
+      "title": "Coding agent in a terminal",
+      "start": 15.6,
+      "end": 25.6,
+      "background": {
+        "kind": "desktop",
+        "menubar": {
+          "app": "Terminal",
+          "menus": [
+            "Shell",
+            "Edit",
+            "View",
+            "Window",
+            "Help"
+          ],
+          "clock": "Thu 11:47",
+          "language": "EN",
+          "wifi": "wifi"
+        }
+      },
+      "windows": [
+        {
+          "id": "terminal",
+          "kind": "terminal_generic",
+          "title": "trailhead — zsh",
+          "rect": [
+            260,
+            96,
+            920,
+            540
+          ],
+          "chrome": "generic dark terminal window (#1C1C1F), title 13 pt centred. A generic command named 'agent'; no vendor names or logos.",
+          "content": {
+            "font": "mono 13 pt, line height 20, origin [274, 138]",
+            "palette": {
+              "dim": "rgba(255,255,255,0.55)",
+              "prompt": "#FFFFFF with ❯ in #6EC6EA",
+              "input": "#FFFFFF with › in #9A8AE6",
+              "agent": "rgba(255,255,255,0.78) with ◇ in #C68AEE"
+            },
+            "lines": [
+              {
+                "text": "~/dev/trailhead on main",
+                "style": "dim"
+              },
+              {
+                "text": "❯ git pull",
+                "style": "prompt"
+              },
+              {
+                "text": "Already up to date.",
+                "style": "dim"
+              },
+              {
+                "text": "❯ agent",
+                "style": "prompt"
+              },
+              {
+                "text": "Coding assistant · describe the change, ⏎ to send",
+                "style": "dim"
+              },
+              {
+                "text": "",
+                "style": "plain"
+              },
+              {
+                "text": "› █",
+                "style": "input",
+                "note": "paste target; block caret blinks"
+              }
+            ],
+            "paste": {
+              "t": 24.3,
+              "after": "› ",
+              "text": "Uploads keep failing on bad Wi-Fi. Add retries with backoff, and write a test for the offline case.",
+              "mode": "whole text in one frame (single Cmd+V)"
+            },
+            "enter": {
+              "t": 24.75,
+              "note": "↩ sends; input line dims to rgba(255,255,255,0.7), a blank line, then agent lines"
+            },
+            "agent_output": [
+              {
+                "t": 24.85,
+                "text": "◇ Reading Sources/Upload/UploadClient.swift"
+              },
+              {
+                "t": 25.05,
+                "text": "◇ Plan: retry with exponential backoff, 0.5 s → 8 s"
+              },
+              {
+                "t": 25.25,
+                "text": "⠋ Writing a test for the offline case…",
+                "spinner": "⠋⠙⠹⠸⠼⠴⠦⠧⠇⠏ at 12 fps"
+              }
+            ]
+          }
+        }
+      ],
+      "events": [
+        {
+          "t": 16.35,
+          "type": "key_down",
+          "key": "Right ⌥"
+        },
+        {
+          "t": 16.4,
+          "type": "recording_start"
+        },
+        {
+          "t": 23.2,
+          "type": "key_up",
+          "key": "Right ⌥"
+        },
+        {
+          "t": 23.4,
+          "type": "recording_stop"
+        },
+        {
+          "t": 24.3,
+          "type": "paste",
+          "words": 18
+        },
+        {
+          "t": 24.75,
+          "type": "key_press",
+          "key": "↩"
+        }
+      ],
+      "keycap_hud": [
+        {
+          "t": 16.35,
+          "key": "keycap_right_option",
+          "down": true
+        },
+        {
+          "t": 23.2,
+          "key": "keycap_right_option",
+          "down": false
+        },
+        {
+          "t": 24.75,
+          "key": "keycap_return",
+          "down": true
+        },
+        {
+          "t": 24.85,
+          "key": "keycap_return",
+          "down": false
+        }
+      ],
+      "overlay": [
+        {
+          "t": 16.4,
+          "phase": "listening",
+          "started_at": 16.4,
+          "sprite": "pill_listening_t{n}",
+          "n": "floor(t - started_at), 0..6",
+          "bars": {
+            "mode": "live",
+            "level": "voice:L2"
+          },
+          "enter": "pill.enter"
+        },
+        {
+          "t": 23.4,
+          "phase": "transcribing",
+          "badge": "EN",
+          "sprite": "pill_transcribing_en",
+          "bars": {
+            "mode": "thinking"
+          },
+          "shimmer": true
+        },
+        {
+          "t": 24.3,
+          "phase": "pasted",
+          "words": 18,
+          "sprite": "pill_pasted_18"
+        },
+        {
+          "t": 25.6,
+          "phase": "hidden",
+          "exit": "pill.exit"
+        }
+      ],
+      "menubar_status": [
+        {
+          "t": 16.4,
+          "state": "recording",
+          "started_at": 16.4,
+          "title": "Format.duration(t - started_at) (rounded)",
+          "level": "same as pill"
+        },
+        {
+          "t": 23.4,
+          "state": "transcribing",
+          "title": "EN"
+        },
+        {
+          "t": 24.3,
+          "state": "idle",
+          "title": "EN"
+        }
+      ],
+      "voice": "L2",
+      "sprites": [
+        "pill_listening_t0..t6",
+        "pill_transcribing_en",
+        "pill_pasted_18",
+        "keycap_right_option",
+        "keycap_return",
+        "glyph_waveform",
+        "glyph_wifi",
+        "glyph_battery_75",
+        "glyph_apple_logo"
+      ],
+      "text": [
+        {
+          "id": "c_cap",
+          "text": "Talk to your coding agent.",
+          "style": "caption",
+          "start": 16.7,
+          "end": 20.6
+        }
+      ],
+      "transitions": {
+        "in": "T2-bars-rise",
+        "out": {
+          "id": "T3-bars-sweep",
+          "start": 25.2,
+          "end": 26.0,
+          "cover": 25.6,
+          "kind": "bars_sweep",
+          "note": "seven full-height columns sweep in from the left (staggered 0.03 s, profile-shaped), cover at 25.6, exit to the right"
+        }
+      },
+      "camera": [
+        {
+          "t": 15.6,
+          "s": 1.2,
+          "cx": 720,
+          "cy": 337.5,
+          "ease": "linear"
+        },
+        {
+          "t": 16.3,
+          "s": 1.2,
+          "cx": 720,
+          "cy": 337.5,
+          "ease": "linear"
+        },
+        {
+          "t": 23.4,
+          "s": 1.42,
+          "cx": 785,
+          "cy": 285,
+          "ease": "easeInOutSine",
+          "note": "cx keeps the colourful status item (world right edge ~1274) in frame while recording"
+        },
+        {
+          "t": 23.72,
+          "s": 1.75,
+          "cx": 720,
+          "cy": 231.5,
+          "ease": "easeOutCubic"
+        },
+        {
+          "t": 24.55,
+          "s": 1.75,
+          "cx": 720,
+          "cy": 231.5,
+          "ease": "linear"
+        },
+        {
+          "t": 25.1,
+          "s": 1.35,
+          "cx": 759,
+          "cy": 300,
+          "ease": "easeInOutCubic",
+          "note": "ease out so the agent lines are in frame"
+        },
+        {
+          "t": 25.6,
+          "s": 1.38,
+          "cx": 770,
+          "cy": 296,
+          "ease": "linear"
+        }
+      ],
+      "history_entry": {
+        "time": "11:47",
+        "text": "Uploads keep failing on bad Wi-Fi. Add retries with backoff, and write a test for the offline case.",
+        "language": "EN",
+        "duration_s": 7.0,
+        "duration_label": "0:07",
+        "app": "Terminal"
+      },
+      "music_section": "verse_2"
+    },
+    {
+      "id": "D-chat",
+      "title": "Chat in German via the ⌥⇧ picker",
+      "start": 25.6,
+      "end": 35.2,
+      "background": {
+        "kind": "desktop",
+        "menubar": {
+          "app": "Chat",
+          "menus": [
+            "File",
+            "Edit",
+            "View",
+            "Conversation",
+            "Window",
+            "Help"
+          ],
+          "clock": "Thu 16:05",
+          "language": "EN until 27.95, then DE",
+          "wifi": "wifi"
+        }
+      },
+      "windows": [
+        {
+          "id": "chat",
+          "kind": "chat_generic",
+          "title": "Lena Fischer",
+          "rect": [
+            360,
+            100,
+            720,
+            440
+          ],
+          "chrome": "generic dark messaging window. Header: circular avatar with initials 'LF' on a #D884C4 -> #EE9A8F gradient, name 'Lena Fischer' 14 pt semibold. No third-party logos.",
+          "content": {
+            "messages": [
+              {
+                "t": 26.0,
+                "from": "Lena Fischer",
+                "side": "left",
+                "text": "Wir gehen heute Abend Pizza essen. Kommst du mit?",
+                "bubble": "#2E2E33, white 92%, radius 16",
+                "enter": "pop scale 0.9 -> 1 over 0.2 s"
+              },
+              {
+                "t": 33.7,
+                "from": "me",
+                "side": "right",
+                "text": "Klingt gut! Ich bin dabei, komme aber ein bisschen später.",
+                "bubble": "#7BA3F0 -> #9A8AE6 gradient, white, radius 16",
+                "enter": "text flies from the composer into a right bubble over 0.25 s"
+              },
+              {
+                "t": 33.95,
+                "from": "Lena Fischer",
+                "side": "left",
+                "typing_indicator": [
+                  33.95,
+                  34.25
+                ]
+              },
+              {
+                "t": 34.25,
+                "from": "Lena Fischer",
+                "side": "left",
+                "text": "Perfekt, bis später!"
+              }
+            ],
+            "composer": {
+              "rect_world": [
+                376,
+                488,
+                688,
+                40
+              ],
+              "placeholder": "Message",
+              "font": "ui 14 pt",
+              "paste": {
+                "t": 33.1,
+                "text": "Klingt gut! Ich bin dabei, komme aber ein bisschen später.",
+                "mode": "whole text in one frame (single Cmd+V)"
+              }
+            }
+          }
+        }
+      ],
+      "picker": {
+        "open": 26.6,
+        "slide": [
+          26.6,
+          26.78
+        ],
+        "states": [
+          {
+            "t": 26.6,
+            "sprite": "picker_before_q0",
+            "query": "",
+            "right_label": "now: en"
+          },
+          {
+            "t": 27.2,
+            "sprite": "picker_before_g",
+            "query": "g",
+            "right_label": "22 results"
+          },
+          {
+            "t": 27.35,
+            "sprite": "picker_before_ge",
+            "query": "ge",
+            "right_label": "6 results"
+          },
+          {
+            "t": 27.5,
+            "sprite": "picker_before_ger",
+            "query": "ger",
+            "right_label": "2 results",
+            "rows": [
+              "German · Deutsch · de (highlighted)",
+              "Georgian · Ქართული · ka"
+            ]
+          }
+        ],
+        "choose": 27.9,
+        "exit": [
+          27.9,
+          28.04
+        ],
+        "note": "Right labels and result counts come from the real model; the sprites carry them. Pinned rows: Automatic ⌘1, English ⌘2 (checkmark), Spanish ⌘3; Recent: Japanese, French."
+      },
+      "events": [
+        {
+          "t": 26.6,
+          "type": "key_combo",
+          "keys": [
+            "⌥",
+            "⇧"
+          ],
+          "note": "language picker default shortcut"
+        },
+        {
+          "t": 27.2,
+          "type": "type",
+          "text": "g"
+        },
+        {
+          "t": 27.35,
+          "type": "type",
+          "text": "e"
+        },
+        {
+          "t": 27.5,
+          "type": "type",
+          "text": "r"
+        },
+        {
+          "t": 27.9,
+          "type": "key_press",
+          "key": "↩"
+        },
+        {
+          "t": 27.95,
+          "type": "menubar_language",
+          "from": "EN",
+          "to": "DE",
+          "note": "status item title crossfades over 0.12 s with a 0.3 s soft glow"
+        },
+        {
+          "t": 28.5,
+          "type": "key_down",
+          "key": "Right ⌥"
+        },
+        {
+          "t": 28.55,
+          "type": "recording_start"
+        },
+        {
+          "t": 32.1,
+          "type": "key_up",
+          "key": "Right ⌥"
+        },
+        {
+          "t": 32.3,
+          "type": "recording_stop"
+        },
+        {
+          "t": 33.1,
+          "type": "paste",
+          "words": 10
+        },
+        {
+          "t": 33.7,
+          "type": "key_press",
+          "key": "↩",
+          "note": "send"
+        }
+      ],
+      "keycap_hud": [
+        {
+          "t": 26.6,
+          "key": [
+            "keycap_option",
+            "keycap_shift"
+          ],
+          "down": true
+        },
+        {
+          "t": 26.8,
+          "key": [
+            "keycap_option",
+            "keycap_shift"
+          ],
+          "down": false
+        },
+        {
+          "t": 27.9,
+          "key": "keycap_return",
+          "down": true
+        },
+        {
+          "t": 28.0,
+          "key": "keycap_return",
+          "down": false
+        },
+        {
+          "t": 28.5,
+          "key": "keycap_right_option",
+          "down": true
+        },
+        {
+          "t": 32.1,
+          "key": "keycap_right_option",
+          "down": false
+        },
+        {
+          "t": 33.7,
+          "key": "keycap_return",
+          "down": true
+        },
+        {
+          "t": 33.8,
+          "key": "keycap_return",
+          "down": false
+        }
+      ],
+      "overlay": [
+        {
+          "t": 28.55,
+          "phase": "listening",
+          "started_at": 28.55,
+          "sprite": "pill_listening_t{n}",
+          "n": "floor(t - started_at), 0..3",
+          "bars": {
+            "mode": "live",
+            "level": "voice:L3"
+          },
+          "enter": "pill.enter"
+        },
+        {
+          "t": 32.3,
+          "phase": "transcribing",
+          "badge": "DE",
+          "sprite": "pill_transcribing_de",
+          "bars": {
+            "mode": "thinking"
+          },
+          "shimmer": true
+        },
+        {
+          "t": 33.1,
+          "phase": "pasted",
+          "words": 10,
+          "sprite": "pill_pasted_10"
+        },
+        {
+          "t": 34.4,
+          "phase": "hidden",
+          "exit": "pill.exit"
+        }
+      ],
+      "menubar_status": [
+        {
+          "t": 25.6,
+          "state": "idle",
+          "title": "EN"
+        },
+        {
+          "t": 27.95,
+          "state": "idle",
+          "title": "DE"
+        },
+        {
+          "t": 28.55,
+          "state": "recording",
+          "started_at": 28.55,
+          "title": "Format.duration(t - started_at) (rounded)",
+          "level": "same as pill"
+        },
+        {
+          "t": 32.3,
+          "state": "transcribing",
+          "title": "DE"
+        },
+        {
+          "t": 33.1,
+          "state": "idle",
+          "title": "DE"
+        }
+      ],
+      "voice": "L3",
+      "sprites": [
+        "picker_before_q0",
+        "picker_before_g",
+        "picker_before_ge",
+        "picker_before_ger",
+        "pill_listening_t0..t3",
+        "pill_transcribing_de",
+        "pill_pasted_10",
+        "keycap_option",
+        "keycap_shift",
+        "keycap_return",
+        "keycap_right_option",
+        "glyph_waveform",
+        "glyph_wifi",
+        "glyph_battery_75",
+        "glyph_apple_logo"
+      ],
+      "text": [
+        {
+          "id": "d_cap1",
+          "text": "Switch languages with ⌥⇧",
+          "style": "caption",
+          "start": 26.4,
+          "end": 28.4,
+          "note": "⌥⇧ as inline keycaps"
+        },
+        {
+          "id": "d_cap2",
+          "text": "Reply in German.",
+          "style": "caption",
+          "start": 28.8,
+          "end": 30.8
+        }
+      ],
+      "transitions": {
+        "in": "T3-bars-sweep",
+        "out": {
+          "id": "T4-bars-fall",
+          "start": 34.8,
+          "end": 35.6,
+          "cover": 35.2,
+          "kind": "bars_fall",
+          "note": "columns drop from the top (reverse of T2), cover at 35.2, exit below"
+        }
+      },
+      "camera": [
+        {
+          "t": 25.6,
+          "s": 1.15,
+          "cx": 720,
+          "cy": 352,
+          "ease": "linear"
+        },
+        {
+          "t": 26.4,
+          "s": 1.15,
+          "cx": 720,
+          "cy": 352,
+          "ease": "linear"
+        },
+        {
+          "t": 26.8,
+          "s": 1.3,
+          "cx": 720,
+          "cy": 311.5,
+          "ease": "easeOutCubic",
+          "note": "picker fully in frame"
+        },
+        {
+          "t": 28.1,
+          "s": 1.3,
+          "cx": 720,
+          "cy": 311.5,
+          "ease": "linear"
+        },
+        {
+          "t": 28.6,
+          "s": 1.2,
+          "cx": 720,
+          "cy": 337.5,
+          "ease": "easeInOutCubic",
+          "note": "pill and composer both in frame"
+        },
+        {
+          "t": 32.3,
+          "s": 1.25,
+          "cx": 720,
+          "cy": 324,
+          "ease": "linear"
+        },
+        {
+          "t": 32.55,
+          "s": 2.4,
+          "cx": 720,
+          "cy": 168.75,
+          "ease": "easeOutCubic",
+          "note": "punch-in on the DE badge"
+        },
+        {
+          "t": 32.85,
+          "s": 2.4,
+          "cx": 720,
+          "cy": 168.75,
+          "ease": "linear"
+        },
+        {
+          "t": 33.1,
+          "s": 1.2,
+          "cx": 720,
+          "cy": 337.5,
+          "ease": "whip",
+          "note": "whip back to land on the paste; 6-frame directional motion blur"
+        },
+        {
+          "t": 35.2,
+          "s": 1.24,
+          "cx": 720,
+          "cy": 330,
+          "ease": "linear"
+        }
+      ],
+      "history_entry": {
+        "time": "16:05",
+        "text": "Klingt gut! Ich bin dabei, komme aber ein bisschen später.",
+        "language": "DE",
+        "duration_s": 3.75,
+        "duration_label": "0:04",
+        "app": "Chat"
+      },
+      "music_section": "verse_3"
+    },
+    {
+      "id": "E-note",
+      "title": "Hands-free quick note (Wi-Fi already off)",
+      "start": 35.2,
+      "end": 42.4,
+      "background": {
+        "kind": "desktop",
+        "wallpaper_grade": "slightly warmer and darker (evening): multiply #1A1420 at 18%",
+        "menubar": {
+          "app": "Notes",
+          "menus": [
+            "File",
+            "Edit",
+            "Format",
+            "View",
+            "Window",
+            "Help"
+          ],
+          "clock": "Thu 19:48",
+          "language": "EN",
+          "wifi": "wifi.slash",
+          "note": "the plant: Wi-Fi is off from the first frame, nothing draws attention to it yet. Language is back on English (switched off-screen)."
+        }
+      },
+      "windows": [
+        {
+          "id": "notes",
+          "kind": "notes_generic",
+          "title": "To do",
+          "rect": [
+            400,
+            100,
+            640,
+            400
+          ],
+          "chrome": "generic dark notes window, warm paper-dark body #201E1C. No Apple Notes look-alike toolbar.",
+          "content": {
+            "font": "ui 15 pt, line height 24, origin [432, 160]",
+            "lines": [
+              "To do",
+              "•  Offsite bus booked",
+              "•  "
+            ],
+            "title_style": "ui 22 pt bold",
+            "paste": {
+              "t": 41.22,
+              "after": "•  ",
+              "text": "Call the landlord about the heating. Oh, and buy oat milk.",
+              "mode": "whole text in one frame (single Cmd+V)"
+            }
+          }
+        }
+      ],
+      "events": [
+        {
+          "t": 35.9,
+          "type": "key_down",
+          "key": "Right ⌥"
+        },
+        {
+          "t": 35.95,
+          "type": "recording_start"
+        },
+        {
+          "t": 36.05,
+          "type": "key_up",
+          "key": "Right ⌥",
+          "note": "held 0.15 s <= tapThreshold 0.25 s, so it latches hands-free"
+        },
+        {
+          "t": 36.05,
+          "type": "hands_free"
+        },
+        {
+          "t": 40.1,
+          "type": "key_down",
+          "key": "Right ⌥"
+        },
+        {
+          "t": 40.22,
+          "type": "key_up",
+          "key": "Right ⌥",
+          "note": "second tap"
+        },
+        {
+          "t": 40.42,
+          "type": "recording_stop",
+          "note": "0.2 s after the second tap's release"
+        },
+        {
+          "t": 41.22,
+          "type": "paste",
+          "words": 11
+        }
+      ],
+      "keycap_hud": [
+        {
+          "t": 35.9,
+          "key": "keycap_right_option",
+          "down": true,
+          "label": "tap"
+        },
+        {
+          "t": 36.05,
+          "key": "keycap_right_option",
+          "down": false
+        },
+        {
+          "t": 40.1,
+          "key": "keycap_right_option",
+          "down": true,
+          "label": "tap"
+        },
+        {
+          "t": 40.22,
+          "key": "keycap_right_option",
+          "down": false
+        }
+      ],
+      "overlay": [
+        {
+          "t": 35.95,
+          "phase": "listening",
+          "started_at": 35.95,
+          "sprite": "pill_listening_t{n}",
+          "n": "floor(t - started_at)",
+          "bars": {
+            "mode": "live",
+            "level": "voice:L4"
+          },
+          "enter": "pill.enter"
+        },
+        {
+          "t": 36.05,
+          "phase": "handsfree",
+          "started_at": 35.95,
+          "sprite": "pill_handsfree_t{n}",
+          "n": "floor(t - started_at), 0..4",
+          "bars": {
+            "mode": "live",
+            "level": "voice:L4"
+          },
+          "change": "pill.state_change (pill widens to show the hint)",
+          "note": "startedAt is kept, so the timer continues"
+        },
+        {
+          "t": 40.42,
+          "phase": "transcribing",
+          "badge": "EN",
+          "sprite": "pill_transcribing_en",
+          "bars": {
+            "mode": "thinking"
+          },
+          "shimmer": true
+        },
+        {
+          "t": 41.22,
+          "phase": "pasted",
+          "words": 11,
+          "sprite": "pill_pasted_11"
+        },
+        {
+          "t": 42.52,
+          "phase": "hidden",
+          "exit": "pill.exit"
+        }
+      ],
+      "menubar_status": [
+        {
+          "t": 35.95,
+          "state": "recording",
+          "started_at": 35.95,
+          "title": "Format.duration(t - started_at) (rounded)"
+        },
+        {
+          "t": 40.42,
+          "state": "transcribing",
+          "title": "EN"
+        },
+        {
+          "t": 41.22,
+          "state": "idle",
+          "title": "EN"
+        }
+      ],
+      "voice": "L4",
+      "sprites": [
+        "pill_listening_t0",
+        "pill_handsfree_t0..t4",
+        "pill_transcribing_en",
+        "pill_pasted_11",
+        "keycap_right_option",
+        "glyph_waveform",
+        "glyph_wifi_slash",
+        "glyph_battery_75",
+        "glyph_apple_logo"
+      ],
+      "text": [
+        {
+          "id": "e_cap",
+          "text": "Tap for hands-free.",
+          "style": "caption",
+          "start": 36.1,
+          "end": 38.2
+        }
+      ],
+      "transitions": {
+        "in": "T4-bars-fall",
+        "out": {
+          "id": "T5-whip",
+          "start": 42.4,
+          "end": 42.8,
+          "kind": "camera_whip",
+          "note": "no cut; the camera whips to the menu bar"
+        }
+      },
+      "camera": [
+        {
+          "t": 35.2,
+          "s": 1.2,
+          "cx": 720,
+          "cy": 337.5,
+          "ease": "linear"
+        },
+        {
+          "t": 35.85,
+          "s": 1.2,
+          "cx": 720,
+          "cy": 337.5,
+          "ease": "linear"
+        },
+        {
+          "t": 36.3,
+          "s": 1.4,
+          "cx": 778,
+          "cy": 270,
+          "ease": "easeInOutCubic",
+          "note": "cx keeps the colourful status item (world right edge ~1274) in frame while recording"
+        },
+        {
+          "t": 40.42,
+          "s": 1.48,
+          "cx": 806,
+          "cy": 253,
+          "ease": "linear"
+        },
+        {
+          "t": 40.82,
+          "s": 1.75,
+          "cx": 720,
+          "cy": 231.5,
+          "ease": "easeOutCubic"
+        },
+        {
+          "t": 42.4,
+          "s": 1.75,
+          "cx": 720,
+          "cy": 231.5,
+          "ease": "linear"
+        }
+      ],
+      "history_entry": {
+        "time": "19:48",
+        "text": "Call the landlord about the heating. Oh, and buy oat milk.",
+        "language": "EN",
+        "duration_s": 4.47,
+        "duration_label": "0:04",
+        "app": "Notes"
+      },
+      "music_section": "verse_4"
+    },
+    {
+      "id": "F-private",
+      "title": "Wi-Fi off. Runs on your Mac.",
+      "start": 42.4,
+      "end": 47.2,
+      "background": {
+        "kind": "desktop",
+        "same_as": "E-note",
+        "grade": [
+          {
+            "t": 43.8,
+            "dim": 0.0,
+            "blur": 0
+          },
+          {
+            "t": 44.4,
+            "dim": 0.55,
+            "blur": 12,
+            "ease": "easeInOutCubic"
+          }
+        ]
+      },
+      "windows": [
+        {
+          "id": "notes",
+          "same_as": "E-note"
+        }
+      ],
+      "elements": [
+        {
+          "id": "wifi_ping",
+          "kind": "ring",
+          "t": 42.8,
+          "center_world": "menubar wifi glyph",
+          "color": "#6EC6EA",
+          "radius": [
+            6,
+            28
+          ],
+          "duration": 0.5,
+          "stroke": 2,
+          "repeat": 2,
+          "gap": 0.35
+        },
+        {
+          "id": "model_card",
+          "kind": "sprite",
+          "sprite": "settings_model_ready",
+          "space": "screen",
+          "crop_pt": "Speech model page: the large-v3 card and the 'Works offline / Speech never leaves this Mac / Ready' row, plus the Settings window chrome edge",
+          "rect": [
+            760,
+            210,
+            600,
+            400
+          ],
+          "enter": {
+            "t": 44.0,
+            "kind": "rise 40 + opacity over 0.45 s easeOutCubic"
+          },
+          "shadow": "0 30px 70px rgba(0,0,0,0.55)",
+          "drift": "scale 1.0 -> 1.02 to 47.2"
+        }
+      ],
+      "overlay": [
+        {
+          "t": 42.52,
+          "phase": "hidden",
+          "exit": "pill.exit",
+          "note": "carried over from E-note: the Pasted 11 words pill is still up during the whip"
+        }
+      ],
+      "menubar_status": [
+        {
+          "t": 42.4,
+          "state": "idle",
+          "title": "EN"
+        }
+      ],
+      "sprites": [
+        "settings_model_ready",
+        "glyph_wifi_slash",
+        "glyph_waveform",
+        "glyph_battery_75",
+        "glyph_apple_logo"
+      ],
+      "text": [
+        {
+          "id": "f_wifi",
+          "text": "Wi-Fi off.",
+          "style": "caption_center",
+          "start": 42.8,
+          "end": 43.8,
+          "position": [
+            720,
+            520
+          ]
+        },
+        {
+          "id": "f_runs",
+          "text": "Runs on your Mac.",
+          "style": "hero",
+          "start": 44.2,
+          "end": 47.2,
+          "position": [
+            96,
+            330
+          ],
+          "anchor": "left"
+        },
+        {
+          "id": "f_nothing",
+          "text": "Nothing leaves it.",
+          "style": "hero",
+          "start": 44.6,
+          "end": 47.2,
+          "position": [
+            96,
+            412
+          ],
+          "anchor": "left"
+        },
+        {
+          "id": "chip_account",
+          "text": "No account",
+          "style": "chip",
+          "start": 45.2,
+          "end": 47.2,
+          "position": [
+            96,
+            488
+          ]
+        },
+        {
+          "id": "chip_key",
+          "text": "No API key",
+          "style": "chip",
+          "start": 45.4,
+          "end": 47.2,
+          "position": [
+            236,
+            488
+          ],
+          "note": "x follows the previous chip width + 12"
+        },
+        {
+          "id": "chip_sub",
+          "text": "No subscription",
+          "style": "chip",
+          "start": 45.6,
+          "end": 47.2,
+          "position": [
+            380,
+            488
+          ],
+          "note": "launch film only (pricing-adjacent); never in the App Preview"
+        }
+      ],
+      "transitions": {
+        "in": "T5-whip",
+        "out": {
+          "id": "T6-drop-wipe",
+          "start": 47.05,
+          "end": 47.35,
+          "cover": 47.2,
+          "kind": "single_bar_wipe",
+          "note": "one full-height spectrum bar (gradient through all seven colours) wipes left to right on the drop"
+        }
+      },
+      "camera": [
+        {
+          "t": 42.4,
+          "s": 1.75,
+          "cx": 720,
+          "cy": 231.5,
+          "ease": "linear"
+        },
+        {
+          "t": 42.8,
+          "s": 3.0,
+          "cx": 1200,
+          "cy": 135,
+          "ease": "whip",
+          "note": "lands on the slashed Wi-Fi glyph next to the VibeScribe item"
+        },
+        {
+          "t": 43.8,
+          "s": 3.05,
+          "cx": 1200,
+          "cy": 135,
+          "ease": "linear"
+        },
+        {
+          "t": 44.4,
+          "s": 1.0,
+          "cx": 720,
+          "cy": 405,
+          "ease": "easeInOutCubic"
+        },
+        {
+          "t": 47.2,
+          "s": 1.03,
+          "cx": 720,
+          "cy": 405,
+          "ease": "linear"
+        }
+      ],
+      "music_section": "breakdown"
+    },
+    {
+      "id": "G-montage",
+      "title": "Feature montage on the drop",
+      "start": 47.2,
+      "end": 53.6,
+      "background": {
+        "kind": "wallpaper",
+        "blur": 30,
+        "dim": 0.25,
+        "menubar": null
+      },
+      "cards": [
+        {
+          "id": "G1-languages",
+          "start": 47.2,
+          "end": 48.8,
+          "headline": "100 languages.",
+          "sub": "Or let Automatic detect it.",
+          "visual": {
+            "sprite": "picker_montage",
+            "rect": [
+              800,
+              150,
+              494,
+              484
+            ],
+            "note": "picker at 1.3x, slow 3% push"
+          },
+          "extra": {
+            "kind": "native_name_ticker",
+            "names": [
+              "Deutsch",
+              "Español",
+              "日本語",
+              "Français",
+              "Português",
+              "हिन्दी",
+              "한국어",
+              "中文",
+              "Italiano",
+              "Norsk",
+              "العربية",
+              "Tiếng Việt",
+              "Cymraeg",
+              "Èdè Yorùbá"
+            ],
+            "style": "ui 20 units weight 500 white 45%, one line under the sub, scrolling left at 120 units/s",
+            "note": "every name is Locale's native name for a code in the app's list (as shown in the picker)"
+          }
+        },
+        {
+          "id": "G2-history",
+          "start": 48.8,
+          "end": 50.4,
+          "headline": "Searchable history.",
+          "sub": "Stored only on this Mac.",
+          "visual": {
+            "sprite_states": [
+              {
+                "t": 48.8,
+                "sprite": "settings_history_q0"
+              },
+              {
+                "t": 49.3,
+                "sprite": "settings_history_q_o"
+              },
+              {
+                "t": 49.42,
+                "sprite": "settings_history_q_oa"
+              },
+              {
+                "t": 49.54,
+                "sprite": "settings_history_q_oat"
+              }
+            ],
+            "rect": [
+              640,
+              150,
+              702,
+              504
+            ],
+            "note": "Settings at 0.9x; four rows from today (19:48, 16:05, 11:47, 09:12) filter to the one oat-milk note"
+          }
+        },
+        {
+          "id": "G3-vocabulary",
+          "start": 50.4,
+          "end": 52.0,
+          "headline": "Custom vocabulary.",
+          "sub": "Add names and jargon.",
+          "visual": {
+            "sprite_states": [
+              {
+                "t": 50.4,
+                "sprite": "settings_language_vocab_0"
+              },
+              {
+                "t": 50.805,
+                "sprite": "settings_language_vocab_1"
+              },
+              {
+                "t": 50.86,
+                "sprite": "settings_language_vocab_2"
+              },
+              {
+                "t": 50.915,
+                "sprite": "settings_language_vocab_3"
+              },
+              {
+                "t": 50.97,
+                "sprite": "settings_language_vocab_4"
+              },
+              {
+                "t": 51.025,
+                "sprite": "settings_language_vocab_5"
+              },
+              {
+                "t": 51.08,
+                "sprite": "settings_language_vocab_6"
+              },
+              {
+                "t": 51.135,
+                "sprite": "settings_language_vocab_7"
+              },
+              {
+                "t": 51.19,
+                "sprite": "settings_language_vocab_8"
+              },
+              {
+                "t": 51.245,
+                "sprite": "settings_language_vocab_9"
+              }
+            ],
+            "rect": [
+              640,
+              150,
+              702,
+              504
+            ],
+            "counter": "4 words -> 5 words (real counter: comma-separated entries)",
+            "note": "camera inside the card pushes to the Vocabulary group"
+          }
+        },
+        {
+          "id": "G4-shortcut",
+          "start": 52.0,
+          "end": 53.6,
+          "headline": "Your shortcut.",
+          "sub": "Hold, tap, or both.",
+          "visual": {
+            "sprite_states": [
+              {
+                "t": 52.0,
+                "sprite": "settings_shortcut_default"
+              },
+              {
+                "t": 52.35,
+                "sprite": "settings_shortcut_recording"
+              },
+              {
+                "t": 52.85,
+                "sprite": "settings_shortcut_custom"
+              }
+            ],
+            "rect": [
+              640,
+              150,
+              702,
+              504
+            ],
+            "events": [
+              {
+                "t": 52.3,
+                "type": "click",
+                "target": "Dictation key field"
+              },
+              {
+                "t": 52.85,
+                "type": "key_down",
+                "key": "Right ⌘"
+              }
+            ],
+            "keycap_hud": [
+              {
+                "t": 52.85,
+                "key": "keycap_right_command",
+                "down": true
+              },
+              {
+                "t": 53.05,
+                "key": "keycap_right_command",
+                "down": false
+              }
+            ],
+            "note": "Right ⌥ -> 'Press a key… esc' (dashed accent border) -> Right ⌘ with the Reset button. Do not show fn: the recorder cannot capture a lone fn press."
+          }
+        }
+      ],
+      "card_layout": {
+        "headline": {
+          "style": "hero",
+          "position": [
+            96,
+            340
+          ],
+          "anchor": "left",
+          "size_override": 60
+        },
+        "sub": {
+          "style": "sub",
+          "position": [
+            96,
+            400
+          ],
+          "anchor": "left"
+        },
+        "accent": "spectrum_rule under the headline, 0.1 s after it lands"
+      },
+      "overlay": [],
+      "sprites": [
+        "picker_montage",
+        "settings_history_q0",
+        "settings_history_q_o",
+        "settings_history_q_oa",
+        "settings_history_q_oat",
+        "settings_language_vocab_0",
+        "settings_language_vocab_1",
+        "settings_language_vocab_2",
+        "settings_language_vocab_3",
+        "settings_language_vocab_4",
+        "settings_language_vocab_5",
+        "settings_language_vocab_6",
+        "settings_language_vocab_7",
+        "settings_language_vocab_8",
+        "settings_language_vocab_9",
+        "settings_shortcut_default",
+        "settings_shortcut_recording",
+        "settings_shortcut_custom",
+        "keycap_right_command"
+      ],
+      "text": [
+        {
+          "id": "G1-languages_h",
+          "text": "100 languages.",
+          "style": "hero",
+          "size_override": 60,
+          "start": 47.25,
+          "end": 48.75,
+          "position": [
+            96,
+            340
+          ],
+          "anchor": "left"
+        },
+        {
+          "id": "G1-languages_s",
+          "text": "Or let Automatic detect it.",
+          "style": "sub",
+          "start": 47.37,
+          "end": 48.75,
+          "position": [
+            96,
+            400
+          ],
+          "anchor": "left"
+        },
+        {
+          "id": "G2-history_h",
+          "text": "Searchable history.",
+          "style": "hero",
+          "size_override": 60,
+          "start": 48.85,
+          "end": 50.35,
+          "position": [
+            96,
+            340
+          ],
+          "anchor": "left"
+        },
+        {
+          "id": "G2-history_s",
+          "text": "Stored only on this Mac.",
+          "style": "sub",
+          "start": 48.97,
+          "end": 50.35,
+          "position": [
+            96,
+            400
+          ],
+          "anchor": "left"
+        },
+        {
+          "id": "G3-vocabulary_h",
+          "text": "Custom vocabulary.",
+          "style": "hero",
+          "size_override": 60,
+          "start": 50.45,
+          "end": 51.95,
+          "position": [
+            96,
+            340
+          ],
+          "anchor": "left"
+        },
+        {
+          "id": "G3-vocabulary_s",
+          "text": "Add names and jargon.",
+          "style": "sub",
+          "start": 50.57,
+          "end": 51.95,
+          "position": [
+            96,
+            400
+          ],
+          "anchor": "left"
+        },
+        {
+          "id": "G4-shortcut_h",
+          "text": "Your shortcut.",
+          "style": "hero",
+          "size_override": 60,
+          "start": 52.05,
+          "end": 53.55,
+          "position": [
+            96,
+            340
+          ],
+          "anchor": "left"
+        },
+        {
+          "id": "G4-shortcut_s",
+          "text": "Hold, tap, or both.",
+          "style": "sub",
+          "start": 52.17,
+          "end": 53.55,
+          "position": [
+            96,
+            400
+          ],
+          "anchor": "left"
+        }
+      ],
+      "transitions": {
+        "in": "T6-drop-wipe",
+        "between_cards": "single_bar_wipe 0.25 s centred on each boundary (48.8, 50.4, 52.0), alternating direction",
+        "out": {
+          "id": "T7-bars-to-icon",
+          "start": 53.6,
+          "end": 54.0,
+          "kind": "bars_to_icon"
+        }
+      },
+      "camera": [
+        {
+          "t": 47.2,
+          "s": 1.0,
+          "cx": 720,
+          "cy": 405,
+          "ease": "linear"
+        },
+        {
+          "t": 53.6,
+          "s": 1.0,
+          "cx": 720,
+          "cy": 405,
+          "ease": "linear"
+        }
+      ],
+      "camera_note": "world camera stays at 1.0; each card's sprite gets its own 3% push",
+      "music_section": "drop"
+    },
+    {
+      "id": "H-end",
+      "title": "End card",
+      "start": 53.6,
+      "end": 58.4,
+      "background": {
+        "kind": "wallpaper",
+        "blur": 30,
+        "dim": 0.45,
+        "menubar": null
+      },
+      "elements": [
+        {
+          "id": "icon",
+          "kind": "image",
+          "sprite": "icon_app",
+          "space": "screen",
+          "center": [
+            720,
+            290
+          ],
+          "size": 200,
+          "enter": {
+            "t": 54.0,
+            "kind": "bars (seven columns) contract to the centre 53.6-54.0 and bloom into the icon: scale 0.86 -> 1 spring(0.5, 0.7), opacity 0 -> 1 over 0.15 s"
+          },
+          "shadow": "0 24px 60px rgba(0,0,0,0.45)"
+        }
+      ],
+      "overlay": [],
+      "sprites": [
+        "icon_app"
+      ],
+      "text": [
+        {
+          "id": "h_title",
+          "text": "VibeScribe",
+          "style": "end_title",
+          "start": 54.2,
+          "end": 58.4,
+          "position": [
+            720,
+            455
+          ],
+          "anchor": "center"
+        },
+        {
+          "id": "h_sub",
+          "text": "Free on the Mac App Store",
+          "style": "end_sub",
+          "start": 54.6,
+          "end": 58.4,
+          "position": [
+            720,
+            515
+          ],
+          "anchor": "center"
+        },
+        {
+          "id": "h_url",
+          "text": "flatoy.github.io/vibescribe",
+          "style": "end_url",
+          "start": 55.0,
+          "end": 58.4,
+          "position": [
+            720,
+            562
+          ],
+          "anchor": "center"
+        }
+      ],
+      "transitions": {
+        "in": "T7-bars-to-icon",
+        "out": {
+          "kind": "fade_to_black",
+          "start": 57.9,
+          "end": 58.4
+        }
+      },
+      "camera": [
+        {
+          "t": 53.6,
+          "s": 1.0,
+          "cx": 720,
+          "cy": 405,
+          "ease": "linear"
+        },
+        {
+          "t": 58.4,
+          "s": 1.0,
+          "cx": 720,
+          "cy": 405,
+          "ease": "linear"
+        }
+      ],
+      "notes": "Text only; no Apple badge artwork.",
+      "music_section": "outro"
+    }
+  ],
+  "voice_clips": [
+    {
+      "id": "L1",
+      "language": "en",
+      "voice": {
+        "provider": "cartesia",
+        "model_id": "sonic-3.6",
+        "voice_id": "e8e5fffb-252c-436d-b842-8879b84445b6",
+        "name": "Cathy",
+        "style": "Relaxed young adult, casual and warm, close-mic. She is talking to her Mac, not to the audience: unhurried, natural breaths, no announcer energy.",
+        "delivery": "Friendly, a little upbeat, replying to a colleague. Slight smile on 'looks great'. Small breath before 'Thanks.'"
+      },
+      "text": "Hi Priya, looks great! Could we do the budget review first, so we end on the fun stuff? Thanks.",
+      "transcript": "Hi Priya, looks great! Could we do the budget review first, so we end on the fun stuff? Thanks.",
+      "transcript_word_count": 19,
+      "scene": "B-inbox",
+      "start": 5.8,
+      "measured_duration_s": 5.72,
+      "end": 11.52,
+      "stt_check": {
+        "engine": "cartesia ink-whisper",
+        "heard": "Hi Priya! Looks great! Could we do the budget review first so we end on the fun stuff? Thanks!",
+        "note": "matches the spoken words; the pasted transcript uses the polished punctuation above"
+      },
+      "mix": "dry close-mic: HPF 80 Hz, gentle de-ess, small-room reverb send at -30 dB; peaks around -6 dBFS before the master"
+    },
+    {
+      "id": "L2",
+      "language": "en",
+      "voice": {
+        "provider": "cartesia",
+        "model_id": "sonic-3.6",
+        "voice_id": "e8e5fffb-252c-436d-b842-8879b84445b6",
+        "name": "Cathy",
+        "style": "Relaxed young adult, casual and warm, close-mic. She is talking to her Mac, not to the audience: unhurried, natural breaths, no announcer energy.",
+        "delivery": "Matter-of-fact, thinking aloud to a coding agent. Brief beat after 'Wi-Fi.' Even pace."
+      },
+      "text": "Uploads keep failing on bad Wi-Fi. Add retries with backoff, and write a test for the offline case.",
+      "transcript": "Uploads keep failing on bad Wi-Fi. Add retries with backoff, and write a test for the offline case.",
+      "transcript_word_count": 18,
+      "scene": "C-agent",
+      "start": 16.65,
+      "measured_duration_s": 6.35,
+      "end": 23.0,
+      "stt_check": {
+        "engine": "cartesia ink-whisper",
+        "heard": "Uploads keep failing on bad Wi-Fi. Add retries with back off and write a test for the offline case.",
+        "note": "matches the spoken words; the pasted transcript uses the polished punctuation above"
+      },
+      "mix": "dry close-mic: HPF 80 Hz, gentle de-ess, small-room reverb send at -30 dB; peaks around -6 dBFS before the master"
+    },
+    {
+      "id": "L3",
+      "language": "de",
+      "voice": {
+        "provider": "cartesia",
+        "model_id": "sonic-3.6",
+        "voice_id": "e8e5fffb-252c-436d-b842-8879b84445b6",
+        "name": "Cathy",
+        "style": "Relaxed young adult, casual and warm, close-mic. She is talking to her Mac, not to the audience: unhurried, natural breaths, no announcer energy.",
+        "delivery": "Casual German, native-sounding, warm. 'Klingt gut!' bright; the rest relaxed. Generated with language 'de'."
+      },
+      "text": "Klingt gut! Ich bin dabei, komme aber ein bisschen später.",
+      "transcript": "Klingt gut! Ich bin dabei, komme aber ein bisschen später.",
+      "transcript_word_count": 10,
+      "scene": "D-chat",
+      "start": 28.8,
+      "measured_duration_s": 3.1,
+      "end": 31.9,
+      "stt_check": {
+        "engine": "cartesia ink-whisper",
+        "heard": "Klingt gut, ich bin dabei, komme aber ein bisschen später.",
+        "note": "matches the spoken words; the pasted transcript uses the polished punctuation above"
+      },
+      "mix": "dry close-mic: HPF 80 Hz, gentle de-ess, small-room reverb send at -30 dB; peaks around -6 dBFS before the master"
+    },
+    {
+      "id": "L4",
+      "language": "en",
+      "voice": {
+        "provider": "cartesia",
+        "model_id": "sonic-3.6",
+        "voice_id": "e8e5fffb-252c-436d-b842-8879b84445b6",
+        "name": "Cathy",
+        "style": "Relaxed young adult, casual and warm, close-mic. She is talking to her Mac, not to the audience: unhurried, natural breaths, no announcer energy.",
+        "delivery": "Quick note-to-self, slightly tired evening tone. Afterthought lift on 'Oh, and buy oat milk.'"
+      },
+      "text": "Call the landlord about the heating. Oh, and buy oat milk.",
+      "transcript": "Call the landlord about the heating. Oh, and buy oat milk.",
+      "transcript_word_count": 11,
+      "scene": "E-note",
+      "start": 36.4,
+      "measured_duration_s": 3.45,
+      "end": 39.85,
+      "stt_check": {
+        "engine": "cartesia ink-whisper",
+        "heard": "Call the landlord about the heating. Oh, and buy oat milk.",
+        "note": "matches the spoken words; the pasted transcript uses the polished punctuation above"
+      },
+      "mix": "dry close-mic: HPF 80 Hz, gentle de-ess, small-room reverb send at -30 dB; peaks around -6 dBFS before the master"
+    }
+  ],
+  "voice_defaults": {
+    "provider": "cartesia",
+    "endpoint": "POST https://api.cartesia.ai/tts/bytes",
+    "api_version": "2026-08-14",
+    "model_id": "sonic-3.6",
+    "voice_id": "e8e5fffb-252c-436d-b842-8879b84445b6",
+    "voice_name": "Cathy",
+    "style": "Relaxed young adult, casual and warm, close-mic. She is talking to her Mac, not to the audience: unhurried, natural breaths, no announcer energy.",
+    "alternates": [
+      {
+        "name": "Corey",
+        "voice_id": "630ed21c-2c5c-41cf-9d82-10a7fd668370"
+      },
+      {
+        "name": "Parker",
+        "voice_id": "30894953-bcce-41fe-892c-15ce19c843ff"
+      },
+      {
+        "name": "Archie",
+        "voice_id": "ef191366-f52f-447a-a398-ed8c0f2943a1"
+      }
+    ],
+    "output_format": {
+      "container": "wav",
+      "encoding": "pcm_s16le",
+      "sample_rate": 48000
+    },
+    "processing": "silenceremove at -48 dB at both ends, cap internal pauses at 0.35 s, envelope at 100 Hz for the stage, two-pass loudnorm I=-16 TP=-1.5 LRA=11, cache keyed by sha256(model_id, voice_id, language, text)."
+  },
+  "sprites": [
+    {
+      "id": "pill_listening_t0",
+      "view": "OverlayPill(phase: .listening(handsFree: false), model: OverlayModel, level: 0) from UI/OverlayView.swift",
+      "size_pt": [
+        300,
+        90
+      ],
+      "scale": 4,
+      "notes": "Render on a transparent canvas of 300x90 pt with the pill centred so the shadow (black 40%, radius 11, y 8) is included. Pill intrinsic width varies; record the content rect in a sidecar JSON. Timer must read 0:00: set model.startedAt = now - 0 - 0.3 so the periodic entry equals 0. Clean-plate the bars region (x 13-46 pt, 16 pt high, centred) by interpolating neighbouring columns; the stage draws live bars.",
+      "state": {
+        "phase": "listening",
+        "handsFree": false,
+        "timer": "0:00"
+      }
+    },
+    {
+      "id": "pill_listening_t1",
+      "view": "OverlayPill(phase: .listening(handsFree: false), model: OverlayModel, level: 0) from UI/OverlayView.swift",
+      "size_pt": [
+        300,
+        90
+      ],
+      "scale": 4,
+      "notes": "Render on a transparent canvas of 300x90 pt with the pill centred so the shadow (black 40%, radius 11, y 8) is included. Pill intrinsic width varies; record the content rect in a sidecar JSON. Timer must read 0:01: set model.startedAt = now - 1 - 0.3 so the periodic entry equals 1. Clean-plate the bars region (x 13-46 pt, 16 pt high, centred) by interpolating neighbouring columns; the stage draws live bars.",
+      "state": {
+        "phase": "listening",
+        "handsFree": false,
+        "timer": "0:01"
+      }
+    },
+    {
+      "id": "pill_listening_t2",
+      "view": "OverlayPill(phase: .listening(handsFree: false), model: OverlayModel, level: 0) from UI/OverlayView.swift",
+      "size_pt": [
+        300,
+        90
+      ],
+      "scale": 4,
+      "notes": "Render on a transparent canvas of 300x90 pt with the pill centred so the shadow (black 40%, radius 11, y 8) is included. Pill intrinsic width varies; record the content rect in a sidecar JSON. Timer must read 0:02: set model.startedAt = now - 2 - 0.3 so the periodic entry equals 2. Clean-plate the bars region (x 13-46 pt, 16 pt high, centred) by interpolating neighbouring columns; the stage draws live bars.",
+      "state": {
+        "phase": "listening",
+        "handsFree": false,
+        "timer": "0:02"
+      }
+    },
+    {
+      "id": "pill_listening_t3",
+      "view": "OverlayPill(phase: .listening(handsFree: false), model: OverlayModel, level: 0) from UI/OverlayView.swift",
+      "size_pt": [
+        300,
+        90
+      ],
+      "scale": 4,
+      "notes": "Render on a transparent canvas of 300x90 pt with the pill centred so the shadow (black 40%, radius 11, y 8) is included. Pill intrinsic width varies; record the content rect in a sidecar JSON. Timer must read 0:03: set model.startedAt = now - 3 - 0.3 so the periodic entry equals 3. Clean-plate the bars region (x 13-46 pt, 16 pt high, centred) by interpolating neighbouring columns; the stage draws live bars.",
+      "state": {
+        "phase": "listening",
+        "handsFree": false,
+        "timer": "0:03"
+      }
+    },
+    {
+      "id": "pill_listening_t4",
+      "view": "OverlayPill(phase: .listening(handsFree: false), model: OverlayModel, level: 0) from UI/OverlayView.swift",
+      "size_pt": [
+        300,
+        90
+      ],
+      "scale": 4,
+      "notes": "Render on a transparent canvas of 300x90 pt with the pill centred so the shadow (black 40%, radius 11, y 8) is included. Pill intrinsic width varies; record the content rect in a sidecar JSON. Timer must read 0:04: set model.startedAt = now - 4 - 0.3 so the periodic entry equals 4. Clean-plate the bars region (x 13-46 pt, 16 pt high, centred) by interpolating neighbouring columns; the stage draws live bars.",
+      "state": {
+        "phase": "listening",
+        "handsFree": false,
+        "timer": "0:04"
+      }
+    },
+    {
+      "id": "pill_listening_t5",
+      "view": "OverlayPill(phase: .listening(handsFree: false), model: OverlayModel, level: 0) from UI/OverlayView.swift",
+      "size_pt": [
+        300,
+        90
+      ],
+      "scale": 4,
+      "notes": "Render on a transparent canvas of 300x90 pt with the pill centred so the shadow (black 40%, radius 11, y 8) is included. Pill intrinsic width varies; record the content rect in a sidecar JSON. Timer must read 0:05: set model.startedAt = now - 5 - 0.3 so the periodic entry equals 5. Clean-plate the bars region (x 13-46 pt, 16 pt high, centred) by interpolating neighbouring columns; the stage draws live bars.",
+      "state": {
+        "phase": "listening",
+        "handsFree": false,
+        "timer": "0:05"
+      }
+    },
+    {
+      "id": "pill_listening_t6",
+      "view": "OverlayPill(phase: .listening(handsFree: false), model: OverlayModel, level: 0) from UI/OverlayView.swift",
+      "size_pt": [
+        300,
+        90
+      ],
+      "scale": 4,
+      "notes": "Render on a transparent canvas of 300x90 pt with the pill centred so the shadow (black 40%, radius 11, y 8) is included. Pill intrinsic width varies; record the content rect in a sidecar JSON. Timer must read 0:06: set model.startedAt = now - 6 - 0.3 so the periodic entry equals 6. Clean-plate the bars region (x 13-46 pt, 16 pt high, centred) by interpolating neighbouring columns; the stage draws live bars.",
+      "state": {
+        "phase": "listening",
+        "handsFree": false,
+        "timer": "0:06"
+      }
+    },
+    {
+      "id": "pill_handsfree_t0",
+      "view": "OverlayPill(phase: .listening(handsFree: true)) with model.shortcutKeycaps = [\"⌥\"]",
+      "size_pt": [
+        460,
+        90
+      ],
+      "scale": 4,
+      "notes": "Render on a transparent canvas of 300x90 pt with the pill centred so the shadow (black 40%, radius 11, y 8) is included. Pill intrinsic width varies; record the content rect in a sidecar JSON. Shows 'Hands-free 0:00 | Tap [⌥] to stop · [esc] to cancel'. Same timer trick. Clean-plate the bars region.",
+      "state": {
+        "phase": "listening",
+        "handsFree": true,
+        "timer": "0:00"
+      }
+    },
+    {
+      "id": "pill_handsfree_t1",
+      "view": "OverlayPill(phase: .listening(handsFree: true)) with model.shortcutKeycaps = [\"⌥\"]",
+      "size_pt": [
+        460,
+        90
+      ],
+      "scale": 4,
+      "notes": "Render on a transparent canvas of 300x90 pt with the pill centred so the shadow (black 40%, radius 11, y 8) is included. Pill intrinsic width varies; record the content rect in a sidecar JSON. Shows 'Hands-free 0:01 | Tap [⌥] to stop · [esc] to cancel'. Same timer trick. Clean-plate the bars region.",
+      "state": {
+        "phase": "listening",
+        "handsFree": true,
+        "timer": "0:01"
+      }
+    },
+    {
+      "id": "pill_handsfree_t2",
+      "view": "OverlayPill(phase: .listening(handsFree: true)) with model.shortcutKeycaps = [\"⌥\"]",
+      "size_pt": [
+        460,
+        90
+      ],
+      "scale": 4,
+      "notes": "Render on a transparent canvas of 300x90 pt with the pill centred so the shadow (black 40%, radius 11, y 8) is included. Pill intrinsic width varies; record the content rect in a sidecar JSON. Shows 'Hands-free 0:02 | Tap [⌥] to stop · [esc] to cancel'. Same timer trick. Clean-plate the bars region.",
+      "state": {
+        "phase": "listening",
+        "handsFree": true,
+        "timer": "0:02"
+      }
+    },
+    {
+      "id": "pill_handsfree_t3",
+      "view": "OverlayPill(phase: .listening(handsFree: true)) with model.shortcutKeycaps = [\"⌥\"]",
+      "size_pt": [
+        460,
+        90
+      ],
+      "scale": 4,
+      "notes": "Render on a transparent canvas of 300x90 pt with the pill centred so the shadow (black 40%, radius 11, y 8) is included. Pill intrinsic width varies; record the content rect in a sidecar JSON. Shows 'Hands-free 0:03 | Tap [⌥] to stop · [esc] to cancel'. Same timer trick. Clean-plate the bars region.",
+      "state": {
+        "phase": "listening",
+        "handsFree": true,
+        "timer": "0:03"
+      }
+    },
+    {
+      "id": "pill_handsfree_t4",
+      "view": "OverlayPill(phase: .listening(handsFree: true)) with model.shortcutKeycaps = [\"⌥\"]",
+      "size_pt": [
+        460,
+        90
+      ],
+      "scale": 4,
+      "notes": "Render on a transparent canvas of 300x90 pt with the pill centred so the shadow (black 40%, radius 11, y 8) is included. Pill intrinsic width varies; record the content rect in a sidecar JSON. Shows 'Hands-free 0:04 | Tap [⌥] to stop · [esc] to cancel'. Same timer trick. Clean-plate the bars region.",
+      "state": {
+        "phase": "listening",
+        "handsFree": true,
+        "timer": "0:04"
+      }
+    },
+    {
+      "id": "pill_transcribing_en",
+      "view": "OverlayPill(phase: .transcribing) with model.languageBadge = \"en\"",
+      "size_pt": [
+        300,
+        90
+      ],
+      "scale": 4,
+      "notes": "Render on a transparent canvas of 300x90 pt with the pill centred so the shadow (black 40%, radius 11, y 8) is included. Pill intrinsic width varies; record the content rect in a sidecar JSON. Badge reads EN. Remove the shimmer by taking the per-pixel minimum of 3 renders spaced about 0.55 s apart; the stage redraws the shimmer. Clean-plate the bars region.",
+      "state": {
+        "phase": "transcribing",
+        "badge": "EN"
+      }
+    },
+    {
+      "id": "pill_transcribing_de",
+      "view": "OverlayPill(phase: .transcribing) with model.languageBadge = \"de\"",
+      "size_pt": [
+        300,
+        90
+      ],
+      "scale": 4,
+      "notes": "Render on a transparent canvas of 300x90 pt with the pill centred so the shadow (black 40%, radius 11, y 8) is included. Pill intrinsic width varies; record the content rect in a sidecar JSON. Badge reads DE. Remove the shimmer by taking the per-pixel minimum of 3 renders spaced about 0.55 s apart; the stage redraws the shimmer. Clean-plate the bars region.",
+      "state": {
+        "phase": "transcribing",
+        "badge": "DE"
+      }
+    },
+    {
+      "id": "pill_pasted_19",
+      "view": "OverlayPill(phase: .result(.pasted(words: 19)))",
+      "size_pt": [
+        300,
+        90
+      ],
+      "scale": 4,
+      "notes": "Render on a transparent canvas of 300x90 pt with the pill centred so the shadow (black 40%, radius 11, y 8) is included. Pill intrinsic width varies; record the content rect in a sidecar JSON. Checkmark in spectrum[0], 'Pasted', '19 words'.",
+      "state": {
+        "phase": "pasted",
+        "words": 19
+      }
+    },
+    {
+      "id": "pill_pasted_18",
+      "view": "OverlayPill(phase: .result(.pasted(words: 18)))",
+      "size_pt": [
+        300,
+        90
+      ],
+      "scale": 4,
+      "notes": "Render on a transparent canvas of 300x90 pt with the pill centred so the shadow (black 40%, radius 11, y 8) is included. Pill intrinsic width varies; record the content rect in a sidecar JSON. Checkmark in spectrum[0], 'Pasted', '18 words'.",
+      "state": {
+        "phase": "pasted",
+        "words": 18
+      }
+    },
+    {
+      "id": "pill_pasted_10",
+      "view": "OverlayPill(phase: .result(.pasted(words: 10)))",
+      "size_pt": [
+        300,
+        90
+      ],
+      "scale": 4,
+      "notes": "Render on a transparent canvas of 300x90 pt with the pill centred so the shadow (black 40%, radius 11, y 8) is included. Pill intrinsic width varies; record the content rect in a sidecar JSON. Checkmark in spectrum[0], 'Pasted', '10 words'.",
+      "state": {
+        "phase": "pasted",
+        "words": 10
+      }
+    },
+    {
+      "id": "pill_pasted_11",
+      "view": "OverlayPill(phase: .result(.pasted(words: 11)))",
+      "size_pt": [
+        300,
+        90
+      ],
+      "scale": 4,
+      "notes": "Render on a transparent canvas of 300x90 pt with the pill centred so the shadow (black 40%, radius 11, y 8) is included. Pill intrinsic width varies; record the content rect in a sidecar JSON. Checkmark in spectrum[0], 'Pasted', '11 words'.",
+      "state": {
+        "phase": "pasted",
+        "words": 11
+      }
+    },
+    {
+      "id": "pill_pasted_6",
+      "view": "OverlayPill(phase: .result(.pasted(words: 6)))",
+      "size_pt": [
+        300,
+        90
+      ],
+      "scale": 4,
+      "notes": "Render on a transparent canvas of 300x90 pt with the pill centred so the shadow (black 40%, radius 11, y 8) is included. Pill intrinsic width varies; record the content rect in a sidecar JSON. Checkmark in spectrum[0], 'Pasted', '6 words'. Used on the App Preview slate (the slate line has 6 words).",
+      "state": {
+        "phase": "pasted",
+        "words": 6
+      }
+    },
+    {
+      "id": "picker_before_q0",
+      "view": "LanguagePickerView(model: LanguagePickerModel(preferences:)) from UI/LanguagePickerView.swift, with model.query set",
+      "size_pt": [
+        380,
+        372
+      ],
+      "scale": 4,
+      "notes": "Preferences(defaults: isolated suite): language = .english, pinnedLanguages = [automatic, english, spanish], recentLanguages = [japanese, french] (set via choose() in order french, japanese, then english, or by writing the defaults key). Query ''; expect the right label 'now: en'. Highlight on the first row. Render with darkAqua and the glass background; the stage adds the panel shadow.",
+      "state": {
+        "query": "",
+        "expect_right_label": "now: en"
+      }
+    },
+    {
+      "id": "picker_before_g",
+      "view": "LanguagePickerView(model: LanguagePickerModel(preferences:)) from UI/LanguagePickerView.swift, with model.query set",
+      "size_pt": [
+        380,
+        372
+      ],
+      "scale": 4,
+      "notes": "Preferences(defaults: isolated suite): language = .english, pinnedLanguages = [automatic, english, spanish], recentLanguages = [japanese, french] (set via choose() in order french, japanese, then english, or by writing the defaults key). Query 'g'; expect the right label '22 results'. Highlight on the first row. Render with darkAqua and the glass background; the stage adds the panel shadow.",
+      "state": {
+        "query": "g",
+        "expect_right_label": "22 results"
+      }
+    },
+    {
+      "id": "picker_before_ge",
+      "view": "LanguagePickerView(model: LanguagePickerModel(preferences:)) from UI/LanguagePickerView.swift, with model.query set",
+      "size_pt": [
+        380,
+        372
+      ],
+      "scale": 4,
+      "notes": "Preferences(defaults: isolated suite): language = .english, pinnedLanguages = [automatic, english, spanish], recentLanguages = [japanese, french] (set via choose() in order french, japanese, then english, or by writing the defaults key). Query 'ge'; expect the right label '6 results'. Highlight on the first row. Render with darkAqua and the glass background; the stage adds the panel shadow.",
+      "state": {
+        "query": "ge",
+        "expect_right_label": "6 results"
+      }
+    },
+    {
+      "id": "picker_before_ger",
+      "view": "LanguagePickerView(model: LanguagePickerModel(preferences:)) from UI/LanguagePickerView.swift, with model.query set",
+      "size_pt": [
+        380,
+        372
+      ],
+      "scale": 4,
+      "notes": "Preferences(defaults: isolated suite): language = .english, pinnedLanguages = [automatic, english, spanish], recentLanguages = [japanese, french] (set via choose() in order french, japanese, then english, or by writing the defaults key). Query 'ger'; expect the right label '2 results'. Highlight on the first row. Render with darkAqua and the glass background; the stage adds the panel shadow.",
+      "state": {
+        "query": "ger",
+        "expect_right_label": "2 results"
+      }
+    },
+    {
+      "id": "picker_montage",
+      "view": "LanguagePickerView, query empty",
+      "size_pt": [
+        380,
+        372
+      ],
+      "scale": 4,
+      "notes": "State after the film's day: language = .english, pinned [automatic, english, spanish], recentLanguages stored [english, german, japanese], so Recent shows German, Japanese (pinned English is filtered out). Right label 'now: en'.",
+      "state": {
+        "query": "",
+        "expect_recent": [
+          "German",
+          "Japanese"
+        ]
+      }
+    },
+    {
+      "id": "settings_history_q0",
+      "view": "WindowFrame(size: SettingsView.size) { SettingsView(context:, navigation:) } with navigation.page = .history",
+      "size_pt": [
+        780,
+        560
+      ],
+      "scale": 3,
+      "notes": "AppContext like Sample in Tools/VibeScribeScreenshots (Permissions.simulate, AppStatus(simulated: .ready), TranscriptHistory(fileURL: nil).simulate(entries)). Entries newest first, all dated today: 19:48 Notes EN 0:04 'Call the landlord about the heating. Oh, and buy oat milk.'; 16:05 Chat DE 0:04 'Klingt gut! Ich bin dabei, komme aber ein bisschen später.'; 11:47 Terminal EN 0:07 'Uploads keep failing on bad Wi-Fi. Add retries with backoff, and write a test for the offline case.'; 09:12 Inbox EN 0:06 'Hi Priya, looks great! Could we do the budget review first, so we end on the fun stuff? Thanks.'. HistoryEntry durations: 4.47, 3.75, 7.0, 6.37 s. Retention .month ('Keep 30 days'). Group header 'TODAY'. Search field text '' -> 4 row(s). HistoryPage keeps the query in private @State, so set it through AppKit after hosting: find the NSTextField under the 'Search transcripts' placeholder, set stringValue, post NSControl.textDidChangeNotification, wait one runloop turn. Fallback: simulate only the matching entries and let the stage draw the query text in the field (13 pt).",
+      "state": {
+        "page": "history",
+        "query": "",
+        "expect_rows": 4
+      }
+    },
+    {
+      "id": "settings_history_q_o",
+      "view": "WindowFrame(size: SettingsView.size) { SettingsView(context:, navigation:) } with navigation.page = .history",
+      "size_pt": [
+        780,
+        560
+      ],
+      "scale": 3,
+      "notes": "AppContext like Sample in Tools/VibeScribeScreenshots (Permissions.simulate, AppStatus(simulated: .ready), TranscriptHistory(fileURL: nil).simulate(entries)). Entries newest first, all dated today: 19:48 Notes EN 0:04 'Call the landlord about the heating. Oh, and buy oat milk.'; 16:05 Chat DE 0:04 'Klingt gut! Ich bin dabei, komme aber ein bisschen später.'; 11:47 Terminal EN 0:07 'Uploads keep failing on bad Wi-Fi. Add retries with backoff, and write a test for the offline case.'; 09:12 Inbox EN 0:06 'Hi Priya, looks great! Could we do the budget review first, so we end on the fun stuff? Thanks.'. HistoryEntry durations: 4.47, 3.75, 7.0, 6.37 s. Retention .month ('Keep 30 days'). Group header 'TODAY'. Search field text 'o' -> 4 row(s). HistoryPage keeps the query in private @State, so set it through AppKit after hosting: find the NSTextField under the 'Search transcripts' placeholder, set stringValue, post NSControl.textDidChangeNotification, wait one runloop turn. Fallback: simulate only the matching entries and let the stage draw the query text in the field (13 pt).",
+      "state": {
+        "page": "history",
+        "query": "o",
+        "expect_rows": 4
+      }
+    },
+    {
+      "id": "settings_history_q_oa",
+      "view": "WindowFrame(size: SettingsView.size) { SettingsView(context:, navigation:) } with navigation.page = .history",
+      "size_pt": [
+        780,
+        560
+      ],
+      "scale": 3,
+      "notes": "AppContext like Sample in Tools/VibeScribeScreenshots (Permissions.simulate, AppStatus(simulated: .ready), TranscriptHistory(fileURL: nil).simulate(entries)). Entries newest first, all dated today: 19:48 Notes EN 0:04 'Call the landlord about the heating. Oh, and buy oat milk.'; 16:05 Chat DE 0:04 'Klingt gut! Ich bin dabei, komme aber ein bisschen später.'; 11:47 Terminal EN 0:07 'Uploads keep failing on bad Wi-Fi. Add retries with backoff, and write a test for the offline case.'; 09:12 Inbox EN 0:06 'Hi Priya, looks great! Could we do the budget review first, so we end on the fun stuff? Thanks.'. HistoryEntry durations: 4.47, 3.75, 7.0, 6.37 s. Retention .month ('Keep 30 days'). Group header 'TODAY'. Search field text 'oa' -> 2 row(s). HistoryPage keeps the query in private @State, so set it through AppKit after hosting: find the NSTextField under the 'Search transcripts' placeholder, set stringValue, post NSControl.textDidChangeNotification, wait one runloop turn. Fallback: simulate only the matching entries and let the stage draw the query text in the field (13 pt).",
+      "state": {
+        "page": "history",
+        "query": "oa",
+        "expect_rows": 2
+      }
+    },
+    {
+      "id": "settings_history_q_oat",
+      "view": "WindowFrame(size: SettingsView.size) { SettingsView(context:, navigation:) } with navigation.page = .history",
+      "size_pt": [
+        780,
+        560
+      ],
+      "scale": 3,
+      "notes": "AppContext like Sample in Tools/VibeScribeScreenshots (Permissions.simulate, AppStatus(simulated: .ready), TranscriptHistory(fileURL: nil).simulate(entries)). Entries newest first, all dated today: 19:48 Notes EN 0:04 'Call the landlord about the heating. Oh, and buy oat milk.'; 16:05 Chat DE 0:04 'Klingt gut! Ich bin dabei, komme aber ein bisschen später.'; 11:47 Terminal EN 0:07 'Uploads keep failing on bad Wi-Fi. Add retries with backoff, and write a test for the offline case.'; 09:12 Inbox EN 0:06 'Hi Priya, looks great! Could we do the budget review first, so we end on the fun stuff? Thanks.'. HistoryEntry durations: 4.47, 3.75, 7.0, 6.37 s. Retention .month ('Keep 30 days'). Group header 'TODAY'. Search field text 'oat' -> 1 row(s). HistoryPage keeps the query in private @State, so set it through AppKit after hosting: find the NSTextField under the 'Search transcripts' placeholder, set stringValue, post NSControl.textDidChangeNotification, wait one runloop turn. Fallback: simulate only the matching entries and let the stage draw the query text in the field (13 pt).",
+      "state": {
+        "page": "history",
+        "query": "oat",
+        "expect_rows": 1
+      }
+    },
+    {
+      "id": "settings_language_vocab_0",
+      "view": "Settings window, navigation.page = .language",
+      "size_pt": [
+        780,
+        560
+      ],
+      "scale": 3,
+      "notes": "preferences.vocabulary = 'Priya Raman, Lena Fischer, Trailhead, Kubernetes' -> counter '4 words'. Pinned chips ⌘1 Automatic, ⌘2 English, ⌘3 Spanish; Speaking = English. The stage draws the text caret.",
+      "state": {
+        "page": "language",
+        "vocabulary": "Priya Raman, Lena Fischer, Trailhead, Kubernetes",
+        "expect_counter": "4 words"
+      }
+    },
+    {
+      "id": "settings_language_vocab_1",
+      "view": "Settings window, navigation.page = .language",
+      "size_pt": [
+        780,
+        560
+      ],
+      "scale": 3,
+      "notes": "preferences.vocabulary = 'Priya Raman, Lena Fischer, Trailhead, Kubernetes,' -> counter '4 words'. Pinned chips ⌘1 Automatic, ⌘2 English, ⌘3 Spanish; Speaking = English. The stage draws the text caret.",
+      "state": {
+        "page": "language",
+        "vocabulary": "Priya Raman, Lena Fischer, Trailhead, Kubernetes,",
+        "expect_counter": "4 words"
+      }
+    },
+    {
+      "id": "settings_language_vocab_2",
+      "view": "Settings window, navigation.page = .language",
+      "size_pt": [
+        780,
+        560
+      ],
+      "scale": 3,
+      "notes": "preferences.vocabulary = 'Priya Raman, Lena Fischer, Trailhead, Kubernetes, ' -> counter '4 words'. Pinned chips ⌘1 Automatic, ⌘2 English, ⌘3 Spanish; Speaking = English. The stage draws the text caret.",
+      "state": {
+        "page": "language",
+        "vocabulary": "Priya Raman, Lena Fischer, Trailhead, Kubernetes, ",
+        "expect_counter": "4 words"
+      }
+    },
+    {
+      "id": "settings_language_vocab_3",
+      "view": "Settings window, navigation.page = .language",
+      "size_pt": [
+        780,
+        560
+      ],
+      "scale": 3,
+      "notes": "preferences.vocabulary = 'Priya Raman, Lena Fischer, Trailhead, Kubernetes, S' -> counter '5 words'. Pinned chips ⌘1 Automatic, ⌘2 English, ⌘3 Spanish; Speaking = English. The stage draws the text caret.",
+      "state": {
+        "page": "language",
+        "vocabulary": "Priya Raman, Lena Fischer, Trailhead, Kubernetes, S",
+        "expect_counter": "5 words"
+      }
+    },
+    {
+      "id": "settings_language_vocab_4",
+      "view": "Settings window, navigation.page = .language",
+      "size_pt": [
+        780,
+        560
+      ],
+      "scale": 3,
+      "notes": "preferences.vocabulary = 'Priya Raman, Lena Fischer, Trailhead, Kubernetes, Sw' -> counter '5 words'. Pinned chips ⌘1 Automatic, ⌘2 English, ⌘3 Spanish; Speaking = English. The stage draws the text caret.",
+      "state": {
+        "page": "language",
+        "vocabulary": "Priya Raman, Lena Fischer, Trailhead, Kubernetes, Sw",
+        "expect_counter": "5 words"
+      }
+    },
+    {
+      "id": "settings_language_vocab_5",
+      "view": "Settings window, navigation.page = .language",
+      "size_pt": [
+        780,
+        560
+      ],
+      "scale": 3,
+      "notes": "preferences.vocabulary = 'Priya Raman, Lena Fischer, Trailhead, Kubernetes, Swi' -> counter '5 words'. Pinned chips ⌘1 Automatic, ⌘2 English, ⌘3 Spanish; Speaking = English. The stage draws the text caret.",
+      "state": {
+        "page": "language",
+        "vocabulary": "Priya Raman, Lena Fischer, Trailhead, Kubernetes, Swi",
+        "expect_counter": "5 words"
+      }
+    },
+    {
+      "id": "settings_language_vocab_6",
+      "view": "Settings window, navigation.page = .language",
+      "size_pt": [
+        780,
+        560
+      ],
+      "scale": 3,
+      "notes": "preferences.vocabulary = 'Priya Raman, Lena Fischer, Trailhead, Kubernetes, Swif' -> counter '5 words'. Pinned chips ⌘1 Automatic, ⌘2 English, ⌘3 Spanish; Speaking = English. The stage draws the text caret.",
+      "state": {
+        "page": "language",
+        "vocabulary": "Priya Raman, Lena Fischer, Trailhead, Kubernetes, Swif",
+        "expect_counter": "5 words"
+      }
+    },
+    {
+      "id": "settings_language_vocab_7",
+      "view": "Settings window, navigation.page = .language",
+      "size_pt": [
+        780,
+        560
+      ],
+      "scale": 3,
+      "notes": "preferences.vocabulary = 'Priya Raman, Lena Fischer, Trailhead, Kubernetes, Swift' -> counter '5 words'. Pinned chips ⌘1 Automatic, ⌘2 English, ⌘3 Spanish; Speaking = English. The stage draws the text caret.",
+      "state": {
+        "page": "language",
+        "vocabulary": "Priya Raman, Lena Fischer, Trailhead, Kubernetes, Swift",
+        "expect_counter": "5 words"
+      }
+    },
+    {
+      "id": "settings_language_vocab_8",
+      "view": "Settings window, navigation.page = .language",
+      "size_pt": [
+        780,
+        560
+      ],
+      "scale": 3,
+      "notes": "preferences.vocabulary = 'Priya Raman, Lena Fischer, Trailhead, Kubernetes, SwiftU' -> counter '5 words'. Pinned chips ⌘1 Automatic, ⌘2 English, ⌘3 Spanish; Speaking = English. The stage draws the text caret.",
+      "state": {
+        "page": "language",
+        "vocabulary": "Priya Raman, Lena Fischer, Trailhead, Kubernetes, SwiftU",
+        "expect_counter": "5 words"
+      }
+    },
+    {
+      "id": "settings_language_vocab_9",
+      "view": "Settings window, navigation.page = .language",
+      "size_pt": [
+        780,
+        560
+      ],
+      "scale": 3,
+      "notes": "preferences.vocabulary = 'Priya Raman, Lena Fischer, Trailhead, Kubernetes, SwiftUI' -> counter '5 words'. Pinned chips ⌘1 Automatic, ⌘2 English, ⌘3 Spanish; Speaking = English. The stage draws the text caret.",
+      "state": {
+        "page": "language",
+        "vocabulary": "Priya Raman, Lena Fischer, Trailhead, Kubernetes, SwiftUI",
+        "expect_counter": "5 words"
+      }
+    },
+    {
+      "id": "settings_shortcut_default",
+      "view": "Settings window, navigation.page = .shortcut",
+      "size_pt": [
+        780,
+        560
+      ],
+      "scale": 3,
+      "notes": "pushToTalkHotkey = .pushToTalkDefault (Right ⌥), triggerMode .holdOrTap. No Reset button.",
+      "state": {
+        "page": "shortcut",
+        "hotkey": "Right ⌥"
+      }
+    },
+    {
+      "id": "settings_shortcut_recording",
+      "view": "Settings window, navigation.page = .shortcut",
+      "size_pt": [
+        780,
+        560
+      ],
+      "scale": 3,
+      "notes": "context.recorder.start(.pushToTalk) before capture (adds only a local NSEvent monitor): field shows 'Press a key…' and 'esc' with the dashed accent border. Call recorder.stop() afterwards.",
+      "state": {
+        "page": "shortcut",
+        "recording": true
+      }
+    },
+    {
+      "id": "settings_shortcut_custom",
+      "view": "Settings window, navigation.page = .shortcut",
+      "size_pt": [
+        780,
+        560
+      ],
+      "scale": 3,
+      "notes": "pushToTalkHotkey = modifier-only Right ⌘ (kVK_RightCommand, keycaps ['Right ⌘']), built the way HotkeyRecorder.finish builds it. The 'Reset' ghost button appears; the explanation reads 'Hold Right ⌘ to talk…'.",
+      "state": {
+        "page": "shortcut",
+        "hotkey": "Right ⌘"
+      }
+    },
+    {
+      "id": "settings_model_ready",
+      "view": "Settings window, navigation.page = .model",
+      "size_pt": [
+        780,
+        560
+      ],
+      "scale": 3,
+      "notes": "SpeechModelLibrary with large-v3 setup simulated .ready (In use, 'Most accurate · 100 languages · size'), turbo not installed. Status row 'Works offline · Speech never leaves this Mac · ✓ Ready'. The stage crops to the card and that row.",
+      "state": {
+        "page": "model",
+        "large_v3": "ready"
+      }
+    },
+    {
+      "id": "keycap_right_option",
+      "view": "Keycap(label: \"Right ⌥\") from UI/Controls.swift (non-compact)",
+      "size_pt": [
+        90,
+        40
+      ],
+      "scale": 4,
+      "notes": "Transparent canvas, keycap centred; record the content rect. Used by the keycap HUD at 2.2x.",
+      "state": {
+        "label": "Right ⌥"
+      }
+    },
+    {
+      "id": "keycap_option",
+      "view": "Keycap(label: \"⌥\") from UI/Controls.swift (non-compact)",
+      "size_pt": [
+        90,
+        40
+      ],
+      "scale": 4,
+      "notes": "Transparent canvas, keycap centred; record the content rect. Used by the keycap HUD at 2.2x.",
+      "state": {
+        "label": "⌥"
+      }
+    },
+    {
+      "id": "keycap_shift",
+      "view": "Keycap(label: \"⇧\") from UI/Controls.swift (non-compact)",
+      "size_pt": [
+        90,
+        40
+      ],
+      "scale": 4,
+      "notes": "Transparent canvas, keycap centred; record the content rect. Used by the keycap HUD at 2.2x.",
+      "state": {
+        "label": "⇧"
+      }
+    },
+    {
+      "id": "keycap_return",
+      "view": "Keycap(label: \"↩\") from UI/Controls.swift (non-compact)",
+      "size_pt": [
+        90,
+        40
+      ],
+      "scale": 4,
+      "notes": "Transparent canvas, keycap centred; record the content rect. Used by the keycap HUD at 2.2x.",
+      "state": {
+        "label": "↩"
+      }
+    },
+    {
+      "id": "keycap_right_command",
+      "view": "Keycap(label: \"Right ⌘\") from UI/Controls.swift (non-compact)",
+      "size_pt": [
+        90,
+        40
+      ],
+      "scale": 4,
+      "notes": "Transparent canvas, keycap centred; record the content rect. Used by the keycap HUD at 2.2x.",
+      "state": {
+        "label": "Right ⌘"
+      }
+    },
+    {
+      "id": "glyph_waveform",
+      "view": "Image(systemName: \"waveform\") in white, menu-bar size (13-14 pt medium)",
+      "size_pt": [
+        32,
+        26
+      ],
+      "scale": 4,
+      "notes": "SF Symbol rendered by SwiftUI so the stage never ships symbol fonts. Template white on transparent.",
+      "state": {
+        "symbol": "waveform"
+      }
+    },
+    {
+      "id": "glyph_wifi",
+      "view": "Image(systemName: \"wifi\") in white, menu-bar size (13-14 pt medium)",
+      "size_pt": [
+        32,
+        26
+      ],
+      "scale": 4,
+      "notes": "SF Symbol rendered by SwiftUI so the stage never ships symbol fonts. Template white on transparent.",
+      "state": {
+        "symbol": "wifi"
+      }
+    },
+    {
+      "id": "glyph_wifi_slash",
+      "view": "Image(systemName: \"wifi.slash\") in white, menu-bar size (13-14 pt medium)",
+      "size_pt": [
+        32,
+        26
+      ],
+      "scale": 4,
+      "notes": "SF Symbol rendered by SwiftUI so the stage never ships symbol fonts. Template white on transparent.",
+      "state": {
+        "symbol": "wifi.slash"
+      }
+    },
+    {
+      "id": "glyph_battery_75",
+      "view": "Image(systemName: \"battery.75percent\") in white, menu-bar size (13-14 pt medium)",
+      "size_pt": [
+        32,
+        26
+      ],
+      "scale": 4,
+      "notes": "SF Symbol rendered by SwiftUI so the stage never ships symbol fonts. Template white on transparent.",
+      "state": {
+        "symbol": "battery.75percent"
+      }
+    },
+    {
+      "id": "glyph_apple_logo",
+      "view": "Image(systemName: \"apple.logo\") in white, menu-bar size (13-14 pt medium)",
+      "size_pt": [
+        32,
+        26
+      ],
+      "scale": 4,
+      "notes": "SF Symbol rendered by SwiftUI so the stage never ships symbol fonts. Template white on transparent.",
+      "state": {
+        "symbol": "apple.logo"
+      }
+    },
+    {
+      "id": "icon_app",
+      "view": "Icon.png at the repo root (1024x1024), not a SwiftUI view",
+      "size_pt": [
+        1024,
+        1024
+      ],
+      "scale": 1,
+      "notes": "Copy into video/build/sprites at build time; do not re-encode lossy."
+    }
+  ],
+  "sprite_tool": {
+    "target": "Tools/VibeScribeVideoFrames (executable target mirroring VibeScribeScreenshots, @testable import VibeScribeCore)",
+    "build": "swift build --scratch-path .build-video --product VibeScribeVideoFrames",
+    "render": "NSHostingView in a borderless window at x -6000, appearance darkAqua, 0.6 s runloop wait, cacheDisplay into an NSBitmapImageRep at the sprite scale; PNG with alpha + sidecar JSON {id, size_pt, scale, content_rect_pt}",
+    "out": "video/build/sprites (gitignored)"
+  },
+  "sfx": [
+    {
+      "id": "a_swell",
+      "type": "pad_swell",
+      "time": 0.0,
+      "level_db": -24,
+      "origin": "film",
+      "note": "soft filtered swell from silence into the first beat"
+    },
+    {
+      "id": "a_impact",
+      "type": "impact",
+      "time": 0.8,
+      "level_db": -10,
+      "origin": "film",
+      "note": "low boom + bright pluck on 'Free'"
+    },
+    {
+      "id": "a_tick1",
+      "type": "ui_tick",
+      "time": 1.6,
+      "level_db": -26,
+      "origin": "film",
+      "note": "tiny tick as the line forms"
+    },
+    {
+      "id": "a_tick2",
+      "type": "ui_tick",
+      "time": 2.4,
+      "level_db": -26,
+      "origin": "film",
+      "note": "tick on 'for your Mac.'"
+    },
+    {
+      "id": "t1_shrink",
+      "type": "whoosh_short",
+      "time": 3.6,
+      "level_db": -22,
+      "origin": "film",
+      "note": "bars collapse into the menu bar"
+    },
+    {
+      "id": "t1_land",
+      "type": "glass_tap",
+      "time": 3.98,
+      "level_db": -24,
+      "origin": "film",
+      "note": "glyph lands in the status item"
+    },
+    {
+      "id": "b_keydown",
+      "type": "key_down",
+      "time": 5.5,
+      "level_db": -20,
+      "origin": "film",
+      "note": "soft low-profile mechanical key, press"
+    },
+    {
+      "id": "b_start",
+      "type": "start_tick",
+      "time": 5.55,
+      "level_db": -21,
+      "origin": "app_analogue",
+      "note": "original glassy tick in the spirit of macOS 'Tink' (the app plays Tink at volume 0.35 when Play sounds is on). Do not use Apple's sound file."
+    },
+    {
+      "id": "b_keyup",
+      "type": "key_up",
+      "time": 11.72,
+      "level_db": -22,
+      "origin": "film",
+      "note": "key release"
+    },
+    {
+      "id": "b_stop",
+      "type": "stop_pop",
+      "time": 11.92,
+      "level_db": -21,
+      "origin": "app_analogue",
+      "note": "original soft bubble pop in the spirit of macOS 'Pop' (app plays it on stop). Do not use Apple's sound file."
+    },
+    {
+      "id": "b_land",
+      "type": "text_land",
+      "time": 13.12,
+      "level_db": -24,
+      "origin": "film",
+      "note": "very soft paper-tick as the whole text lands (film sound design; the app itself makes no paste sound)"
+    },
+    {
+      "id": "b_click",
+      "type": "pointer_click",
+      "time": 14.9,
+      "level_db": -24,
+      "origin": "film",
+      "note": "trackpad click on Send"
+    },
+    {
+      "id": "b_send",
+      "type": "whoosh_soft",
+      "time": 15.0,
+      "level_db": -24,
+      "origin": "film",
+      "note": "message sent"
+    },
+    {
+      "id": "t2",
+      "type": "whoosh_rise",
+      "time": 15.2,
+      "level_db": -18,
+      "origin": "film",
+      "note": "bars rise transition, pitched up, ends on 16.0"
+    },
+    {
+      "id": "c_keydown",
+      "type": "key_down",
+      "time": 16.35,
+      "level_db": -20,
+      "origin": "film",
+      "note": "soft low-profile mechanical key, press"
+    },
+    {
+      "id": "c_start",
+      "type": "start_tick",
+      "time": 16.4,
+      "level_db": -21,
+      "origin": "app_analogue",
+      "note": "original glassy tick in the spirit of macOS 'Tink' (the app plays Tink at volume 0.35 when Play sounds is on). Do not use Apple's sound file."
+    },
+    {
+      "id": "c_keyup",
+      "type": "key_up",
+      "time": 23.2,
+      "level_db": -22,
+      "origin": "film",
+      "note": "key release"
+    },
+    {
+      "id": "c_stop",
+      "type": "stop_pop",
+      "time": 23.4,
+      "level_db": -21,
+      "origin": "app_analogue",
+      "note": "original soft bubble pop in the spirit of macOS 'Pop' (app plays it on stop). Do not use Apple's sound file."
+    },
+    {
+      "id": "c_land",
+      "type": "text_land",
+      "time": 24.3,
+      "level_db": -24,
+      "origin": "film",
+      "note": "very soft paper-tick as the whole text lands (film sound design; the app itself makes no paste sound)"
+    },
+    {
+      "id": "c_return",
+      "type": "key_press",
+      "time": 24.75,
+      "level_db": -22,
+      "origin": "film",
+      "note": "return key"
+    },
+    {
+      "id": "c_agent",
+      "type": "ui_tick_seq",
+      "time": 24.85,
+      "level_db": -30,
+      "origin": "film",
+      "note": "three faint ticks as agent lines print"
+    },
+    {
+      "id": "t3",
+      "type": "whoosh_sweep",
+      "time": 25.2,
+      "level_db": -18,
+      "origin": "film",
+      "note": "bars sweep left to right, stereo pan L -> R"
+    },
+    {
+      "id": "d_receive",
+      "type": "msg_receive",
+      "time": 26.0,
+      "level_db": -24,
+      "origin": "film",
+      "note": "soft two-note receive blip"
+    },
+    {
+      "id": "d_combo",
+      "type": "key_down",
+      "time": 26.6,
+      "level_db": -22,
+      "origin": "film",
+      "note": "⌥⇧ press"
+    },
+    {
+      "id": "d_picker_in",
+      "type": "panel_in",
+      "time": 26.6,
+      "level_db": -26,
+      "origin": "film",
+      "note": "airy slide down, 0.18 s"
+    },
+    {
+      "id": "d_type_g",
+      "type": "type_tick",
+      "time": 27.2,
+      "level_db": -28,
+      "origin": "film",
+      "note": "typing"
+    },
+    {
+      "id": "d_type_e",
+      "type": "type_tick",
+      "time": 27.35,
+      "level_db": -28,
+      "origin": "film",
+      "note": "typing"
+    },
+    {
+      "id": "d_type_r",
+      "type": "type_tick",
+      "time": 27.5,
+      "level_db": -28,
+      "origin": "film",
+      "note": "typing"
+    },
+    {
+      "id": "d_choose",
+      "type": "key_press",
+      "time": 27.9,
+      "level_db": -22,
+      "origin": "film",
+      "note": "return"
+    },
+    {
+      "id": "d_picker_out",
+      "type": "panel_out",
+      "time": 27.9,
+      "level_db": -28,
+      "origin": "film",
+      "note": "short lift, 0.14 s"
+    },
+    {
+      "id": "d_keydown",
+      "type": "key_down",
+      "time": 28.5,
+      "level_db": -20,
+      "origin": "film",
+      "note": "soft low-profile mechanical key, press"
+    },
+    {
+      "id": "d_start",
+      "type": "start_tick",
+      "time": 28.55,
+      "level_db": -21,
+      "origin": "app_analogue",
+      "note": "original glassy tick in the spirit of macOS 'Tink' (the app plays Tink at volume 0.35 when Play sounds is on). Do not use Apple's sound file."
+    },
+    {
+      "id": "d_keyup",
+      "type": "key_up",
+      "time": 32.1,
+      "level_db": -22,
+      "origin": "film",
+      "note": "key release"
+    },
+    {
+      "id": "d_stop",
+      "type": "stop_pop",
+      "time": 32.3,
+      "level_db": -21,
+      "origin": "app_analogue",
+      "note": "original soft bubble pop in the spirit of macOS 'Pop' (app plays it on stop). Do not use Apple's sound file."
+    },
+    {
+      "id": "d_punch",
+      "type": "whoosh_micro",
+      "time": 32.3,
+      "level_db": -26,
+      "origin": "film",
+      "note": "camera punch-in"
+    },
+    {
+      "id": "d_whip",
+      "type": "whip",
+      "time": 32.85,
+      "level_db": -24,
+      "origin": "film",
+      "note": "camera whip back"
+    },
+    {
+      "id": "d_land",
+      "type": "text_land",
+      "time": 33.1,
+      "level_db": -24,
+      "origin": "film",
+      "note": "very soft paper-tick as the whole text lands (film sound design; the app itself makes no paste sound)"
+    },
+    {
+      "id": "d_send",
+      "type": "msg_send",
+      "time": 33.7,
+      "level_db": -24,
+      "origin": "film",
+      "note": "send swoosh"
+    },
+    {
+      "id": "d_reply",
+      "type": "msg_receive",
+      "time": 34.25,
+      "level_db": -26,
+      "origin": "film",
+      "note": "Lena's reply"
+    },
+    {
+      "id": "t4",
+      "type": "whoosh_fall",
+      "time": 34.8,
+      "level_db": -18,
+      "origin": "film",
+      "note": "bars fall, pitched down"
+    },
+    {
+      "id": "e_tap1_down",
+      "type": "key_down",
+      "time": 35.9,
+      "level_db": -22,
+      "origin": "film",
+      "note": "quick tap"
+    },
+    {
+      "id": "e_start",
+      "type": "start_tick",
+      "time": 35.95,
+      "level_db": -21,
+      "origin": "app_analogue",
+      "note": "app-analogue start tick"
+    },
+    {
+      "id": "e_tap1_up",
+      "type": "key_up",
+      "time": 36.05,
+      "level_db": -23,
+      "origin": "film",
+      "note": "tap release"
+    },
+    {
+      "id": "e_tap2_down",
+      "type": "key_down",
+      "time": 40.1,
+      "level_db": -22,
+      "origin": "film",
+      "note": "second tap"
+    },
+    {
+      "id": "e_tap2_up",
+      "type": "key_up",
+      "time": 40.22,
+      "level_db": -23,
+      "origin": "film",
+      "note": "second tap release"
+    },
+    {
+      "id": "e_stop",
+      "type": "stop_pop",
+      "time": 40.42,
+      "level_db": -21,
+      "origin": "app_analogue",
+      "note": "app-analogue stop pop"
+    },
+    {
+      "id": "e_land",
+      "type": "text_land",
+      "time": 41.22,
+      "level_db": -24,
+      "origin": "film",
+      "note": "text lands"
+    },
+    {
+      "id": "f_whip",
+      "type": "whip",
+      "time": 42.4,
+      "level_db": -16,
+      "origin": "film",
+      "note": "big whip to the menu bar; music drums cut here"
+    },
+    {
+      "id": "f_ping",
+      "type": "sonar_ping",
+      "time": 42.8,
+      "level_db": -20,
+      "origin": "film",
+      "note": "two soft pings with the ring on the slashed Wi-Fi glyph"
+    },
+    {
+      "id": "f_card",
+      "type": "whoosh_soft",
+      "time": 44.0,
+      "level_db": -24,
+      "origin": "film",
+      "note": "model card rises"
+    },
+    {
+      "id": "f_chips",
+      "type": "ui_tick_seq",
+      "time": 45.2,
+      "level_db": -28,
+      "origin": "film",
+      "note": "three ticks, 0.2 s apart, one per chip"
+    },
+    {
+      "id": "f_riser",
+      "type": "riser",
+      "time": 46.4,
+      "level_db": -16,
+      "origin": "film",
+      "note": "0.8 s noise + tonal riser into the drop"
+    },
+    {
+      "id": "g_drop",
+      "type": "impact",
+      "time": 47.2,
+      "level_db": -12,
+      "origin": "film",
+      "note": "drop hit with the wipe"
+    },
+    {
+      "id": "g_wipe_48_8",
+      "type": "whoosh_short",
+      "time": 48.51,
+      "level_db": -22,
+      "origin": "film",
+      "note": "card wipe"
+    },
+    {
+      "id": "g_hist_type",
+      "type": "type_tick_seq",
+      "time": 49.3,
+      "level_db": -28,
+      "origin": "film",
+      "note": "three keystrokes o-a-t"
+    },
+    {
+      "id": "g_wipe_50_4",
+      "type": "whoosh_short",
+      "time": 50.11,
+      "level_db": -22,
+      "origin": "film",
+      "note": "card wipe"
+    },
+    {
+      "id": "g_vocab_type",
+      "type": "type_tick_seq",
+      "time": 50.75,
+      "level_db": -28,
+      "origin": "film",
+      "note": "nine fast keystrokes"
+    },
+    {
+      "id": "g_wipe_52_0",
+      "type": "whoosh_short",
+      "time": 51.71,
+      "level_db": -22,
+      "origin": "film",
+      "note": "card wipe"
+    },
+    {
+      "id": "g_shortcut_click",
+      "type": "pointer_click",
+      "time": 52.3,
+      "level_db": -26,
+      "origin": "film",
+      "note": "click on the field"
+    },
+    {
+      "id": "g_shortcut_key",
+      "type": "key_down",
+      "time": 52.85,
+      "level_db": -22,
+      "origin": "film",
+      "note": "Right ⌘ press"
+    },
+    {
+      "id": "t7",
+      "type": "bloom",
+      "time": 53.6,
+      "level_db": -18,
+      "origin": "film",
+      "note": "bars contract into the icon, shimmering bloom resolves at 54.0"
+    },
+    {
+      "id": "h_tail",
+      "type": "none",
+      "time": 57.9,
+      "level_db": null,
+      "origin": "film",
+      "note": "music tail only; fade to black"
+    }
+  ],
+  "sfx_note": "All sounds are original and synthesised or recorded for this film. 'app_analogue' cues stand in for the system Tink/Pop the app plays when Play sounds is on (default).",
+  "music": {
+    "source": "original, generated procedurally in Node at build time (no samples from commercial libraries, no Apple sounds)",
+    "bpm": 150,
+    "feel": "half-time (backbeat on beat 3), one bar = 1.6 s, phrase boundaries quantised to 0.8 s",
+    "key": "D major",
+    "progression": [
+      "D",
+      "Bm",
+      "G",
+      "A"
+    ],
+    "chord_rate": "one chord per bar",
+    "mood": "warm, optimistic, light; soft plucks, rounded sub bass, airy pad, brushed hats; never busy under the voice",
+    "palette": [
+      "sine/triangle pluck with short decay and stereo delay 3/16",
+      "detuned saw pad through a low-pass at 1.8 kHz",
+      "sine sub with soft saturation",
+      "synth kick (55 Hz), rim click, noise hats",
+      "glass bell for accents (spectrum-coloured moments)"
+    ],
+    "sections": [
+      {
+        "id": "intro",
+        "start": 0.0,
+        "end": 0.8,
+        "content": "pad swell + filtered pluck"
+      },
+      {
+        "id": "hit",
+        "start": 0.8,
+        "end": 4.0,
+        "content": "impact on 'Free', kick on 1 only, pluck arpeggio, riser ticks into the menu bar at 3.6"
+      },
+      {
+        "id": "verse_1",
+        "start": 4.0,
+        "end": 16.0,
+        "content": "minimal groove: kick + rim, quiet pluck; voice duck"
+      },
+      {
+        "id": "verse_2",
+        "start": 16.0,
+        "end": 25.6,
+        "content": "adds closed hats and a pluck counter-line"
+      },
+      {
+        "id": "verse_3",
+        "start": 25.6,
+        "end": 35.2,
+        "content": "adds moving bass; small lift on the picker"
+      },
+      {
+        "id": "verse_4",
+        "start": 35.2,
+        "end": 42.4,
+        "content": "evening colour: filter closes a little, hats thin out"
+      },
+      {
+        "id": "breakdown",
+        "start": 42.4,
+        "end": 46.4,
+        "content": "drums out on the whip; pad + sub hold D then Bm; space for the privacy lines"
+      },
+      {
+        "id": "riser",
+        "start": 46.4,
+        "end": 47.2,
+        "content": "snare roll + filter sweep up"
+      },
+      {
+        "id": "drop",
+        "start": 47.2,
+        "end": 53.6,
+        "content": "full groove, chord stabs on each card boundary"
+      },
+      {
+        "id": "outro",
+        "start": 53.6,
+        "end": 58.4,
+        "content": "contract on 53.6, final D major chord with bell at 54.0, ring out; fade 57.4-58.4"
+      }
+    ],
+    "transition_note": "Cover points at 15.6 and 25.6 sit up to 0.4 s off a section start; the transition whoosh bridges the gap.",
+    "ducking": "sidechain from the voice bus: -8 dB, attack 30 ms, release 250 ms; also -3 dB under each app-analogue start/stop sound",
+    "master": "two-pass loudnorm to -16 LUFS integrated, -1.5 dBTP, LRA 11; AAC 256 kb/s, 48 kHz stereo"
+  },
+  "preview_cut": {
+    "fps": 30,
+    "width": 1920,
+    "height": 1080,
+    "render": "natively at 30 fps from the same stage (not decimated from the 60 fps master)",
+    "codec": "H.264 High, yuv420p, BT.709, 30 fps constant, AAC 256 kb/s 48 kHz stereo; ProRes 422 HQ mezzanine optional",
+    "segments": [
+      {
+        "id": "P1-inbox",
+        "scene": "B-inbox",
+        "src_in": 5.2,
+        "src_out": 14.5,
+        "dst_in": 0.0,
+        "dst_out": 9.3,
+        "captions": [
+          {
+            "text": "Hold Right ⌥ and talk.",
+            "style": "caption",
+            "dst_start": 0.4,
+            "dst_end": 4.2
+          },
+          {
+            "text": "Let go.",
+            "style": "caption",
+            "dst_start": 6.6,
+            "dst_end": 8.9
+          },
+          {
+            "text": "It's pasted.",
+            "style": "caption",
+            "dst_start": 7.95,
+            "dst_end": 8.9
+          }
+        ],
+        "transition_out": {
+          "kind": "bars_rise",
+          "start": 8.9,
+          "end": 9.7,
+          "cover": 9.3
+        },
+        "notes": "Opens straight on the compose window (no cold open, no 'Free'). Camera at src 5.2 is already settled at s 1.15."
+      },
+      {
+        "id": "P2-agent",
+        "scene": "C-agent",
+        "src_in": 15.8,
+        "src_out": 25.5,
+        "dst_in": 9.3,
+        "dst_out": 19.0,
+        "captions": [
+          {
+            "text": "Transcribed on your Mac.",
+            "style": "caption",
+            "dst_start": 16.95,
+            "dst_end": 18.6
+          }
+        ],
+        "transition_out": {
+          "kind": "bars_sweep",
+          "start": 18.6,
+          "end": 19.4,
+          "cover": 19.0
+        },
+        "notes": "The film caption 'Talk to your coding agent.' is replaced by 'Transcribed on your Mac.'"
+      },
+      {
+        "id": "P3-chat",
+        "scene": "D-chat",
+        "src_in": 26.1,
+        "src_out": 33.9,
+        "dst_in": 19.0,
+        "dst_out": 26.8,
+        "captions": [
+          {
+            "text": "Speak any of 100 languages.",
+            "style": "caption",
+            "dst_start": 19.6,
+            "dst_end": 23.8
+          }
+        ],
+        "transition_out": {
+          "kind": "bars_to_icon",
+          "start": 26.7,
+          "end": 27.1
+        },
+        "notes": "Ends on the sent German bubble (src 33.9); Lena's reply is cut. Film captions in D are replaced."
+      },
+      {
+        "id": "P4-slate",
+        "scene": "preview-slate",
+        "dst_in": 26.8,
+        "dst_out": 29.3,
+        "background": "wallpaper, blur 30, dim 0.45",
+        "elements": [
+          {
+            "sprite": "icon_app",
+            "center": [
+              720,
+              250
+            ],
+            "size": 168,
+            "enter": "bloom from the bars, 0.3 s"
+          },
+          {
+            "text": "VibeScribe",
+            "style": "end_title",
+            "center": [
+              720,
+              392
+            ],
+            "start_offset": 0.15
+          },
+          {
+            "text": "Hold a key. Speak. It's pasted.",
+            "style": "end_sub",
+            "center": [
+              720,
+              446
+            ],
+            "start_offset": 0.35
+          },
+          {
+            "sprite": "pill_pasted_6",
+            "center": [
+              720,
+              522
+            ],
+            "scale": 2.0,
+            "start_offset": 0.75,
+            "enter": "pill.enter spring"
+          }
+        ],
+        "notes": "No price words, no 'App Store', no URL. The pill's '6 words' counts the line above it."
+      }
+    ],
+    "total_s": 29.3,
+    "poster_frame_s": 8.27,
+    "poster_note": "the 'Pasted 19 words' moment with the reply in the compose window",
+    "voice": [
+      {
+        "clip": "L1",
+        "dst_start": 0.6
+      },
+      {
+        "clip": "L2",
+        "dst_start": 10.15
+      },
+      {
+        "clip": "L3",
+        "dst_start": 21.7
+      }
+    ],
+    "sfx": "same cues as the film, shifted by (dst_in - src_in) per segment; drop cues that fall outside a segment; add one bloom at the slate",
+    "music": "separate procedural render of exactly total_s: verse groove from 0 (no 'Free' impact), lift at P3, resolve to D major with the bell on the slate at 26.9 s; same ducking and master",
+    "film_transitions": "off: only the preview transition_out entries are drawn; film captions are replaced by each segment's captions; keycap HUD, pill, menu bar and camera follow the film timeline at src time",
+    "rules": [
+      "primarily app footage; text overlays are captions only",
+      "audio required (voice + music + UI sounds)",
+      "no pricing words anywhere: no 'free', 'subscription', price, 'App Store'",
+      "15 to 30 s; we cap at 29.5 s",
+      "no third-party logos"
+    ]
+  },
+  "claims": [
+    {
+      "claim": "Free",
+      "where": "A, H",
+      "source": "appstore/metadata/version/1.0.0/en-US.json ('VibeScribe is free, with no subscription, no in-app purchases and no ads'); docs/index.html title"
+    },
+    {
+      "claim": "Hold Right ⌥, release to paste",
+      "where": "B",
+      "source": "HotkeyListener.swift pushToTalkDefault = modifierOnly kVK_RightOption; HotkeyCoordinator stopDelay 0.2"
+    },
+    {
+      "claim": "Whole transcript pasted at once with a word count",
+      "where": "B-E",
+      "source": "TextOutput (single Cmd+V); VibeScribeApp.swift overlay.show(.pasted(words: transcript.wordCount)); RecordingSession wordCount splits on whitespace"
+    },
+    {
+      "claim": "⌥⇧ opens a searchable language picker",
+      "where": "D",
+      "source": "HotkeyListener languagePickerDefault [.shift, .option]; LanguagePickerView search; 'ger' -> German, Georgian (2 results), verified with the app's matching logic"
+    },
+    {
+      "claim": "100 languages / Automatic detect",
+      "where": "D (preview), G1",
+      "source": "WhisperLanguage list: Automatic + 100 codes (101 rows); SpeechModels 'Most accurate · 100 languages'"
+    },
+    {
+      "claim": "Tap for hands-free, tap again to stop",
+      "where": "E",
+      "source": "HotkeyCoordinator tapThreshold 0.25 s, latched; OverlayView 'Hands-free' + 'Tap ⌥ to stop · esc to cancel'"
+    },
+    {
+      "claim": "Works with Wi-Fi off; runs on your Mac; nothing leaves it",
+      "where": "E, F",
+      "source": "SettingsPages 'Works offline' / 'Speech never leaves this Mac'; README Privacy (only network use is the one-time model download)"
+    },
+    {
+      "claim": "No account, no API key",
+      "where": "F",
+      "source": "README: 'No account, API key or cloud service is involved.'"
+    },
+    {
+      "claim": "No subscription",
+      "where": "F (film only)",
+      "source": "App Store description"
+    },
+    {
+      "claim": "Searchable history kept on this Mac",
+      "where": "G2",
+      "source": "TranscriptHistory.search (text or app name, case-insensitive); HistoryPage empty state 'stored only on this Mac'; default retention Keep 30 days"
+    },
+    {
+      "claim": "Custom vocabulary",
+      "where": "G3",
+      "source": "LanguagePage 'Words to spell your way'; counter counts comma-separated entries"
+    },
+    {
+      "claim": "Any shortcut; hold, tap or both",
+      "where": "G4",
+      "source": "ShortcutPage ShortcutField + Reset; TriggerMode Hold or tap / Hold only / Tap only. fn deliberately not shown (recorder masks .function)"
+    },
+    {
+      "claim": "Menu bar icon turns colourful only while recording",
+      "where": "B-E",
+      "source": "MenuBarController.refreshButton (bars only in .recording; white thinking bars while transcribing)"
+    }
+  ]
+}

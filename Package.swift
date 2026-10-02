@@ -29,6 +29,11 @@ let package = Package(
             path: "Tools/VibeScribeScreenshots"
         ),
         .executableTarget(
+            name: "VibeScribeVideoFrames",
+            dependencies: ["VibeScribeCore"],
+            path: "Tools/VibeScribeVideoFrames"
+        ),
+        .executableTarget(
             name: "VibeScribeTests",
             dependencies: [
                 "VibeScribeCore",

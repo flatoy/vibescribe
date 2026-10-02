@@ -1,0 +1,27 @@
+{
+  "name": "vibescribe-launch-video",
+  "private": true,
+  "type": "module",
+  "description": "Launch film and App Preview for VibeScribe, rendered from the app's real UI sprites.",
+  "engines": {
+    "node": ">=20"
+  },
+  "scripts": {
+    "voice": "node voice.mjs",
+    "timeline": "node timeline.mjs",
+    "sprites": "node timeline.mjs && node sprites.mjs",
+    "music": "node music.mjs",
+    "sfx": "node sfx.mjs",
+    "mix": "node mix.mjs",
+    "render": "node render.mjs",
+    "encode": "node render.mjs --encode-only",
+    "preview": "node mix.mjs --only preview && node render.mjs --only preview",
+    "stills": "node render.mjs --stills",
+    "serve": "node render.mjs --serve",
+    "build": "node voice.mjs && node timeline.mjs && node sprites.mjs && node music.mjs && node sfx.mjs && node mix.mjs && node render.mjs",
+    "whisper-check:build": "swift build -c release --package-path tools/whisper-check --scratch-path ../.build-video-whisper"
+  },
+  "devDependencies": {
+    "playwright": "1.63.0"
+  }
+}

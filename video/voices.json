@@ -1,0 +1,607 @@
+{
+  "model": "sonic-3.6",
+  "api_version": "2026-08-14",
+  "sample_rate": 48000,
+  "processing": {
+    "hpf_hz": 70,
+    "pad_ms": 80,
+    "edge_threshold_db_below_peak": 42,
+    "max_pause_s": 0.35,
+    "pause_threshold_db_below_peak": 36,
+    "target_lufs": -18,
+    "max_peak_dbfs": -1.5,
+    "max_takes": 5,
+    "duration_tolerance_s": 0.12,
+    "envelope_fps": 60,
+    "envelope_tail_s": 0.6,
+    "meter_gain_db": 0
+  },
+  "cast": {
+    "en": {
+      "voice_id": "e8e5fffb-252c-436d-b842-8879b84445b6",
+      "name": "Cathy",
+      "why": "Cartesia 'Coworker: nice young adult female for casual conversations': someone talking at her desk, not an announcer. Chosen over Sabrina, Layla, Dorothy and Connie on register consistency across the day (audition groups consistency-L1/L2/L4, same settings per line). Every voice drops on the declarative L2, but Cathy keeps one register: median F0 264 / 217 / 241 Hz on L1 / L2 / L4, a 3.4-semitone range, against 6.8 st for Sabrina (266 / 180 / 221), 6.0 for Dorothy, 6.1 for Connie and 8.0 for Layla. That keeps her audibly the same woman from the inbox to the evening note. All her takes pass transcription and land on the storyboard timings."
+    },
+    "de": {
+      "voice_id": "3f4ade23-6eb4-4279-ab05-6a144947c4d5",
+      "name": "Karin",
+      "why": "Native German ('Companion: friendly female for casual conversations'). Median F0 225-260 Hz sits inside Cathy's register (217-264 Hz), so it reads as the same woman switching language; relaxed effort and a warm, darker spectrum. Lea and Rena sit lower; Jennifer elided 'komme' to 'komm' (pasted text would not match); Cathy speaking German has a non-native accent."
+    }
+  },
+  "clips": {
+    "L1": {
+      "generation": {
+        "speed": 0.97,
+        "emotion": "content"
+      },
+      "accept": {
+        "priya": [
+          "pria",
+          "preya",
+          "priyah",
+          "prya"
+        ]
+      },
+      "why": "Friendly, a little upbeat: content gives the smile on 'looks great' (264 Hz, 9.6 st spread) and lands at 5.75 s against the 5.72 s target. Neutral pushed the pitch up to 290 Hz (brighter, less relaxed)."
+    },
+    "L2": {
+      "generation": {
+        "speed": 1,
+        "emotion": "neutral"
+      },
+      "accept": {},
+      "why": "Matter-of-fact with a beat after \"Wi-Fi.\": neutral at speed 1.0 (216 Hz median, 8.5 st spread, in Cathy’s L1/L4 register) runs 6.45 s against the 6.35 s target, with about 210 ms of silence after \"Wi-Fi\" (silencedetect -45 dB). The earlier pin (calm 1.05, take 0, 6.52 s) was dropped: VibeScribe’s own engine (tools/whisper-check, large-v3, app decode options and the film vocabulary) writes \"back off\" for it, so the app would paste 19 words under an \"18 words\" pill. For this take it writes \"back-off\", which is 18 words, matching the pill. Scan of 20 cached L2 takes: build/audio/l2-scan/results.jsonl.",
+      "pin_take": 0
+    },
+    "L3": {
+      "generation": {
+        "speed": 1.12,
+        "emotion": "content"
+      },
+      "accept": {},
+      "why": "Karin is naturally slower than the 3.10 s beat; 1.12 keeps her relaxed (3.8 words per speech-second) and content keeps 'Klingt gut!' bright."
+    },
+    "L4": {
+      "generation": {
+        "speed": 0.97
+      },
+      "accept": {
+        "oat": [
+          "oak"
+        ]
+      },
+      "why": "Emotion inferred from the text keeps the afterthought lift on 'Oh, and buy oat milk.' (8.8 st pitch spread, 241 Hz) and lands at 3.52 s against 3.45 s. The tired tag flattened Cathy to a 5.1 st spread, which reads as monotone."
+    }
+  },
+  "app_check": {
+    "vocabulary": "Priya Raman, Lena Fischer, Trailhead, Kubernetes",
+    "why": "The film's custom vocabulary before the montage adds SwiftUI (spec sprites settings_language_vocab_0). The app sends it to Whisper as a prompt on every recording, so the check uses it too."
+  },
+  "audition": [
+    {
+      "id": "cast-en",
+      "language": "en",
+      "clip": "L1",
+      "voices": [
+        {
+          "id": "e8e5fffb-252c-436d-b842-8879b84445b6",
+          "name": "Cathy",
+          "meta": "Coworker: nice young adult female for casual conversations"
+        },
+        {
+          "id": "8d8ce8c9-44a4-46c4-b10f-9a927b99a853",
+          "name": "Connie",
+          "meta": "Candid Conversationalist: natural, cheery young adult female"
+        },
+        {
+          "id": "999df508-4de5-40a7-8bd3-8c12f678c284",
+          "name": "Layla",
+          "meta": "Casual Friend: chill, smooth, easygoing"
+        },
+        {
+          "id": "66c6b81c-ddb7-4892-bdd5-19b5a7be38e7",
+          "name": "Dorothy",
+          "meta": "Easy Charm: casual, relaxed and natural"
+        },
+        {
+          "id": "dda51133-5d43-4a3b-84e6-e68c13f60cba",
+          "name": "Lily",
+          "meta": "Casual Pal: relaxed, casual, everyday"
+        },
+        {
+          "id": "0a9a5903-0a30-4d2e-b6b6-891f73d4b4e0",
+          "name": "Sabrina",
+          "meta": "Casual Ally: relaxed, conversational, genuine"
+        }
+      ]
+    },
+    {
+      "id": "cast-de",
+      "language": "de",
+      "clip": "L3",
+      "voices": [
+        {
+          "id": "1ade29fc-6b82-4607-9e70-361720139b12",
+          "name": "Lea",
+          "meta": "Breezy Voice: smooth female for casual conversations (DE native)"
+        },
+        {
+          "id": "3f4ade23-6eb4-4279-ab05-6a144947c4d5",
+          "name": "Karin",
+          "meta": "Companion: friendly female for casual conversations (DE native)"
+        },
+        {
+          "id": "ac197a78-cec7-4c50-93e5-93bdc1910b11",
+          "name": "Jennifer",
+          "meta": "Approachable adult female for conversational support (DE native)"
+        },
+        {
+          "id": "de07efe3-b309-418b-bdca-42827223efd2",
+          "name": "Rena",
+          "meta": "Emotive, energetic young adult female (DE native)"
+        },
+        {
+          "id": "e8e5fffb-252c-436d-b842-8879b84445b6",
+          "name": "Cathy (de)",
+          "meta": "Baseline: the English voice speaking German (non-native accent)"
+        }
+      ]
+    },
+    {
+      "id": "emotion-L1",
+      "language": "en",
+      "clip": "L1",
+      "voices": [
+        {
+          "id": "0a9a5903-0a30-4d2e-b6b6-891f73d4b4e0",
+          "name": "Sabrina content",
+          "generation": {
+            "speed": 0.97,
+            "emotion": "content"
+          }
+        },
+        {
+          "id": "0a9a5903-0a30-4d2e-b6b6-891f73d4b4e0",
+          "name": "Sabrina neutral",
+          "generation": {
+            "speed": 0.97,
+            "emotion": "neutral"
+          }
+        },
+        {
+          "id": "0a9a5903-0a30-4d2e-b6b6-891f73d4b4e0",
+          "name": "Sabrina calm",
+          "generation": {
+            "speed": 0.97,
+            "emotion": "calm"
+          }
+        },
+        {
+          "id": "0a9a5903-0a30-4d2e-b6b6-891f73d4b4e0",
+          "name": "Sabrina inferred",
+          "generation": {
+            "speed": 0.97
+          }
+        }
+      ]
+    },
+    {
+      "id": "emotion-L2",
+      "language": "en",
+      "clip": "L2",
+      "note": "keep one consistent register across the day: compare emotion settings on the chosen voice",
+      "voices": [
+        {
+          "id": "0a9a5903-0a30-4d2e-b6b6-891f73d4b4e0",
+          "name": "Sabrina calm",
+          "generation": {
+            "speed": 0.97,
+            "emotion": "calm"
+          }
+        },
+        {
+          "id": "0a9a5903-0a30-4d2e-b6b6-891f73d4b4e0",
+          "name": "Sabrina content",
+          "generation": {
+            "speed": 0.97,
+            "emotion": "content"
+          }
+        },
+        {
+          "id": "0a9a5903-0a30-4d2e-b6b6-891f73d4b4e0",
+          "name": "Sabrina neutral",
+          "generation": {
+            "speed": 0.97,
+            "emotion": "neutral"
+          }
+        },
+        {
+          "id": "0a9a5903-0a30-4d2e-b6b6-891f73d4b4e0",
+          "name": "Sabrina inferred",
+          "generation": {
+            "speed": 0.97
+          }
+        }
+      ]
+    },
+    {
+      "id": "emotion-L4",
+      "language": "en",
+      "clip": "L4",
+      "voices": [
+        {
+          "id": "0a9a5903-0a30-4d2e-b6b6-891f73d4b4e0",
+          "name": "Sabrina calm",
+          "generation": {
+            "speed": 0.97,
+            "emotion": "calm"
+          }
+        },
+        {
+          "id": "0a9a5903-0a30-4d2e-b6b6-891f73d4b4e0",
+          "name": "Sabrina content",
+          "generation": {
+            "speed": 0.97,
+            "emotion": "content"
+          }
+        },
+        {
+          "id": "0a9a5903-0a30-4d2e-b6b6-891f73d4b4e0",
+          "name": "Sabrina neutral",
+          "generation": {
+            "speed": 0.97,
+            "emotion": "neutral"
+          }
+        },
+        {
+          "id": "0a9a5903-0a30-4d2e-b6b6-891f73d4b4e0",
+          "name": "Sabrina inferred",
+          "generation": {
+            "speed": 0.97
+          }
+        }
+      ]
+    },
+    {
+      "id": "emotion-L4-tired",
+      "language": "en",
+      "clip": "L4",
+      "voices": [
+        {
+          "id": "0a9a5903-0a30-4d2e-b6b6-891f73d4b4e0",
+          "name": "Sabrina tired",
+          "generation": {
+            "speed": 0.97,
+            "emotion": "tired"
+          }
+        }
+      ]
+    },
+    {
+      "id": "timing-L2",
+      "language": "en",
+      "clip": "L2",
+      "note": "hit the 6.35 s target without rushing; Cathy as a register reference",
+      "voices": [
+        {
+          "id": "0a9a5903-0a30-4d2e-b6b6-891f73d4b4e0",
+          "name": "Sabrina neutral 1.0",
+          "generation": {
+            "speed": 1,
+            "emotion": "neutral"
+          }
+        },
+        {
+          "id": "0a9a5903-0a30-4d2e-b6b6-891f73d4b4e0",
+          "name": "Sabrina content 1.0",
+          "generation": {
+            "speed": 1,
+            "emotion": "content"
+          }
+        },
+        {
+          "id": "e8e5fffb-252c-436d-b842-8879b84445b6",
+          "name": "Cathy neutral 1.0",
+          "generation": {
+            "speed": 1,
+            "emotion": "neutral"
+          }
+        }
+      ]
+    },
+    {
+      "id": "timing-L3",
+      "language": "de",
+      "clip": "L3",
+      "note": "hit the 3.10 s target",
+      "voices": [
+        {
+          "id": "3f4ade23-6eb4-4279-ab05-6a144947c4d5",
+          "name": "Karin content 1.12",
+          "generation": {
+            "speed": 1.12,
+            "emotion": "content"
+          }
+        },
+        {
+          "id": "3f4ade23-6eb4-4279-ab05-6a144947c4d5",
+          "name": "Karin neutral 1.12",
+          "generation": {
+            "speed": 1.12,
+            "emotion": "neutral"
+          }
+        },
+        {
+          "id": "1ade29fc-6b82-4607-9e70-361720139b12",
+          "name": "Lea content 1.0",
+          "generation": {
+            "speed": 1,
+            "emotion": "content"
+          }
+        }
+      ]
+    },
+    {
+      "id": "timing-L4",
+      "language": "en",
+      "clip": "L4",
+      "note": "hit the 3.45 s target",
+      "voices": [
+        {
+          "id": "0a9a5903-0a30-4d2e-b6b6-891f73d4b4e0",
+          "name": "Sabrina tired 1.0",
+          "generation": {
+            "speed": 1,
+            "emotion": "tired"
+          }
+        },
+        {
+          "id": "0a9a5903-0a30-4d2e-b6b6-891f73d4b4e0",
+          "name": "Sabrina content 1.0",
+          "generation": {
+            "speed": 1,
+            "emotion": "content"
+          }
+        }
+      ]
+    },
+    {
+      "id": "consistency-L1",
+      "language": "en",
+      "clip": "L1",
+      "note": "same settings per line across candidate voices: does each voice keep one register through the day?",
+      "voices": [
+        {
+          "id": "e8e5fffb-252c-436d-b842-8879b84445b6",
+          "name": "Cathy content",
+          "generation": {
+            "speed": 0.97,
+            "emotion": "content"
+          }
+        },
+        {
+          "id": "66c6b81c-ddb7-4892-bdd5-19b5a7be38e7",
+          "name": "Dorothy content",
+          "generation": {
+            "speed": 0.97,
+            "emotion": "content"
+          }
+        },
+        {
+          "id": "999df508-4de5-40a7-8bd3-8c12f678c284",
+          "name": "Layla content",
+          "generation": {
+            "speed": 0.97,
+            "emotion": "content"
+          }
+        },
+        {
+          "id": "0a9a5903-0a30-4d2e-b6b6-891f73d4b4e0",
+          "name": "Sabrina content",
+          "generation": {
+            "speed": 0.97,
+            "emotion": "content"
+          }
+        },
+        {
+          "id": "8d8ce8c9-44a4-46c4-b10f-9a927b99a853",
+          "name": "Connie content",
+          "generation": {
+            "speed": 0.97,
+            "emotion": "content"
+          }
+        }
+      ]
+    },
+    {
+      "id": "consistency-L2",
+      "language": "en",
+      "clip": "L2",
+      "note": "same settings per line across candidate voices: does each voice keep one register through the day?",
+      "voices": [
+        {
+          "id": "e8e5fffb-252c-436d-b842-8879b84445b6",
+          "name": "Cathy neutral",
+          "generation": {
+            "speed": 0.97,
+            "emotion": "neutral"
+          }
+        },
+        {
+          "id": "66c6b81c-ddb7-4892-bdd5-19b5a7be38e7",
+          "name": "Dorothy neutral",
+          "generation": {
+            "speed": 0.97,
+            "emotion": "neutral"
+          }
+        },
+        {
+          "id": "999df508-4de5-40a7-8bd3-8c12f678c284",
+          "name": "Layla neutral",
+          "generation": {
+            "speed": 0.97,
+            "emotion": "neutral"
+          }
+        },
+        {
+          "id": "0a9a5903-0a30-4d2e-b6b6-891f73d4b4e0",
+          "name": "Sabrina neutral",
+          "generation": {
+            "speed": 0.97,
+            "emotion": "neutral"
+          }
+        },
+        {
+          "id": "8d8ce8c9-44a4-46c4-b10f-9a927b99a853",
+          "name": "Connie neutral",
+          "generation": {
+            "speed": 0.97,
+            "emotion": "neutral"
+          }
+        }
+      ]
+    },
+    {
+      "id": "consistency-L4",
+      "language": "en",
+      "clip": "L4",
+      "note": "same settings per line across candidate voices: does each voice keep one register through the day?",
+      "voices": [
+        {
+          "id": "e8e5fffb-252c-436d-b842-8879b84445b6",
+          "name": "Cathy tired",
+          "generation": {
+            "speed": 0.97,
+            "emotion": "tired"
+          }
+        },
+        {
+          "id": "66c6b81c-ddb7-4892-bdd5-19b5a7be38e7",
+          "name": "Dorothy tired",
+          "generation": {
+            "speed": 0.97,
+            "emotion": "tired"
+          }
+        },
+        {
+          "id": "999df508-4de5-40a7-8bd3-8c12f678c284",
+          "name": "Layla tired",
+          "generation": {
+            "speed": 0.97,
+            "emotion": "tired"
+          }
+        },
+        {
+          "id": "0a9a5903-0a30-4d2e-b6b6-891f73d4b4e0",
+          "name": "Sabrina tired",
+          "generation": {
+            "speed": 0.97,
+            "emotion": "tired"
+          }
+        },
+        {
+          "id": "8d8ce8c9-44a4-46c4-b10f-9a927b99a853",
+          "name": "Connie tired",
+          "generation": {
+            "speed": 0.97,
+            "emotion": "tired"
+          }
+        }
+      ]
+    },
+    {
+      "id": "cathy-L2",
+      "language": "en",
+      "clip": "L2",
+      "note": "Cathy: hit 6.35 s without rushing",
+      "voices": [
+        {
+          "id": "e8e5fffb-252c-436d-b842-8879b84445b6",
+          "name": "Cathy neutral 1.03",
+          "generation": {
+            "speed": 1.03,
+            "emotion": "neutral"
+          }
+        },
+        {
+          "id": "e8e5fffb-252c-436d-b842-8879b84445b6",
+          "name": "Cathy content 1.03",
+          "generation": {
+            "speed": 1.03,
+            "emotion": "content"
+          }
+        },
+        {
+          "id": "e8e5fffb-252c-436d-b842-8879b84445b6",
+          "name": "Cathy calm 1.05",
+          "generation": {
+            "speed": 1.05,
+            "emotion": "calm"
+          }
+        }
+      ]
+    },
+    {
+      "id": "cathy-L4",
+      "language": "en",
+      "clip": "L4",
+      "note": "Cathy: afterthought lift on the second sentence (pitch spread), slightly tired",
+      "voices": [
+        {
+          "id": "e8e5fffb-252c-436d-b842-8879b84445b6",
+          "name": "Cathy neutral 0.97",
+          "generation": {
+            "speed": 0.97,
+            "emotion": "neutral"
+          }
+        },
+        {
+          "id": "e8e5fffb-252c-436d-b842-8879b84445b6",
+          "name": "Cathy content 0.97",
+          "generation": {
+            "speed": 0.97,
+            "emotion": "content"
+          }
+        },
+        {
+          "id": "e8e5fffb-252c-436d-b842-8879b84445b6",
+          "name": "Cathy calm 0.97",
+          "generation": {
+            "speed": 0.97,
+            "emotion": "calm"
+          }
+        },
+        {
+          "id": "e8e5fffb-252c-436d-b842-8879b84445b6",
+          "name": "Cathy inferred 0.97",
+          "generation": {
+            "speed": 0.97
+          }
+        }
+      ]
+    },
+    {
+      "id": "cathy-L1",
+      "language": "en",
+      "clip": "L1",
+      "note": "Cathy: L1 emotion options",
+      "voices": [
+        {
+          "id": "e8e5fffb-252c-436d-b842-8879b84445b6",
+          "name": "Cathy neutral 0.97",
+          "generation": {
+            "speed": 0.97,
+            "emotion": "neutral"
+          }
+        },
+        {
+          "id": "e8e5fffb-252c-436d-b842-8879b84445b6",
+          "name": "Cathy inferred 0.97",
+          "generation": {
+            "speed": 0.97
+          }
+        }
+      ]
+    }
+  ]
+}

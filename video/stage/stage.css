@@ -1,0 +1,175 @@
+/* VibeScribe launch film stage. 1440x810 world/screen units, rendered at deviceScaleFactor 4/3 =
+   1920x1080. No animations or transitions here: every moving property is set per frame by stage.js. */
+
+@font-face { font-family: 'SF Mono Film'; font-weight: 400; src: url('/fonts/SF-Mono-Regular.otf'); }
+@font-face { font-family: 'SF Mono Film'; font-weight: 500; src: url('/fonts/SF-Mono-Medium.otf'); }
+@font-face { font-family: 'SF Mono Film'; font-weight: 600; src: url('/fonts/SF-Mono-Semibold.otf'); }
+@font-face { font-family: 'SF Mono Film'; font-weight: 700; src: url('/fonts/SF-Mono-Bold.otf'); }
+
+:root {
+  --ui: -apple-system, BlinkMacSystemFont, 'SF Pro Text', system-ui, sans-serif;
+  --display: -apple-system, BlinkMacSystemFont, 'SF Pro Display', system-ui, sans-serif;
+  --mono: 'SF Mono Film', ui-monospace, Menlo, monospace;
+}
+
+* { box-sizing: border-box; margin: 0; padding: 0; animation: none !important; transition: none !important; }
+html, body { width: 1440px; height: 810px; overflow: hidden; background: #000; }
+body { font-family: var(--ui); color: #fff; -webkit-font-smoothing: antialiased; text-rendering: geometricPrecision; }
+
+#viewport { position: absolute; left: 0; top: 0; width: 1440px; height: 810px; overflow: hidden; background: #2A2638; }
+#world { position: absolute; left: 0; top: 0; width: 1440px; height: 810px; transform-origin: 0 0; }
+#worldDim { position: absolute; inset: 0; background: #000; opacity: 0; pointer-events: none; }
+#screen { position: absolute; inset: 0; }
+#fx { position: absolute; left: 0; top: 0; width: 1440px; height: 810px; pointer-events: none; display: none; }
+#fade { position: absolute; inset: 0; background: #000; opacity: 0; }
+
+img { display: block; position: absolute; user-select: none; }
+.layer-full { position: absolute; inset: 0; }
+
+/* ---------------------------------------------------------------- wallpaper (Spectrum recipe) */
+.wallpaper { position: absolute; left: -80px; top: -80px; width: 1600px; height: 970px; overflow: hidden; }
+.wallpaper .paint {
+  position: absolute; inset: 0;
+  background:
+    radial-gradient(circle 650px at 1376px 161px, rgba(176, 113, 155, 0.9), rgba(176, 113, 155, 0) 650px),
+    radial-gradient(circle 700px at 296px 80px, #5B6FA8, rgba(91, 111, 168, 0) 700px),
+    linear-gradient(180deg, #3D3A5C 80px, #2A2638 890px);
+}
+.wpDim { position: absolute; inset: 0; background: #000; opacity: 0; }
+.wpEvening { position: absolute; inset: 0; background: #1A1420; mix-blend-mode: multiply; opacity: 0; }
+
+/* ---------------------------------------------------------------- menu bar */
+.menubar { position: absolute; left: 0; top: 0; width: 1440px; height: 26px; background: rgba(20, 18, 30, 0.35);
+  -webkit-backdrop-filter: blur(20px) saturate(1.3); backdrop-filter: blur(20px) saturate(1.3);
+  font: 500 13px/26px var(--ui); color: #fff; white-space: nowrap; }
+.menubar .left { position: absolute; left: 18px; top: 0; height: 26px; display: flex; align-items: center; }
+.menubar .left .apple { position: relative; margin-right: 21px; }
+.menubar .left .app { font-weight: 700; margin-right: 19px; }
+.menubar .left .menu { margin-right: 19px; }
+.menubar .right { position: absolute; left: 0; top: 0; width: 0; height: 26px; }
+.menubar .clock { position: absolute; top: 0; line-height: 26px; font-variant-numeric: tabular-nums; }
+.menubar .measure { visibility: hidden; left: 0; }
+.menubar .si { position: absolute; left: 0; top: 0; width: 0; height: 0; }
+
+/* ---------------------------------------------------------------- generic host windows */
+.win { position: absolute; border-radius: 12px; background: #1C1C1F; box-shadow: 0 24px 60px rgba(0, 0, 0, 0.45), 0 0 0 0.5px rgba(0, 0, 0, 0.5);
+  overflow: hidden; transform-origin: 50% 50%; }
+.win::after { content: ''; position: absolute; inset: 0; border-radius: 12px; box-shadow: inset 0 0 0 1px rgba(255, 255, 255, 0.09); pointer-events: none; }
+.win .titlebar { position: absolute; left: 0; top: 0; right: 0; height: 38px; background: #2A2A2E; border-bottom: 1px solid rgba(255, 255, 255, 0.08); }
+.win .lights { position: absolute; left: 14px; top: 13px; display: flex; gap: 8px; }
+.win .lights i { width: 12px; height: 12px; border-radius: 6px; display: block; box-shadow: inset 0 0 0 0.5px rgba(0, 0, 0, 0.25); }
+.win .title { position: absolute; left: 0; right: 0; top: 0; text-align: center; font: 600 13px/38px var(--ui); color: rgba(255, 255, 255, 0.85); }
+.caret { position: absolute; width: 1.5px; background: #fff; border-radius: 0.75px; }
+.glow { position: absolute; border-radius: 4px; }
+
+/* mail compose */
+.mail .send { position: absolute; right: 14px; top: 7px; height: 24px; padding: 0 14px; border-radius: 12px; background: #7BA3F0; font: 600 13px/24px var(--ui); color: #fff; transform-origin: 50% 50%; }
+.mail .field { position: absolute; left: 24px; right: 24px; height: 32px; border-bottom: 1px solid rgba(255, 255, 255, 0.08); font: 400 13px/32px var(--ui); color: rgba(255, 255, 255, 0.9); }
+.mail .field b { font-weight: 500; color: rgba(255, 255, 255, 0.45); margin-right: 8px; }
+.mail .chipName { display: inline-block; padding: 0 8px; border-radius: 6px; background: rgba(123, 163, 240, 0.18); color: #A9C3F6; line-height: 20px; }
+.mail .body { position: absolute; font: 400 14px/21px var(--ui); color: rgba(255, 255, 255, 0.92); white-space: pre-wrap; }
+.mail .quote { position: absolute; font: 400 13px/20px var(--ui); color: rgba(255, 255, 255, 0.5); border-left: 2px solid rgba(255, 255, 255, 0.18); padding-left: 12px; white-space: pre; }
+
+/* terminal */
+.term { background: #161618; }
+.term .titlebar { background: #242427; }
+.term .title { font: 500 13px/30px var(--ui); color: rgba(255, 255, 255, 0.7); }
+.term .lines { position: absolute; font: 400 13px/20px var(--mono); color: #fff; white-space: pre-wrap; }
+.term .line { min-height: 20px; padding-left: 2ch; text-indent: -2ch; }
+.term .dim { color: rgba(255, 255, 255, 0.55); }
+.term .agent { color: rgba(255, 255, 255, 0.78); }
+.term .block { display: inline-block; width: 0.6em; height: 16px; vertical-align: -3px; background: rgba(255, 255, 255, 0.85); text-indent: 0; }
+.term .block.off { visibility: hidden; }
+
+/* chat */
+.chat .titlebar { height: 56px; }
+.chat .head { position: absolute; left: 84px; top: 0; height: 56px; display: flex; align-items: center; gap: 11px; }
+.chat .avatar { width: 34px; height: 34px; border-radius: 17px; background: linear-gradient(135deg, #D884C4, #EE9A8F); font: 700 13px/34px var(--ui); text-align: center; color: #fff; }
+.chat .name { font: 600 14px/18px var(--ui); color: #fff; }
+.chat .status { font: 400 11.5px/14px var(--ui); color: rgba(255, 255, 255, 0.45); }
+.chat .bubble { position: absolute; max-width: 520px; padding: 9px 14px; border-radius: 16px; font: 400 14px/20px var(--ui); white-space: nowrap; }
+.chat .bubble.left { background: #2E2E33; color: rgba(255, 255, 255, 0.92); transform-origin: 0% 100%; }
+.chat .bubble.right { background: linear-gradient(135deg, #7BA3F0, #9A8AE6); color: #fff; transform-origin: 100% 100%; }
+.chat .typing { position: absolute; width: 58px; height: 34px; border-radius: 17px; background: #2E2E33; transform-origin: 0% 100%; }
+.chat .typing i { position: absolute; top: 13.5px; width: 7px; height: 7px; border-radius: 4px; background: rgba(255, 255, 255, 0.75); }
+.chat .composer { position: absolute; border-radius: 20px; background: #26262A; box-shadow: inset 0 0 0 1px rgba(255, 255, 255, 0.09); }
+.chat .composer .ph { position: absolute; left: 16px; top: 0; font: 400 14px/40px var(--ui); color: rgba(255, 255, 255, 0.35); }
+.chat .composer .ctext { position: absolute; left: 16px; top: 9px; font: 400 14px/22px var(--ui); color: rgba(255, 255, 255, 0.95); white-space: nowrap; border-radius: 4px; }
+.chat .composer .sendbtn { position: absolute; right: 6px; top: 6px; width: 28px; height: 28px; border-radius: 14px; background: rgba(255, 255, 255, 0.12); }
+.chat .composer .sendbtn::after { content: ''; position: absolute; left: 9px; top: 9px; border-left: 5px solid transparent; border-right: 5px solid transparent; border-bottom: 8px solid rgba(255, 255, 255, 0.8); }
+.chat .stamp { position: absolute; left: 0; right: 0; text-align: center; font: 500 11px/14px var(--ui); color: rgba(255, 255, 255, 0.35); }
+
+/* notes */
+.notes { background: #201E1C; }
+.notes .titlebar { background: #2A2724; border-bottom-color: rgba(255, 255, 255, 0.06); }
+.notes .lines { position: absolute; font: 400 15px/24px var(--ui); color: rgba(255, 255, 255, 0.92); white-space: pre-wrap; }
+.notes .h { font: 700 22px/32px var(--ui); margin-bottom: 6px; color: #fff; }
+.notes .l { min-height: 24px; padding-left: 1.05em; text-indent: -1.05em; }
+.notes .run { border-radius: 3px; }
+.notes .caretInline { display: inline-block; width: 1.5px; height: 18px; margin-left: 1px; vertical-align: -3px; background: #F0C674; text-indent: 0; }
+.notes .stamp { position: absolute; left: 0; right: 0; text-align: center; font: 500 11px/14px var(--ui); color: rgba(255, 255, 255, 0.32); }
+
+/* overlay pill, picker, pointer, rings */
+.pill { position: absolute; left: 0; top: 0; width: 0; height: 0; transform-origin: 0 0; }
+.pill .slot { position: absolute; left: 0; top: 0; width: 0; height: 0; transform-origin: 0 0; }
+.picker { position: absolute; width: 380px; height: 372px; }
+.picker .pshadow { position: absolute; left: 2px; top: 2px; right: 2px; bottom: 2px; border-radius: 15px; box-shadow: 0 18px 50px rgba(0, 0, 0, 0.5);
+  background: rgba(24, 24, 28, 0.6); -webkit-backdrop-filter: blur(28px) saturate(1.2); backdrop-filter: blur(28px) saturate(1.2); }
+.picker img { left: 0; top: 0; width: 380px; height: 372px; }
+.pointer { position: absolute; left: -1.5px; top: -1.5px; width: 18px; height: 26px; transform-origin: 1.5px 1.5px; filter: drop-shadow(0 1.5px 2px rgba(0, 0, 0, 0.45)); }
+.pointer svg { display: block; }
+.rings { position: absolute; left: 0; top: 0; overflow: visible; }
+
+/* ---------------------------------------------------------------- screen-space type */
+.txt { position: absolute; left: 0; top: 0; white-space: pre; color: #fff; }
+.txt .w { display: inline-block; white-space: pre; }
+.hero_xl { font: 800 128px/1 var(--display); letter-spacing: -0.025em; }
+.hero { font: 700 72px/1.1 var(--display); letter-spacing: -0.02em; }
+.caption { font: 650 34px/1.25 var(--display); letter-spacing: -0.01em; text-shadow: 0 2px 18px rgba(0, 0, 0, 0.45); }
+.caption_center { font: 700 54px/1.2 var(--display); letter-spacing: -0.015em; text-shadow: 0 2px 24px rgba(0, 0, 0, 0.5); }
+.sub { font: 500 22px/1.3 var(--ui); color: rgba(255, 255, 255, 0.72); }
+.chip { font: 600 17px/1 var(--ui); padding: 7px 14px; border-radius: 999px; background: rgba(255, 255, 255, 0.08); box-shadow: inset 0 0 0 1px rgba(255, 255, 255, 0.16); }
+.end_title { font: 700 64px/1.1 var(--display); letter-spacing: -0.02em; }
+.end_sub { font: 600 26px/1.3 var(--display); color: rgba(255, 255, 255, 0.88); }
+.end_url { font: 500 20px/1.3 var(--mono); color: rgba(255, 255, 255, 0.6); }
+.txt .kc { padding: 0 0.32em; margin: 0 0.02em; border-radius: 0.22em; background: linear-gradient(180deg, #3E3E45, #34343A); color: #fff;
+  font-size: 0.8em; font-weight: 600; line-height: 1.34em; vertical-align: 0.07em; text-shadow: none; letter-spacing: 0;
+  box-shadow: inset 0 0 0 1px rgba(255, 255, 255, 0.16), 0 2px 0 rgba(0, 0, 0, 0.45), 0 4px 14px rgba(0, 0, 0, 0.3); }
+.scrim { position: absolute; left: 0; right: 0; bottom: 0; height: 260px; background: linear-gradient(180deg, rgba(0, 0, 0, 0), rgba(0, 0, 0, 0.3) 45%, rgba(0, 0, 0, 0.55)); opacity: 0; }
+.capPlate { position: absolute; left: 0; top: 0; transform-origin: 0 50%; border-radius: 16px; background: rgba(14, 14, 18, 0.66);
+  -webkit-backdrop-filter: blur(18px) saturate(1.15); backdrop-filter: blur(18px) saturate(1.15);
+  box-shadow: inset 0 0 0 1px rgba(255, 255, 255, 0.07), 0 10px 30px rgba(0, 0, 0, 0.25); }
+.rule { position: absolute; height: 6px; }
+.rule i { position: absolute; display: block; }
+
+/* ---------------------------------------------------------------- screen-space pieces */
+.heroBars { position: absolute; left: 0; top: 0; }
+.hbar { position: absolute; left: 0; top: 0; }
+.hud { position: absolute; left: 0; top: 0; }
+.hudInst { position: absolute; left: 0; top: 0; width: 0; height: 0; }
+.hudInst .key { position: absolute; }
+.hudInst .lbl { position: absolute; width: 100px; text-align: center; font: 500 15px/1 var(--ui); color: rgba(255, 255, 255, 0.72); text-shadow: 0 1px 8px rgba(0, 0, 0, 0.5); }
+
+.modelCard { position: absolute; left: 0; top: 0; width: 600px; height: 400px; transform-origin: 50% 50%; }
+.modelCard .mshadow { position: absolute; inset: 0; border-radius: 14px; box-shadow: 0 30px 70px rgba(0, 0, 0, 0.55), 0 0 0 0.5px rgba(0, 0, 0, 0.6); }
+.modelCard .mclip { position: absolute; inset: 0; border-radius: 14px; overflow: hidden; background: #1E1E21; }
+.modelCard .mclip::after { content: ''; position: absolute; inset: 0; border-radius: 14px; box-shadow: inset 0 0 0 1px rgba(255, 255, 255, 0.1); }
+
+.gcard { position: absolute; inset: 0; }
+.gvis { position: absolute; }
+.gshadow { position: absolute; inset: 0; box-shadow: 0 30px 70px rgba(0, 0, 0, 0.5), 0 0 0 0.5px rgba(0, 0, 0, 0.6); }
+.gclip { position: absolute; inset: 0; overflow: hidden; }
+.gpush { position: absolute; inset: 0; }
+.gpointer { left: -1.5px; top: -1.5px; }
+.wipeBar { position: absolute; left: 0; top: 0; height: 810px; }
+.ticker { position: absolute; overflow: hidden; white-space: nowrap; font: 500 20px/30px var(--ui); color: rgba(255, 255, 255, 0.45);
+  -webkit-mask-image: linear-gradient(90deg, transparent 0, #000 30px, #000 calc(100% - 80px), transparent 100%); }
+.ticker span { position: absolute; left: 0; top: 0; }
+.ticker b { font-weight: 500; padding: 0 0.7em; color: rgba(255, 255, 255, 0.28); }
+
+.iconWrap { position: absolute; left: 0; top: 0; transform-origin: 50% 50%; }
+.iconWrap .icon { left: 0; top: 0; filter: drop-shadow(0 24px 30px rgba(0, 0, 0, 0.45)); }
+
+.columns { position: absolute; inset: 0; }
+.col { position: absolute; left: 0; top: 0; }
+.band { position: absolute; inset: 0; background: linear-gradient(90deg, #6EC6EA, #7BA3F0, #9A8AE6, #C68AEE, #D884C4, #EE9A8F, #EDBB7A); }

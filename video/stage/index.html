@@ -1,0 +1,25 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>VibeScribe launch film stage</title>
+<link rel="stylesheet" href="stage.css">
+</head>
+<body>
+<!-- The whole film is drawn from one time variable: window.__stage.frame(t). No CSS animations,
+     transitions or timers are used anywhere. render.mjs drives it frame by frame. -->
+<div id="viewport">
+  <div id="world"></div>
+  <div id="worldDim"></div>
+  <div id="screen"></div>
+  <canvas id="fx" width="1920" height="1080"></canvas>
+  <div id="fade"></div>
+</div>
+<svg width="0" height="0" style="position:absolute">
+  <filter id="mblur" x="-10%" y="-10%" width="120%" height="120%" color-interpolation-filters="sRGB">
+    <feGaussianBlur id="mblurStd" stdDeviation="0 0" edgeMode="duplicate"/>
+  </filter>
+</svg>
+<script type="module" src="stage.js"></script>
+</body>
+</html>
