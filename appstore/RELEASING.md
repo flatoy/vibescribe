@@ -270,7 +270,7 @@ To check that the sandboxed build launches and works without touching the real a
 an ad-hoc signed copy under a separate bundle ID:
 
 ```sh
-DISTRIBUTION=appstore SIGNING_MODE=adhoc SCRATCH_PATH=.build-mas \
+DISTRIBUTION=appstore SIGNING_MODE=adhoc SCRATCH_PATH="$PWD/.build-smoke" \
   OUTPUT_DIR="$PWD/dist/sandbox-smoke" bash package_app.sh release
 open -n dist/sandbox-smoke/VibeScribe.app
 ```
