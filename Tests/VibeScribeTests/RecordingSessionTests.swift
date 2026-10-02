@@ -195,12 +195,31 @@ func runRecordingSessionTests(_ t: TestHarness) {
         t.expectEqual(finalized, [])
     }
 
-    t.run("microphone change cancels recording") {
+    t.run("microphone change mid-recording restarts capture and keeps recording") {
         let (session, audio, transcription, _, _) = makeSession()
+        var ends: [SessionEnd] = []
+        session.onEnded = { ends.append($0) }
         session.start(language: .english)
+        audio.nextFormat = AudioStreamFormat(sampleRate: 24000, channels: 1)
         audio.fireConfigurationChanged()
-        t.expectEqual(session.state, .idle)
-        t.expectEqual(transcription.cancelCalls, 1)
+        t.expectEqual(session.state, .recording)
+        t.expectEqual(audio.startCalls, 2)
+        t.expectEqual(transcription.cancelCalls, 0)
+        t.expectEqual(ends, [])
+
+        let format = AVAudioFormat(standardFormatWithSampleRate: 24000, channels: 1)!
+        let buffer = AVAudioPCMBuffer(pcmFormat: format, frameCapacity: 1)!
+        buffer.frameLength = 1
+        audio.onBuffer?(buffer)
+        t.expectEqual(transcription.sendCalls, 1)
+
+        var pasted: [String] = []
+        session.onEnded = { end in
+            if case .transcript(let transcript) = end { pasted.append(transcript.text) }
+        }
+        session.stop()
+        transcription.complete(.success("hello"))
+        t.expectEqual(pasted, ["hello"])
     }
 
     t.run("microphone change while idle leaves state idle") {
@@ -276,12 +295,78 @@ func runRecordingSessionTests(_ t: TestHarness) {
         t.expectEqual(audio.inputDeviceUID, "usb-mic")
     }
 
-    t.run("microphone change mid-recording reports an interruption") {
+    t.run("microphone change reports an interruption when capture cannot restart") {
+        let (session, audio, transcription, _, _) = makeSession()
+        var ends: [SessionEnd] = []
+        session.onEnded = { ends.append($0) }
+        session.start(language: .english)
+        audio.startError = TestFailure(message: "Microphone unavailable")
+        audio.fireConfigurationChanged()
+        t.expectEqual(session.state, .idle)
+        t.expectEqual(transcription.cancelCalls, 1)
+        t.expectEqual(ends, [.interrupted])
+    }
+
+    t.run("a microphone that keeps changing format interrupts after a few restarts") {
         let (session, audio, _, _, _) = makeSession()
         var ends: [SessionEnd] = []
         session.onEnded = { ends.append($0) }
         session.start(language: .english)
+        for _ in 0..<RecordingSession.maxCaptureRestarts { audio.fireConfigurationChanged() }
+        t.expectEqual(session.state, .recording)
+        t.expectEqual(ends, [])
+
         audio.fireConfigurationChanged()
+        t.expectEqual(session.state, .idle)
+        t.expectEqual(audio.startCalls, 1 + RecordingSession.maxCaptureRestarts)
         t.expectEqual(ends, [.interrupted])
+    }
+
+    t.run("capture ignores a configuration notice from its own microphone selection") {
+        t.expectEqual(
+            AudioCaptureController.action(engineRunning: true, formatUnchanged: true, inPlaceRestarts: 0),
+            .ignore
+        )
+    }
+
+    t.run("capture restarts in place when the engine stopped but the format is the same") {
+        t.expectEqual(
+            AudioCaptureController.action(engineRunning: false, formatUnchanged: true, inPlaceRestarts: 0),
+            .restartInPlace
+        )
+        t.expectEqual(
+            AudioCaptureController.action(
+                engineRunning: false,
+                formatUnchanged: true,
+                inPlaceRestarts: AudioCaptureController.maxInPlaceRestarts
+            ),
+            .rebuild
+        )
+    }
+
+    t.run("capture rebuilds when the microphone format changes") {
+        t.expectEqual(
+            AudioCaptureController.action(engineRunning: false, formatUnchanged: false, inPlaceRestarts: 0),
+            .rebuild
+        )
+        t.expectEqual(
+            AudioCaptureController.action(engineRunning: true, formatUnchanged: false, inPlaceRestarts: 0),
+            .rebuild
+        )
+    }
+
+    t.run("each recording gets its own restart allowance") {
+        let (session, audio, transcription, _, _) = makeSession()
+        var ends: [SessionEnd] = []
+        session.onEnded = { ends.append($0) }
+        session.start(language: .english)
+        for _ in 0..<RecordingSession.maxCaptureRestarts { audio.fireConfigurationChanged() }
+        session.stop()
+        transcription.complete(.success(""))
+
+        session.start(language: .english)
+        audio.fireConfigurationChanged()
+        t.expectEqual(session.state, .recording)
+        t.expectEqual(ends, [.noSpeech])
     }
 }

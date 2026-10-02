@@ -39,7 +39,7 @@ enum SessionEnd: Equatable, Sendable {
     case noSpeech
     case failed(String)
     case couldNotStart(String)
-    /// The input device changed mid-recording.
+    /// The input device changed mid-recording and capture could not continue on it.
     case interrupted
 }
 
@@ -65,6 +65,10 @@ final class RecordingSession: ObservableObject {
     private let logger: Logger
     private var language: WhisperLanguage = .automatic
     private var recordedDuration: TimeInterval = 0
+    private var captureRestarts = 0
+
+    /// A device that changes format every time it opens would otherwise restart forever.
+    static let maxCaptureRestarts = 5
 
     var onEnded: ((SessionEnd) -> Void)?
 
@@ -101,6 +105,7 @@ final class RecordingSession: ObservableObject {
             audioCapture.inputDeviceUID = inputDeviceUID
             let format = try audioCapture.start()
             logger.append("Audio capture started (\(format.sampleRate) Hz, \(format.channels) ch).", level: .info)
+            captureRestarts = 0
             state = .recording
             sessionStartID = UUID()
             startedAt = Date()
@@ -181,11 +186,26 @@ final class RecordingSession: ObservableObject {
         }
     }
 
+    /// Capture has stopped because the input format changed. AirPods do this as soon as their
+    /// microphone opens, so recording carries on in the new format.
     private func handleAudioConfigurationChanged() {
-        logger.append("Audio input changed. Capture engine reset.", level: .warning)
         guard state == .recording else {
+            logger.append("Audio input changed. Capture engine reset.", level: .warning)
             statusMessage = "Audio input changed. Ready."
             return
+        }
+        if captureRestarts < Self.maxCaptureRestarts {
+            captureRestarts += 1
+            do {
+                let format = try audioCapture.start()
+                logger.append(
+                    "Audio input changed. Capture restarted (\(format.sampleRate) Hz, \(format.channels) ch).",
+                    level: .info
+                )
+                return
+            } catch {
+                logger.append("Audio input changed and capture could not restart: \(error.localizedDescription)", level: .error)
+            }
         }
         cancel()
         statusMessage = "Input changed. Press the shortcut to try again."

@@ -1,6 +1,23 @@
 import AVFoundation
 import WhisperKit
 
+/// A run of microphone audio at one sample rate.
+struct AudioSegment: Equatable, Sendable {
+    let sampleRate: Double
+    var samples: [Float]
+}
+
+extension [AudioSegment] {
+    /// Starts a new segment when the rate changes. Bluetooth headsets switch rate once their microphone opens.
+    mutating func append(_ samples: [Float], sampleRate: Double) {
+        if let last = indices.last, self[last].sampleRate == sampleRate {
+            self[last].samples.append(contentsOf: samples)
+        } else {
+            append(AudioSegment(sampleRate: sampleRate, samples: samples))
+        }
+    }
+}
+
 enum AudioBufferConverter {
     static func monoSamples(from buffer: AVAudioPCMBuffer) -> [Float]? {
         guard let channelData = buffer.floatChannelData else { return nil }
@@ -22,6 +39,15 @@ enum AudioBufferConverter {
             samples[frame] = sum / Float(channelCount)
         }
         return samples
+    }
+
+    /// Converts each segment to 16 kHz and joins them.
+    static func whisperSamples(from segments: [AudioSegment]) throws -> [Float] {
+        var audio: [Float] = []
+        for segment in segments {
+            audio.append(contentsOf: try whisperSamples(from: segment.samples, sampleRate: segment.sampleRate))
+        }
+        return audio
     }
 
     static func whisperSamples(from samples: [Float], sampleRate: Double) throws -> [Float] {

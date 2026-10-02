@@ -48,6 +48,30 @@ func runAudioBufferConverterTests(_ t: TestHarness) {
         t.expect(output.contains { abs($0) > 0.5 }, "Expected an audible signal after resampling")
     }
 
+    t.run("starts a new segment when the sample rate changes") {
+        var segments: [AudioSegment] = []
+        segments.append([1, 2], sampleRate: 48_000)
+        segments.append([3], sampleRate: 48_000)
+        segments.append([4, 5], sampleRate: 24_000)
+        t.expectEqual(segments, [
+            AudioSegment(sampleRate: 48_000, samples: [1, 2, 3]),
+            AudioSegment(sampleRate: 24_000, samples: [4, 5]),
+        ])
+    }
+
+    t.run("joins segments recorded at different rates at 16 kHz") {
+        func tone(seconds: Double, rate: Double) -> [Float] {
+            (0..<Int(seconds * rate)).map { Float(sin(2 * Double.pi * 440 * Double($0) / rate)) }
+        }
+        let output = try AudioBufferConverter.whisperSamples(from: [
+            AudioSegment(sampleRate: 48_000, samples: tone(seconds: 0.5, rate: 48_000)),
+            AudioSegment(sampleRate: 24_000, samples: tone(seconds: 1, rate: 24_000)),
+            AudioSegment(sampleRate: 16_000, samples: tone(seconds: 0.25, rate: 16_000)),
+        ])
+        t.expect(abs(output.count - 28_000) <= 6, "Expected about 28,000 samples, got \(output.count)")
+        t.expect(output.contains { abs($0) > 0.5 }, "Expected an audible signal after resampling")
+    }
+
     t.run("keeps already normalized audio unchanged") {
         let input: [Float] = [0.25, -0.5, 0.75]
         let output = try AudioBufferConverter.whisperSamples(from: input, sampleRate: 16_000)

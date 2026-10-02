@@ -62,8 +62,7 @@ enum WhisperModelLocator {
 private final class AudioRecording {
     let id = UUID()
     let language: WhisperLanguage
-    var sampleRate: Double?
-    var samples: [Float] = []
+    var segments: [AudioSegment] = []
     var error: String?
 
     init(language: WhisperLanguage) {
@@ -151,12 +150,7 @@ final class WhisperKitClient: RecordingSessionTranscription, @unchecked Sendable
             return
         }
         guard recording.error == nil else { return }
-        if let priorRate = recording.sampleRate, priorRate != sampleRate {
-            recording.error = "The microphone sample rate changed during recording."
-            return
-        }
-        recording.sampleRate = sampleRate
-        recording.samples.append(contentsOf: samples)
+        recording.segments.append(samples, sampleRate: sampleRate)
     }
 
     func finish(onFinished: @Sendable @escaping (TranscriptionOutcome) -> Void) {
@@ -175,20 +169,18 @@ final class WhisperKitClient: RecordingSessionTranscription, @unchecked Sendable
             complete(id: recording.id, outcome: .failure(error), onFinished: onFinished)
             return
         }
-        let samples = recording.samples
-        guard !samples.isEmpty else {
+        let segments = recording.segments.filter { !$0.samples.isEmpty }
+        guard !segments.isEmpty else {
             complete(id: recording.id, outcome: .success(""), onFinished: onFinished)
             return
         }
-        let sampleRate = recording.sampleRate ?? Double(WhisperKit.sampleRate)
         let language = recording.language
         let id = recording.id
 
         let task = Task { [weak self] in
             do {
                 let result = try await engine.transcribe(
-                    samples: samples,
-                    sampleRate: sampleRate,
+                    segments: segments,
                     language: language,
                     vocabulary: vocabulary
                 )
@@ -281,8 +273,7 @@ private actor WhisperEngine {
     }
 
     func transcribe(
-        samples: [Float],
-        sampleRate: Double,
+        segments: [AudioSegment],
         language: WhisperLanguage,
         vocabulary: String
     ) async throws -> EngineResult {
@@ -291,8 +282,7 @@ private actor WhisperEngine {
             if let previous { _ = try? await previous.value }
             try Task.checkCancellation()
             return try await performTranscription(
-                samples: samples,
-                sampleRate: sampleRate,
+                segments: segments,
                 language: language,
                 vocabulary: vocabulary
             )
@@ -306,14 +296,13 @@ private actor WhisperEngine {
     }
 
     private func performTranscription(
-        samples: [Float],
-        sampleRate: Double,
+        segments: [AudioSegment],
         language: WhisperLanguage,
         vocabulary: String
     ) async throws -> EngineResult {
         try await prepare()
         try Task.checkCancellation()
-        let audio = try AudioBufferConverter.whisperSamples(from: samples, sampleRate: sampleRate)
+        let audio = try AudioBufferConverter.whisperSamples(from: segments)
         guard !audio.isEmpty, SpeechDetector.containsSpeech(audio, sampleRate: Double(WhisperKit.sampleRate)) else {
             return EngineResult(text: "", language: language.whisperCode)
         }

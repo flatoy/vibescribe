@@ -30,14 +30,26 @@ func runOfflineModelSmoke(
         }
         try await client.prepare()
 
-        func transcribe(_ language: WhisperLanguage) async throws -> TranscriptionOutcome {
+        /// With `switchingRate`, the last two thirds arrive at another sample rate, the way
+        /// AirPods switch once their microphone opens.
+        func transcribe(_ language: WhisperLanguage, switchingRate: Bool = false) async throws -> TranscriptionOutcome {
             let audioFile = try AVAudioFile(forReading: URL(fileURLWithPath: audioPath))
+            let switchedRate: Double = audioFile.processingFormat.sampleRate == 24_000 ? 48_000 : 24_000
             try client.start(language: language)
             while audioFile.framePosition < audioFile.length {
                 let buffer = AVAudioPCMBuffer(pcmFormat: audioFile.processingFormat, frameCapacity: 4096)!
                 try audioFile.read(into: buffer)
                 guard buffer.frameLength > 0 else { break }
-                client.sendAudio(buffer: buffer)
+                if switchingRate, audioFile.framePosition > audioFile.length / 3 {
+                    guard let switched = AudioProcessor.resampleAudio(
+                        fromBuffer: buffer,
+                        toSampleRate: switchedRate,
+                        channelCount: buffer.format.channelCount
+                    ) else { throw TestFailure(message: "Could not resample the test audio") }
+                    client.sendAudio(buffer: switched)
+                } else {
+                    client.sendAudio(buffer: buffer)
+                }
             }
             return await withCheckedContinuation { continuation in
                 client.finish { result in
@@ -52,6 +64,20 @@ func runOfflineModelSmoke(
             switch selectedOutcome {
             case .success(let text, let detected):
                 print("  Transcript (\(detected ?? "?")): \(text)")
+                t.expect(!text.isEmpty, "Expected a nonempty transcript")
+                for term in requiredTerms {
+                    t.expect(text.localizedCaseInsensitiveContains(term), "Missing expected term: \(term)")
+                }
+            case .failure(let message):
+                t.expect(false, "Transcription failed: \(message)")
+            }
+        }
+
+        let switchedOutcome = try await transcribe(language, switchingRate: true)
+        t.run("a sample rate change mid-recording still transcribes") {
+            switch switchedOutcome {
+            case .success(let text, _):
+                print("  Transcript across the rate change: \(text)")
                 t.expect(!text.isEmpty, "Expected a nonempty transcript")
                 for term in requiredTerms {
                     t.expect(text.localizedCaseInsensitiveContains(term), "Missing expected term: \(term)")
