@@ -29,11 +29,11 @@ final class OnboardingWindowController: NSObject, NSWindowDelegate {
 
     func show() {
         if window == nil {
-            if context.models.active.isReady || context.models.active.isRunning {
-                navigation.step = context.models.active.isReady ? .practice : .model
-                if !allPermissionsGranted { navigation.step = .permissions }
-            } else {
-                navigation.step = .welcome
+            navigation.step = resumeStep()
+            let setup = context.models.active
+            if navigation.step != .welcome, !setup.isRunning, setup.isIdle {
+                // Agreed to the download on the welcome screen before the restart.
+                setup.start()
             }
             window = makeWindow()
             context.permissions.beginPolling()
@@ -51,6 +51,16 @@ final class OnboardingWindowController: NSObject, NSWindowDelegate {
         context.permissions.endPolling()
         window = nil
         onVisibilityChanged()
+    }
+
+    /// macOS restarts the app after Input Monitoring is allowed, so someone who got past
+    /// the welcome screen comes back to the permissions rather than the start.
+    private func resumeStep() -> OnboardingNavigation.Step {
+        let setup = context.models.active
+        let started = setup.isReady || setup.isRunning || context.permissions.microphone != .notDetermined
+        guard started else { return .welcome }
+        if !allPermissionsGranted { return .permissions }
+        return setup.isReady ? .practice : .model
     }
 
     private var allPermissionsGranted: Bool {

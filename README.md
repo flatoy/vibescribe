@@ -24,7 +24,7 @@ The app runs on macOS 14 or later on Apple Silicon. Building it requires macOS 1
    - **Input Monitoring**, so the shortcut works in every app
    - **Accessibility**, to paste for you. Without it, transcripts are copied and you press ⌘V yourself.
 
-   When System Settings opens, a small card follows it. Drag VibeScribe from the card into the list, or turn its switch on if it’s already there. The card closes once the permission is allowed.
+   When System Settings opens, a small card follows it. Drag VibeScribe from the card into the list, or turn its switch on if it’s already there. The card closes once the permission is allowed. macOS applies Input Monitoring only after a restart, so choose **Quit & Reopen** when it asks; setup picks up where you left off.
 
    <img src="assets/screenshots/permission-helper.jpg" width="420" alt="A card below System Settings with VibeScribe to drag into the Input Monitoring list">
 

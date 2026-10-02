@@ -21,9 +21,20 @@ final class Permissions: ObservableObject {
     private var pollClients = 0
     private var askedInputMonitoring = false
     private var askedAccessibility = false
+    private var accessibilityObserver: NSObjectProtocol?
 
     init() {
         refresh()
+        // System Settings posts this when the Accessibility list changes.
+        accessibilityObserver = DistributedNotificationCenter.default().addObserver(
+            forName: NSNotification.Name("com.apple.accessibility.api"), object: nil, queue: .main
+        ) { [weak self] _ in
+            Task { @MainActor in
+                // The new answer takes a moment to reach this process.
+                try? await Task.sleep(for: .milliseconds(500))
+                self?.refresh()
+            }
+        }
     }
 
     func refresh() {
@@ -35,6 +46,8 @@ final class Permissions: ObservableObject {
         @unknown default: mic = .denied
         }
         if mic != microphone { microphone = mic }
+        // macOS answers this once per launch, so a grant shows after the app restarts.
+        // System Settings offers Quit & Reopen for that.
         let input: PermissionStatus = CGPreflightListenEventAccess() ? .authorized : .denied
         if input != inputMonitoring { inputMonitoring = input }
         let ax: PermissionStatus = PasteAccess.isGranted ? .authorized : .denied
@@ -101,12 +114,13 @@ final class Permissions: ObservableObject {
 
 /// Permission to post the Cmd-V keystroke, listed under Accessibility in System Settings.
 /// The App Sandbox blocks the AX trust prompt, so the App Store build asks through
-/// CoreGraphics instead, which goes through tccd.
+/// CoreGraphics instead, which goes through tccd. Both builds check AX trust, because
+/// CoreGraphics keeps its first answer until the app quits; AX trust follows the switch.
 enum PasteAccess {
     private static let isSandboxed = ProcessInfo.processInfo.environment["APP_SANDBOX_CONTAINER_ID"] != nil
 
     static var isGranted: Bool {
-        isSandboxed ? CGPreflightPostEventAccess() : AXIsProcessTrusted()
+        AXIsProcessTrusted() || (isSandboxed && CGPreflightPostEventAccess())
     }
 
     static func request() {

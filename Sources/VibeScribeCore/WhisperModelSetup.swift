@@ -325,6 +325,14 @@ final class WhisperModelSetup: ObservableObject {
     /// Whether verification, download or preparation is actually in progress.
     var isRunning: Bool { task != nil }
 
+    /// Not started yet. Paused, offline and failed downloads have their own way to resume.
+    var isIdle: Bool {
+        switch state {
+        case .checking, .notDownloaded: return true
+        default: return false
+        }
+    }
+
     /// Fraction of the download that is on disk, when known.
     var progress: Double? {
         switch state {

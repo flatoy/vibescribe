@@ -98,6 +98,10 @@ struct OnboardingView: View {
         permissions.microphone.isGranted && permissions.inputMonitoring.isGranted && permissions.accessibility.isGranted
     }
 
+    private var afterPermissions: OnboardingNavigation.Step {
+        models.active.isReady ? .practice : .model
+    }
+
     private var permissionsStep: some View {
         VStack(spacing: 0) {
             VStack(alignment: .leading, spacing: 0) {
@@ -146,13 +150,13 @@ struct OnboardingView: View {
                 Spacer()
                 // App Review: no way past the screen before the system has asked for the microphone.
                 if !allGranted, permissions.microphone != .notDetermined {
-                    Button("Skip for now") { navigation.step = .model }.buttonStyle(.spectrumGhost)
+                    Button("Skip for now") { navigation.step = afterPermissions }.buttonStyle(.spectrumGhost)
                 }
                 Button("Continue") {
                     if permissions.microphone == .notDetermined {
                         permissions.requestMicrophone()
                     } else {
-                        navigation.step = .model
+                        navigation.step = afterPermissions
                     }
                 }
                 .buttonStyle(.spectrum(allGranted ? .primary : .normal, large: true))
@@ -204,6 +208,7 @@ struct OnboardingView: View {
                 .font(.system(size: 11.5))
                 .foregroundStyle(Theme.tertiary)
                 Spacer()
+                BackButton(navigation: navigation)
                 Button("Done") { navigation.onFinish() }
                     .buttonStyle(.spectrum(.primary, large: true))
                     .keyboardShortcut(.defaultAction)
@@ -245,22 +250,20 @@ private struct ModelStep: View {
             .padding(.horizontal, 36)
             .padding(.top, 8)
             Spacer(minLength: 0)
-            OnboardingFooter { footer }
+            OnboardingFooter {
+                footerNote
+                Spacer()
+                BackButton(navigation: navigation)
+                footerAction
+            }
         }
         .onAppear {
             // Reaching this step is consent to download. Only start from an idle state:
             // paused, failed and offline each have their own button or automatic resume.
-            if !setup.isRunning, isIdle { setup.start() }
+            if !setup.isRunning, setup.isIdle { setup.start() }
             advanceIfReady()
         }
         .onChange(of: setup.state) { advanceIfReady() }
-    }
-
-    private var isIdle: Bool {
-        switch setup.state {
-        case .checking, .notDownloaded: return true
-        default: return false
-        }
     }
 
     private func advanceIfReady() {
@@ -342,37 +345,50 @@ private struct ModelStep: View {
     }
 
     @ViewBuilder
-    private var footer: some View {
+    private var footerNote: some View {
         switch setup.state {
         case .downloading:
             Text("You can close this window. The download continues from the menu bar.")
                 .font(.system(size: 11.5)).foregroundStyle(Theme.tertiary)
-            Spacer()
-            Button("Pause") { setup.pause() }.buttonStyle(.spectrum)
         case .interrupted(_, _, let reason):
             StatusDot(color: Theme.warn, size: 7)
             Text("Last attempt: \(reason)").font(.system(size: 11.5)).foregroundStyle(Theme.tertiary).lineLimit(1)
-            Spacer()
         case .preparing, .ready:
             Text("Download verified\(setup.totalBytes.map { " · \(Format.bytes($0))" } ?? "")")
                 .font(.system(size: 11.5)).foregroundStyle(Theme.tertiary)
-            Spacer()
         case .checking:
             Text("Checking each file’s fingerprint. This takes a few seconds.")
                 .font(.system(size: 11.5)).foregroundStyle(Theme.tertiary)
-            Spacer()
         case .paused:
             Text("Your progress is saved.").font(.system(size: 11.5)).foregroundStyle(Theme.tertiary)
-            Spacer()
         case .notDownloaded:
             Text("About \(setup.totalBytes.map(Format.bytes) ?? "630 MB"), downloaded once.")
                 .font(.system(size: 11.5)).foregroundStyle(Theme.tertiary)
-            Spacer()
-            Button("Download") { setup.start() }.buttonStyle(.spectrumPrimary)
         case .failed:
             Text("Files that passed verification are kept.").font(.system(size: 11.5)).foregroundStyle(Theme.tertiary)
-            Spacer()
         }
+    }
+
+    @ViewBuilder
+    private var footerAction: some View {
+        switch setup.state {
+        case .downloading:
+            Button("Pause") { setup.pause() }.buttonStyle(.spectrum)
+        case .notDownloaded:
+            Button("Download") { setup.start() }.buttonStyle(.spectrumPrimary)
+        default:
+            EmptyView()
+        }
+    }
+}
+
+/// Returns to the permissions, which are the only step with choices to revisit.
+private struct BackButton: View {
+    @ObservedObject var navigation: OnboardingNavigation
+
+    var body: some View {
+        Button("Back") { navigation.step = .permissions }
+            .buttonStyle(.spectrumGhost)
     }
 }
 

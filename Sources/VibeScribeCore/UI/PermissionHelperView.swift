@@ -18,6 +18,14 @@ enum PermissionHelperKind: Equatable {
         case .accessibility: return "So VibeScribe can paste for you."
         }
     }
+
+    /// macOS applies Input Monitoring only after a restart, and offers one when it's switched on.
+    var hint: String {
+        switch self {
+        case .inputMonitoring: return "Already in the list? Turn its switch on. When macOS asks, choose Quit & Reopen."
+        case .accessibility: return "Already in the list? Turn its switch on. This card closes by itself once it’s allowed."
+        }
+    }
 }
 
 /// The floating card beside System Settings: drag the app into the list, or switch it on.
@@ -78,7 +86,7 @@ struct PermissionHelperView: View {
             .help("Drag VibeScribe into the list in System Settings")
             .accessibilityLabel("VibeScribe app. Drag into the list in System Settings.")
 
-            Text("Already in the list? Turn its switch on. This card closes by itself once it’s allowed.")
+            Text(kind.hint)
                 .font(.system(size: 11))
                 .foregroundStyle(Theme.tertiary)
                 .fixedSize(horizontal: false, vertical: true)
