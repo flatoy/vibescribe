@@ -5,6 +5,51 @@ CONF=${1:-release}
 ROOT=$(cd "$(dirname "$0")" && pwd)
 cd "$ROOT"
 
+read -r TOOLS_HEADER < "$ROOT/Package.swift"
+if [[ ! "$TOOLS_HEADER" =~ ^//[[:space:]]swift-tools-version:[[:space:]]*([0-9]+)\.([0-9]+)(\.([0-9]+))? ]]; then
+  echo "ERROR: Could not read the Swift tools version from Package.swift." >&2
+  exit 1
+fi
+REQUIRED_SWIFT_MAJOR=${BASH_REMATCH[1]}
+REQUIRED_SWIFT_MINOR=${BASH_REMATCH[2]}
+REQUIRED_SWIFT_PATCH=${BASH_REMATCH[4]:-0}
+REQUIRED_SWIFT_VERSION="$REQUIRED_SWIFT_MAJOR.$REQUIRED_SWIFT_MINOR.$REQUIRED_SWIFT_PATCH"
+
+if ! command -v swift >/dev/null 2>&1; then
+  echo "ERROR: Swift $REQUIRED_SWIFT_VERSION or newer is required to build VibeScribe." >&2
+  echo "Install it from https://www.swift.org/install/macos/" >&2
+  exit 1
+fi
+if ! SWIFT_VERSION_OUTPUT=$(swift --version 2>&1); then
+  echo "ERROR: Could not run swift --version: $SWIFT_VERSION_OUTPUT" >&2
+  exit 1
+fi
+if [[ ! "$SWIFT_VERSION_OUTPUT" =~ Swift[[:space:]]version[[:space:]]([0-9]+)\.([0-9]+)(\.([0-9]+))? ]]; then
+  echo "ERROR: Could not determine the installed Swift version: $SWIFT_VERSION_OUTPUT" >&2
+  exit 1
+fi
+SWIFT_MAJOR=${BASH_REMATCH[1]}
+SWIFT_MINOR=${BASH_REMATCH[2]}
+SWIFT_PATCH=${BASH_REMATCH[4]:-0}
+if (( SWIFT_MAJOR < REQUIRED_SWIFT_MAJOR ||
+      (SWIFT_MAJOR == REQUIRED_SWIFT_MAJOR && SWIFT_MINOR < REQUIRED_SWIFT_MINOR) ||
+      (SWIFT_MAJOR == REQUIRED_SWIFT_MAJOR && SWIFT_MINOR == REQUIRED_SWIFT_MINOR && SWIFT_PATCH < REQUIRED_SWIFT_PATCH) )); then
+  echo "ERROR: VibeScribe requires Swift $REQUIRED_SWIFT_VERSION or newer; the active toolchain is Swift $SWIFT_MAJOR.$SWIFT_MINOR.$SWIFT_PATCH." >&2
+  echo "Install Xcode 26 or newer, or update the Swift command line tools: https://www.swift.org/install/macos/" >&2
+  echo "Check the active toolchain with swift --version and xcode-select -p, then retry." >&2
+  exit 1
+fi
+
+if ! command -v xcrun >/dev/null 2>&1 || ! SDK_VERSION=$(xcrun --sdk macosx --show-sdk-version 2>/dev/null); then
+  echo "ERROR: Could not find a macOS SDK. Install Xcode 26 or newer and select its developer tools." >&2
+  exit 1
+fi
+if [[ ! "$SDK_VERSION" =~ ^([0-9]+)\.([0-9]+) ]] || (( ${BASH_REMATCH[1]:-0} < 26 )); then
+  echo "ERROR: VibeScribe's pinned WhisperKit dependency requires the macOS 26 SDK; the active SDK is ${SDK_VERSION}." >&2
+  echo "Install Xcode 26 or newer, or its matching Command Line Tools, then check xcrun --sdk macosx --show-sdk-version." >&2
+  exit 1
+fi
+
 if [[ -f "$ROOT/version.env" ]]; then
   source "$ROOT/version.env"
 fi
@@ -34,7 +79,7 @@ done
 
 APP="$ROOT/${APP_NAME}.app"
 rm -rf "$APP"
-mkdir -p "$APP/Contents/MacOS" "$APP/Contents/Resources" "$APP/Contents/Frameworks"
+mkdir -p "$APP/Contents/MacOS" "$APP/Contents/Resources/Licenses" "$APP/Contents/Frameworks"
 
 # Convert the image exported from Icon Composer to Icon.icns (requires iconutil).
 ICON_PNG_SOURCE="$ROOT/Icon.png"
