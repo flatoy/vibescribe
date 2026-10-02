@@ -6,6 +6,8 @@ A menu bar app for push-to-talk dictation on Mac. Hold a key, speak, and let go:
 
 ## Install
 
+Get VibeScribe free on the [Mac App Store](https://apps.apple.com/app/id6818493506), or build it from source as described below.
+
 The app runs on macOS 14 or later on Apple Silicon. Building it requires macOS 15.6 or later, Swift 6.2 or newer, and the macOS 26 SDK. This build was verified with Swift 6.3.3 and Apple Command Line Tools 26. A standalone Swift toolchain also needs the matching [Apple Command Line Tools](https://developer.apple.com/documentation/xcode/installing-the-command-line-tools) for the SDK.
 
 1. Clone and build the app:
