@@ -93,6 +93,8 @@ enum AppInfo {
         Bundle.main.infoDictionary?["CFBundleVersion"] as? String
     }
 
+    static let privacyPolicyURL = URL(string: "https://flatoy.github.io/vibescribe/privacy/")!
+
     static var licensesFolder: URL {
         if Bundle.main.bundleURL.pathExtension == "app", let resources = Bundle.main.resourceURL {
             return resources.appendingPathComponent("Licenses", isDirectory: true)

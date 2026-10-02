@@ -874,6 +874,10 @@ struct AboutPage: View {
                         Button("Licences") { NSWorkspace.shared.open(AppInfo.licensesFolder) }
                             .buttonStyle(.plain)
                             .underline()
+                        Text("·")
+                        Button("Privacy Policy") { NSWorkspace.shared.open(AppInfo.privacyPolicyURL) }
+                            .buttonStyle(.plain)
+                            .underline()
                     }
                     .font(.system(size: 11.5))
                     .foregroundStyle(Theme.secondary)

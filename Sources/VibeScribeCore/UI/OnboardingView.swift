@@ -144,12 +144,19 @@ struct OnboardingView: View {
             OnboardingFooter {
                 MiniDownload(setup: models.active)
                 Spacer()
-                if !allGranted {
+                // App Review: no way past the screen before the system has asked for the microphone.
+                if !allGranted, permissions.microphone != .notDetermined {
                     Button("Skip for now") { navigation.step = .model }.buttonStyle(.spectrumGhost)
                 }
-                Button("Continue") { navigation.step = .model }
-                    .buttonStyle(.spectrum(allGranted ? .primary : .normal, large: true))
-                    .keyboardShortcut(.defaultAction)
+                Button("Continue") {
+                    if permissions.microphone == .notDetermined {
+                        permissions.requestMicrophone()
+                    } else {
+                        navigation.step = .model
+                    }
+                }
+                .buttonStyle(.spectrum(allGranted ? .primary : .normal, large: true))
+                .keyboardShortcut(.defaultAction)
             }
         }
     }

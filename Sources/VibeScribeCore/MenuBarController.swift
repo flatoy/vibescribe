@@ -116,12 +116,15 @@ final class MenuBarController: NSObject, NSMenuDelegate {
         switch setup.state {
         case .downloading:
             menu.addItem(item("Pause download") { setup.pause() })
+        case .notDownloaded(0, _):
+            menu.addItem(item("Download speech model") { setup.start() })
         case .paused, .interrupted, .notDownloaded:
             menu.addItem(item("Resume download") { setup.start() })
         default:
             break
         }
         menu.addItem(item("Show setup window") { [weak self] in self?.context.openSetup() })
+        menu.addItem(item("Settings…", key: ",") { [weak self] in self?.context.openSettings(.general) })
         menu.addItem(.separator())
         menu.addItem(item("Quit VibeScribe", key: "q") { [weak self] in self?.onQuit() })
     }
@@ -261,6 +264,7 @@ struct MenuSetupHeader: View {
     private var title: String {
         switch setup.state {
         case .paused: return "Download paused"
+        case .notDownloaded(let completed, _): return completed > 0 ? "Download paused" : "Speech model not downloaded"
         case .interrupted: return "Waiting for a connection"
         case .checking, .preparing: return "Preparing speech model"
         default: return "Downloading speech model"
@@ -269,6 +273,8 @@ struct MenuSetupHeader: View {
 
     private var detail: String {
         switch setup.state {
+        case .notDownloaded(0, let total):
+            return total > 0 ? "\(Format.bytes(total)) to download" : "Not started"
         case .downloading(let completed, let total), .paused(let completed, let total),
              .notDownloaded(let completed, let total), .interrupted(let completed, let total, _):
             var text = "\(Format.bytes(completed)) of \(Format.bytes(total))"

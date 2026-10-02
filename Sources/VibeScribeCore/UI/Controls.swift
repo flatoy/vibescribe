@@ -350,7 +350,7 @@ extension View {
     }
 }
 
-/// A permission with its reason and a way to allow it.
+/// A permission with its reason and a way to request it.
 struct PermissionCard: View {
     var systemImage: String
     var title: String
@@ -378,7 +378,7 @@ struct PermissionCard: View {
                     .font(.system(size: 13, weight: .medium))
                     .foregroundStyle(Theme.ok)
             } else {
-                Button(status == .notDetermined ? "Allow" : "Open Settings", action: action)
+                Button(status == .notDetermined ? "Continue" : "Open Settings", action: action)
                     .buttonStyle(.spectrum(isPrimary ? .primary : .normal))
             }
         }
