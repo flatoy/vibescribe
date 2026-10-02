@@ -1,0 +1,32 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+<plist version="1.0">
+<!--
+  Mac App Store entitlements for VibeScribe.
+
+  Only what the app actually uses:
+  - app-sandbox: required for the Mac App Store.
+  - network.client: downloads the Whisper model from huggingface.co
+    (WhisperModelSetup) and watches reachability (NWPathMonitor).
+  - device.audio-input: records the microphone for push-to-talk.
+
+  Not needed: no open/save panels or user-selected files (models and history
+  live in the app container), no AppleScript/Apple Events, no camera, no
+  server sockets, no temporary exceptions. Global hotkeys use Input
+  Monitoring and pasting uses Accessibility; both are user-granted TCC
+  permissions that work inside the sandbox without extra entitlements.
+
+  Do not add com.apple.application-identifier or
+  com.apple.developer.team-identifier here: package_app.sh merges them in
+  from the provisioning profile at sign time, so this file also works for
+  ad-hoc sandbox smoke tests under another bundle ID.
+-->
+<dict>
+    <key>com.apple.security.app-sandbox</key>
+    <true/>
+    <key>com.apple.security.network.client</key>
+    <true/>
+    <key>com.apple.security.device.audio-input</key>
+    <true/>
+</dict>
+</plist>
