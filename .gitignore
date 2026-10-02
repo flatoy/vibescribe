@@ -11,3 +11,20 @@ VibeScrib.app/
 VibeScribe.app/
 Icon.icns
 __pycache__/
+
+# App Store Connect API key and signing assets (never commit)
+/.asc/
+/.signing/
+*.p8
+*.p12
+*.provisionprofile
+*.cer
+*.certSigningRequest
+
+# Release and media build output
+/dist/
+/.build-*/
+/video/build/
+/video/out/
+/video/node_modules/
+/video/.env
