@@ -37,7 +37,7 @@ final class Permissions: ObservableObject {
         if mic != microphone { microphone = mic }
         let input: PermissionStatus = CGPreflightListenEventAccess() ? .authorized : .denied
         if input != inputMonitoring { inputMonitoring = input }
-        let ax: PermissionStatus = AXIsProcessTrusted() ? .authorized : .denied
+        let ax: PermissionStatus = PasteAccess.isGranted ? .authorized : .denied
         if ax != accessibility { accessibility = ax }
     }
 
@@ -86,8 +86,7 @@ final class Permissions: ObservableObject {
         } else {
             askedAccessibility = true
             SystemSettings.didOpen?(.accessibility)
-            let promptKey = "AXTrustedCheckOptionPrompt" as CFString
-            _ = AXIsProcessTrustedWithOptions([promptKey: true] as CFDictionary)
+            PasteAccess.request()
         }
         refresh()
     }
@@ -97,5 +96,25 @@ final class Permissions: ObservableObject {
         self.microphone = microphone
         self.inputMonitoring = inputMonitoring
         self.accessibility = accessibility
+    }
+}
+
+/// Permission to post the Cmd-V keystroke, listed under Accessibility in System Settings.
+/// The App Sandbox blocks the AX trust prompt, so the App Store build asks through
+/// CoreGraphics instead, which goes through tccd.
+enum PasteAccess {
+    private static let isSandboxed = ProcessInfo.processInfo.environment["APP_SANDBOX_CONTAINER_ID"] != nil
+
+    static var isGranted: Bool {
+        isSandboxed ? CGPreflightPostEventAccess() : AXIsProcessTrusted()
+    }
+
+    static func request() {
+        if isSandboxed {
+            _ = CGRequestPostEventAccess()
+        } else {
+            let promptKey = "AXTrustedCheckOptionPrompt" as CFString
+            _ = AXIsProcessTrustedWithOptions([promptKey: true] as CFDictionary)
+        }
     }
 }

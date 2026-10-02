@@ -22,7 +22,7 @@ final class TextOutput {
     @discardableResult
     func deliver(_ text: String) -> OutputResult {
         let pasteboard = NSPasteboard.general
-        let canPaste = preferences.outputMode == .paste && AXIsProcessTrusted()
+        let canPaste = preferences.outputMode == .paste && PasteAccess.isGranted
         guard canPaste else {
             pasteboard.clearContents()
             pasteboard.setString(text, forType: .string)
