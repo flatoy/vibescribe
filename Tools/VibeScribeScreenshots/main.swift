@@ -1,5 +1,6 @@
 // Renders the app's real SwiftUI views with sample data, for the README.
 // Usage: swift run VibeScribeScreenshots [output-folder]   (default: assets)
+// App Store screenshots: swift run VibeScribeScreenshots --appstore [output-folder]   (see AppStoreShots.swift)
 
 import AppKit
 import SwiftUI
@@ -360,6 +361,10 @@ let app = NSApplication.shared
 app.setActivationPolicy(.accessory)
 
 MainActor.assumeIsolated {
+    if CommandLine.arguments.dropFirst().first == "--appstore" {
+        renderAppStoreShots(arguments: Array(CommandLine.arguments.dropFirst(2)))
+        return
+    }
     let output = URL(fileURLWithPath: CommandLine.arguments.count > 1 ? CommandLine.arguments[1] : "assets")
     let shots = output.appendingPathComponent("screenshots")
     try? FileManager.default.createDirectory(at: shots, withIntermediateDirectories: true)
