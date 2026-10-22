@@ -41,7 +41,9 @@ case "$DISTRIBUTION" in
 esac
 SCRATCH_PATH=${SCRATCH_PATH:-.build}
 OUTPUT_DIR=${OUTPUT_DIR:-$ROOT}
-SWIFT_BUILD_ARGS=()
+# Swift 6.4 defaults to the swiftbuild build system, which writes every arch to out/Products and
+# leaves <arch>-apple-macosx/<conf>, where this script looks, to go stale. Keep the native layout.
+SWIFT_BUILD_ARGS=(--build-system native)
 if [[ "$SCRATCH_PATH" != ".build" ]]; then
   SWIFT_BUILD_ARGS+=(--scratch-path "$SCRATCH_PATH")
 fi
