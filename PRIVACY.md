@@ -1,8 +1,8 @@
 # VibeScribe Privacy Policy
 
-**Effective date: 2 October 2026**
+**Effective date: 22 October 2026**
 
-This policy explains how VibeScribe, the dictation app for Mac, handles your information. It covers VibeScribe 1.0 and later as distributed on the Mac App Store, and the VibeScribe website at https://flatoy.github.io/vibescribe/.
+This policy explains how VibeScribe, the dictation app for Mac, handles your information. It covers VibeScribe 1.0 and later as distributed on GitHub at https://github.com/flatoy/vibescribe/releases, and the VibeScribe website at https://flatoy.github.io/vibescribe/.
 
 ## The short version
 
@@ -18,9 +18,7 @@ VibeScribe is published by Hello World AS ("we", "us"). Hello World AS is the co
 
 ## What we collect
 
-Nothing. VibeScribe has no servers of its own and no sign-in. We do not receive your audio, transcripts, history, vocabulary, settings, usage statistics, crash reports, device identifiers, contacts, location or any other information from the app. That is why VibeScribe's App Store privacy label says **Data Not Collected**.
-
-If you have turned on **Share with app developers** in System Settings > Privacy & Security > Analytics & Improvements, Apple may share crash reports and anonymous usage statistics with us. That sharing is controlled by you and by Apple under Apple's privacy policy. VibeScribe adds nothing of its own to it.
+Nothing. VibeScribe has no servers of its own and no sign-in. We do not receive your audio, transcripts, history, vocabulary, settings, usage statistics, crash reports, device identifiers, contacts, location or any other information from the app.
 
 ## Microphone and audio
 
@@ -47,7 +45,7 @@ If Handoff is turned on, macOS's Universal Clipboard can make clipboard contents
 
 ## What is stored on your Mac
 
-Everything below stays on your Mac and is never sent anywhere. Files are kept in VibeScribe's own App Sandbox container at `~/Library/Containers/io.m10s.vibescribe`.
+Everything below stays on your Mac and is never sent anywhere. History and speech models are kept in `~/Library/Application Support/io.m10s.vibescribe`, and settings and vocabulary in `~/Library/Preferences/io.m10s.vibescribe.plist`.
 
 - **Transcript history.** When history is on, each transcript is saved with its date and time, its language, the length of the recording, and the name of the app it was pasted into (or "Clipboard"). History is kept for 30 days by default. In Settings > History you can choose Don't keep history, Keep 1 day, Keep 7 days, Keep 30 days or Keep forever. Older entries are deleted automatically.
 - **Your latest transcript** is also kept in memory, even when history is off, so that you can copy it from the menu bar. It is gone when you quit VibeScribe.
@@ -60,7 +58,7 @@ Everything below stays on your Mac and is never sent anywhere. Files are kept in
 - **History:** Settings > History > Clear History. Choosing "Don't keep history" also deletes all saved transcripts straight away.
 - **Vocabulary:** delete the words in Settings > Language.
 - **Speech models:** Settings > Speech model > Delete removes a model you are not using. Show in Finder opens the folder that holds the models and your history.
-- **Everything:** quit VibeScribe, move it to the Trash, then delete the folder `~/Library/Containers/io.m10s.vibescribe` (in Finder, choose Go > Go to Folder). This removes your history, settings, vocabulary and models. You can also remove VibeScribe from System Settings > Privacy & Security (Microphone, Input Monitoring and Accessibility) and from System Settings > General > Login Items.
+- **Everything:** quit VibeScribe, move it to the Trash, then delete the folder `~/Library/Application Support/io.m10s.vibescribe` and the file `~/Library/Preferences/io.m10s.vibescribe.plist` (in Finder, choose Go > Go to Folder). This removes your history, settings, vocabulary and models. You can also remove VibeScribe from System Settings > Privacy & Security (Microphone, Input Monitoring and Accessibility) and from System Settings > General > Login Items.
 
 We hold no data about you, so there is nothing for us to delete on our side.
 

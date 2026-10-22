@@ -6,7 +6,7 @@ A menu bar app for push-to-talk dictation on Mac. Hold a key, speak, and let go:
 
 ## Install
 
-Get VibeScribe free on the [Mac App Store](https://apps.apple.com/app/id6818493506), or build it from source as described below.
+Download [VibeScribe.dmg](https://github.com/flatoy/vibescribe/releases/latest/download/VibeScribe.dmg) from the [latest release](https://github.com/flatoy/vibescribe/releases/latest), open it and drag VibeScribe to your Applications folder. The app isn’t notarized by Apple, so macOS warns that it can’t verify VibeScribe the first time you open it: close the warning, then click **Open Anyway** in System Settings > Privacy & Security. Then continue with step 3 below. Or build it from source:
 
 The app runs on macOS 14 or later on Apple Silicon. Building it requires macOS 15.6 or later, Swift 6.2 or newer, and the macOS 26 SDK. This build was verified with Swift 6.3.3 and Apple Command Line Tools 26. A standalone Swift toolchain also needs the matching [Apple Command Line Tools](https://developer.apple.com/documentation/xcode/installing-the-command-line-tools) for the SDK.
 
@@ -30,7 +30,7 @@ The app runs on macOS 14 or later on Apple Silicon. Building it requires macOS 1
 
 4. Try it in the practice box, then hold **Right ⌥** in any app and speak.
 
-The build is ad-hoc signed for your own Mac. After you rebuild or update, macOS may switch Accessibility off again; the menu bar icon gets an orange dot and the menu offers a one-click fix.
+VibeScribe is ad-hoc signed, both the download and your own build. After you update or rebuild, macOS may switch Accessibility off again; the menu bar icon gets an orange dot and the menu offers a one-click fix.
 
 ## How it works
 
@@ -125,7 +125,7 @@ swift run VibeScribeScreenshots assets
 
 ### Packaging
 
-`package_app.sh` builds a small `VibeScribe.app` without model weights. To customize the bundle ID or version, edit `version.env`. The script supports the `ARCHES`, `SIGNING_MODE` and `APP_IDENTITY` build settings; distribution to other Macs needs Developer ID signing and notarization.
+`package_app.sh` builds a small `VibeScribe.app` without model weights. To customize the bundle ID or version, edit `version.env`. The script supports the `ARCHES`, `SIGNING_MODE` and `APP_IDENTITY` build settings. `scripts/release_github.sh` builds the `dist/VibeScribe.dmg` attached to GitHub releases. It is ad-hoc signed, so other Macs show the first-launch warning described under Install; Developer ID signing and notarization would avoid it.
 
 The editable app icon is `Icon.icon`. After changing it in Icon Composer, export the macOS Default image at 1024 pt and 1× to `Icon.png`; the packaging script converts that image to `Icon.icns`.
 

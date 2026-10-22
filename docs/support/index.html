@@ -42,7 +42,7 @@
           <li><a href="../support/" aria-current="page">Support</a></li>
           <li class="optional-sm"><a href="https://github.com/flatoy/vibescribe">GitHub</a></li>
         </ul>
-        <a class="btn-small" href="https://apps.apple.com/app/id6818493506">Get the app</a>
+        <a class="btn-small" href="https://github.com/flatoy/vibescribe/releases/latest/download/VibeScribe.dmg">Get the app</a>
       </nav>
     </div>
   </header>
@@ -81,11 +81,24 @@
             <div><dt>Mac</dt><dd>Apple silicon (M1 or later)</dd></div>
             <div><dt>Disk space</dt><dd>About 630 MB for the speech model</dd></div>
           </dl>
-          <p class="facts-note">Free on the Mac App Store, with no in-app purchases. An internet connection is needed once, to download the speech model.</p>
+          <p class="facts-note">Free to download, with no in-app purchases. An internet connection is needed once, to download the speech model.</p>
         </section>
 
         <section class="faq-group" aria-labelledby="getting-started">
           <h2 id="getting-started">Getting started</h2>
+
+          <details class="faq" id="open-anyway">
+            <summary>macOS says it can&rsquo;t verify VibeScribe. How do I open it?</summary>
+            <div class="answer">
+              <p>VibeScribe isn&rsquo;t notarized by Apple, so macOS warns you the first time you open a downloaded copy. To open it anyway:</p>
+              <ol>
+                <li>Close the warning. Don&rsquo;t move VibeScribe to the Trash.</li>
+                <li>Open System Settings &rsaquo; Privacy &amp; Security and scroll down to Security.</li>
+                <li>Click Open Anyway next to the message about VibeScribe, and confirm with your password or Touch ID.</li>
+              </ol>
+              <p>macOS asks again after you download a new version.</p>
+            </div>
+          </details>
 
           <details class="faq" id="permissions">
             <summary>Which permissions does VibeScribe need, and why?</summary>
@@ -105,8 +118,8 @@
             <div class="answer">
               <p>The default model, Whisper large-v3, is about 630 MB. VibeScribe downloads it once from Hugging Face during setup and checks every file before using it. You can close the setup window while it downloads: the download continues from the menu bar, and it picks up again if your connection drops.</p>
               <p>The first time the model loads, it is prepared for your Mac&rsquo;s chip, which takes about a minute. After that, VibeScribe works without internet.</p>
-              <p>The model is stored in VibeScribe&rsquo;s Application Support folder inside its App Sandbox container:</p>
-              <p><code>~/Library/<wbr>Containers/<wbr>io.m10s.vibescribe/<wbr>Data/<wbr>Library/<wbr>Application Support/<wbr>io.m10s.vibescribe</code></p>
+              <p>The model is stored in VibeScribe&rsquo;s Application Support folder:</p>
+              <p><code>~/Library/<wbr>Application Support/<wbr>io.m10s.vibescribe</code></p>
               <p>To open it, choose Settings &rsaquo; Speech model &rsaquo; Show in Finder.</p>
               <picture>
                 <source srcset="../assets/img/settings-model.webp" type="image/webp">
@@ -277,7 +290,7 @@
               <ol>
                 <li>Choose Quit VibeScribe from the menu bar menu.</li>
                 <li>Move VibeScribe from your Applications folder to the Trash.</li>
-                <li>To also remove your history, settings, vocabulary and the downloaded models, delete the folder <code>~/Library/<wbr>Containers/<wbr>io.m10s.vibescribe</code>. In Finder, choose Go &rsaquo; Go to Folder, paste the path, and move the folder to the Trash.</li>
+                <li>To also remove your history, settings, vocabulary and the downloaded models, delete the folder <code>~/Library/<wbr>Application Support/<wbr>io.m10s.vibescribe</code> and the file <code>~/Library/<wbr>Preferences/<wbr>io.m10s.vibescribe.plist</code>. In Finder, choose Go &rsaquo; Go to Folder, paste each path, and move the folder and the file to the Trash.</li>
                 <li>If you like, remove VibeScribe from System Settings &rsaquo; Privacy &amp; Security (Microphone, Input Monitoring and Accessibility) and from System Settings &rsaquo; General &rsaquo; Login Items.</li>
               </ol>
             </div>
@@ -314,7 +327,7 @@
           <li><a href="https://github.com/flatoy/vibescribe/issues">Report a problem</a></li>
         </ul>
       </div>
-      <p class="legal">&copy; 2026 Hello World AS. VibeScribe is open source under the MIT license. Speech recognition by WhisperKit from Argmax, running OpenAI&rsquo;s Whisper models on your Mac. Apple, Mac, macOS and Mac App Store are trademarks of Apple Inc., registered in the U.S. and other countries and regions.</p>
+      <p class="legal">&copy; 2026 Hello World AS. VibeScribe is open source under the MIT license. Speech recognition by WhisperKit from Argmax, running OpenAI&rsquo;s Whisper models on your Mac. Apple, Mac and macOS are trademarks of Apple Inc., registered in the U.S. and other countries and regions.</p>
     </div>
   </footer>
 </body>

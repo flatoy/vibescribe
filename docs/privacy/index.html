@@ -42,7 +42,7 @@
           <li><a href="../support/">Support</a></li>
           <li class="optional-sm"><a href="https://github.com/flatoy/vibescribe">GitHub</a></li>
         </ul>
-        <a class="btn-small" href="https://apps.apple.com/app/id6818493506">Get the app</a>
+        <a class="btn-small" href="https://github.com/flatoy/vibescribe/releases/latest/download/VibeScribe.dmg">Get the app</a>
       </nav>
     </div>
   </header>
@@ -53,8 +53,8 @@
         <div>
           <p class="eyebrow"><span class="bars" aria-hidden="true"><i></i><i></i><i></i><i></i><i></i><i></i><i></i></span>Privacy</p>
           <h1 id="page-title">VibeScribe Privacy Policy</h1>
-          <p class="sub">This policy explains how VibeScribe, the dictation app for Mac, handles your information. It covers VibeScribe 1.0 and later as distributed on the Mac App Store, and the VibeScribe website at <a href="https://flatoy.github.io/vibescribe/">flatoy.github.io/vibescribe</a>.</p>
-          <p class="meta-line">Effective 2 October 2026 · Hello World AS · Also on <a href="https://github.com/flatoy/vibescribe/blob/main/PRIVACY.md">GitHub</a></p>
+          <p class="sub">This policy explains how VibeScribe, the dictation app for Mac, handles your information. It covers VibeScribe 1.0 and later as distributed on GitHub at <a href="https://github.com/flatoy/vibescribe/releases">github.com/flatoy/vibescribe/releases</a>, and the VibeScribe website at <a href="https://flatoy.github.io/vibescribe/">flatoy.github.io/vibescribe</a>.</p>
+          <p class="meta-line">Effective 22 October 2026 · Hello World AS · Also on <a href="https://github.com/flatoy/vibescribe/blob/main/PRIVACY.md">GitHub</a></p>
         </div>
       </div>
     </div>
@@ -97,8 +97,7 @@
         <h2 id="who-is-responsible">Who is responsible</h2>
         <p>VibeScribe is published by Hello World AS (“we”, “us”). Hello World AS is the controller for any personal data covered by this policy. VibeScribe is designed so that we never receive personal data from the app. You can contact us at <a href="https://github.com/flatoy/vibescribe/issues">github.com/flatoy/vibescribe/issues</a>.</p>
         <h2 id="what-we-collect">What we collect</h2>
-        <p>Nothing. VibeScribe has no servers of its own and no sign-in. We do not receive your audio, transcripts, history, vocabulary, settings, usage statistics, crash reports, device identifiers, contacts, location or any other information from the app. That is why VibeScribe’s App Store privacy label says <strong>Data Not Collected</strong>.</p>
-        <p>If you have turned on <strong>Share with app developers</strong> in System Settings › Privacy &amp; Security › Analytics &amp; Improvements, Apple may share crash reports and anonymous usage statistics with us. That sharing is controlled by you and by Apple under Apple’s privacy policy. VibeScribe adds nothing of its own to it.</p>
+        <p>Nothing. VibeScribe has no servers of its own and no sign-in. We do not receive your audio, transcripts, history, vocabulary, settings, usage statistics, crash reports, device identifiers, contacts, location or any other information from the app.</p>
         <h2 id="microphone-and-audio">Microphone and audio</h2>
         <p>VibeScribe listens only while you hold your dictation shortcut, or after you tap it to start hands-free dictation, until you stop or cancel. The audio:</p>
         <ul>
@@ -115,7 +114,7 @@
         <p>By default, VibeScribe puts back whatever was on your clipboard about a quarter of a second after pasting. You can turn this off with “Restore clipboard after pasting” in Settings › General. Your previous clipboard contents are held in memory only for that moment.</p>
         <p>If Handoff is turned on, macOS’s Universal Clipboard can make clipboard contents, including a transcript, briefly available to your other Apple devices signed in to the same Apple Account. That is a macOS feature handled by Apple.</p>
         <h2 id="what-is-stored-on-your-mac">What is stored on your Mac</h2>
-        <p>Everything below stays on your Mac and is never sent anywhere. Files are kept in VibeScribe’s own App Sandbox container at <code>~/<wbr>Library/<wbr>Containers/<wbr>io.m10s.vibescribe</code>.</p>
+        <p>Everything below stays on your Mac and is never sent anywhere. History and speech models are kept in <code>~/<wbr>Library/<wbr>Application Support/<wbr>io.m10s.vibescribe</code>, and settings and vocabulary in <code>~/<wbr>Library/<wbr>Preferences/<wbr>io.m10s.vibescribe.plist</code>.</p>
         <ul>
           <li><strong>Transcript history.</strong> When history is on, each transcript is saved with its date and time, its language, the length of the recording, and the name of the app it was pasted into (or “Clipboard”). History is kept for 30 days by default. In Settings › History you can choose Don’t keep history, Keep 1 day, Keep 7 days, Keep 30 days or Keep forever. Older entries are deleted automatically.</li>
           <li><strong>Your latest transcript</strong> is also kept in memory, even when history is off, so that you can copy it from the menu bar. It is gone when you quit VibeScribe.</li>
@@ -128,7 +127,7 @@
           <li><strong>History:</strong> Settings › History › Clear History. Choosing “Don’t keep history” also deletes all saved transcripts straight away.</li>
           <li><strong>Vocabulary:</strong> delete the words in Settings › Language.</li>
           <li><strong>Speech models:</strong> Settings › Speech model › Delete removes a model you are not using. Show in Finder opens the folder that holds the models and your history.</li>
-          <li><strong>Everything:</strong> quit VibeScribe, move it to the Trash, then delete the folder <code>~/<wbr>Library/<wbr>Containers/<wbr>io.m10s.vibescribe</code> (in Finder, choose Go › Go to Folder). This removes your history, settings, vocabulary and models. You can also remove VibeScribe from System Settings › Privacy &amp; Security (Microphone, Input Monitoring and Accessibility) and from System Settings › General › Login Items.</li>
+          <li><strong>Everything:</strong> quit VibeScribe, move it to the Trash, then delete the folder <code>~/<wbr>Library/<wbr>Application Support/<wbr>io.m10s.vibescribe</code> and the file <code>~/<wbr>Library/<wbr>Preferences/<wbr>io.m10s.vibescribe.plist</code> (in Finder, choose Go › Go to Folder). This removes your history, settings, vocabulary and models. You can also remove VibeScribe from System Settings › Privacy &amp; Security (Microphone, Input Monitoring and Accessibility) and from System Settings › General › Login Items.</li>
         </ul>
         <p>We hold no data about you, so there is nothing for us to delete on our side.</p>
         <h2 id="network-access">Network access</h2>
@@ -184,7 +183,7 @@
           <li><a href="https://github.com/flatoy/vibescribe/issues">Report a problem</a></li>
         </ul>
       </div>
-      <p class="legal">&copy; 2026 Hello World AS. VibeScribe is open source under the MIT license. Speech recognition by WhisperKit from Argmax, running OpenAI&rsquo;s Whisper models on your Mac. Apple, Mac, macOS and Mac App Store are trademarks of Apple Inc., registered in the U.S. and other countries and regions.</p>
+      <p class="legal">&copy; 2026 Hello World AS. VibeScribe is open source under the MIT license. Speech recognition by WhisperKit from Argmax, running OpenAI&rsquo;s Whisper models on your Mac. Apple, Mac and macOS are trademarks of Apple Inc., registered in the U.S. and other countries and regions.</p>
     </div>
   </footer>
 </body>
