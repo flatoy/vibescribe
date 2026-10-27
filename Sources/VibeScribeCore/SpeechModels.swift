@@ -14,7 +14,6 @@ enum SpeechModelID: String, CaseIterable, Identifiable, Sendable {
         return allCases.filter { $0 != .barkPlus }
     }
 
-
     var name: String {
         switch self {
         case .largeV3: return "Whisper large-v3"
@@ -31,26 +30,59 @@ enum SpeechModelID: String, CaseIterable, Identifiable, Sendable {
         }
     }
 
-    var summary: String {
-        switch self {
-        case .largeV3: return "Most accurate · 100 languages"
-        case .largeV3Turbo: return "About 4× faster to transcribe. Slightly less accurate in less common languages"
-        case .barkPlus: return "English only, about 5× faster than turbo. Short phrases come out without capitals or punctuation"
-        }
-    }
-
-    var badge: String {
-        switch self {
-        case .largeV3: return "Most accurate"
-        case .largeV3Turbo: return "Faster"
-        case .barkPlus: return "Fastest"
-        }
-    }
-
     var systemImage: String {
         switch self {
         case .largeV3, .largeV3Turbo: return "waveform"
         case .barkPlus: return "dog.fill"
+        }
+    }
+
+    var languages: String {
+        switch self {
+        case .largeV3, .largeV3Turbo: return "100 languages"
+        case .barkPlus: return "English only"
+        }
+    }
+
+    /// Average word error rate, in percent, across the Open ASR Leaderboard's seven English test sets. Lower is
+    /// better. Whisper's are the leaderboard's scores for OpenAI's originals, of which the downloads are Argmax's
+    /// compressed builds. Bark's is Underdog's, from the leaderboard's code.
+    var wordErrorRate: Double {
+        switch self {
+        case .largeV3: return 6.04
+        case .largeV3Turbo: return 6.58
+        case .barkPlus: return 4.76
+        }
+    }
+
+    /// Seconds to transcribe a minute of English speech on an M4 Pro MacBook Pro, the median of three runs from
+    /// `swift run -c release -Xswiftc -enable-testing VibeScribeTests --benchmark <model> <folder> <audio>`.
+    var secondsPerMinute: Double {
+        switch self {
+        case .largeV3: return 12.0
+        case .largeV3Turbo: return 3.0
+        case .barkPlus: return 0.6
+        }
+    }
+
+    /// Bark writes short phrases in lowercase without punctuation. Longer speech is punctuated.
+    var punctuatesShortPhrases: Bool { self != .barkPlus }
+
+    /// Seconds Core ML takes to compile the model the first time it loads on an M4 Pro MacBook Pro.
+    /// Later loads come from its cache and take a few seconds.
+    var compileSeconds: Double {
+        switch self {
+        case .largeV3: return 17
+        case .largeV3Turbo: return 50
+        case .barkPlus: return 190
+        }
+    }
+
+    var homepage: URL {
+        switch self {
+        case .largeV3: return URL(string: "https://huggingface.co/openai/whisper-large-v3")!
+        case .largeV3Turbo: return URL(string: "https://huggingface.co/openai/whisper-large-v3-turbo")!
+        case .barkPlus: return URL(string: "https://huggingface.co/ConwayResearch/Underdog-Bark-3.0-Plus")!
         }
     }
 
@@ -59,7 +91,6 @@ enum SpeechModelID: String, CaseIterable, Identifiable, Sendable {
 
     /// Whisper reads the vocabulary as preceding text. Bark has nothing similar.
     var supportsVocabulary: Bool { self != .barkPlus }
-
 
     var folderName: String {
         switch self {
@@ -127,7 +158,6 @@ private actor UnavailableEngine: SpeechEngine {
         throw WhisperModelError.missing
     }
 }
-
 
 /// The downloadable speech models and which one dictation uses.
 @MainActor
@@ -202,6 +232,17 @@ final class SpeechModelLibrary: ObservableObject {
         activeID.isEnglishOnly ? .english : chosen
     }
 
+    /// Core ML reports no progress while it compiles, so this estimates it from when compiling started
+    /// and how long the model takes, scaled to this Mac. It fills to 90% at the expected time, then creeps.
+    func compileEstimate(for id: SpeechModelID, now: Date = Date()) -> (progress: Double, remaining: TimeInterval)? {
+        guard let since = setup(for: id).preparingSince else { return nil }
+        let expected = id.compileSeconds * preferences.compileSpeed
+        let elapsed = now.timeIntervalSince(since)
+        let fraction = elapsed / expected
+        let progress = fraction < 1 ? 0.9 * fraction : 0.9 + 0.09 * (1 - exp(-2 * (fraction - 1)))
+        return (progress, max(expected - elapsed, 0))
+    }
+
     /// The Whisper model to offer for other languages: one that's already downloaded, else large-v3 turbo.
     var multilingualModel: SpeechModelID {
         let multilingual = SpeechModelID.available.filter { !$0.isEnglishOnly }
@@ -211,6 +252,19 @@ final class SpeechModelLibrary: ObservableObject {
     /// Verifies, and if needed downloads, the model used for dictation.
     func start() {
         active.start()
+    }
+
+    /// Picks the model to download during setup. Once a model is on its way, this switches like `switchTo`.
+    func choose(_ id: SpeechModelID) {
+        guard id != activeID else { return }
+        guard !active.isRunning, !active.isReady else {
+            switchTo(id)
+            return
+        }
+        active.prepareModel = nil
+        activeID = id
+        preferences.speechModel = id
+        bindActive()
     }
 
     /// Loads a model in the background and makes it the one dictation uses once it's ready.
@@ -237,7 +291,13 @@ final class SpeechModelLibrary: ObservableObject {
     /// so one that was superseded finishes and is thrown away.
     private func load(_ id: SpeechModelID) async throws {
         let engine = makeEngine(id, setup(for: id).modelFolder)
+        let started = Date()
         try await engine.prepare()
+        let seconds = Date().timeIntervalSince(started)
+        // Quick loads came from Core ML's cache and say nothing about how fast this Mac compiles.
+        if seconds > 20 {
+            preferences.compileSpeed = min(max(seconds / id.compileSeconds, 0.3), 6)
+        }
         guard id == activeID || id == pendingID else {
             logger.append("Loaded \(id.shortName), but another model was chosen meanwhile.")
             return

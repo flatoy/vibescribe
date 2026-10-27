@@ -110,6 +110,15 @@ func main() async {
         )
     }
 
+    if CommandLine.arguments.count == 5, CommandLine.arguments[1] == "--benchmark" {
+        guard let model = SpeechModelID(rawValue: CommandLine.arguments[2]) else {
+            fputs("Unknown model. Use one of: \(SpeechModelID.allCases.map(\.rawValue).joined(separator: ", ")).\n", stderr)
+            exit(1)
+        }
+        print("Speed")
+        await runSpeedBenchmark(harness, model: model, modelFolder: CommandLine.arguments[3], audioPath: CommandLine.arguments[4])
+    }
+
     let ok = harness.summarize()
     exit(ok ? 0 : 1)
 }

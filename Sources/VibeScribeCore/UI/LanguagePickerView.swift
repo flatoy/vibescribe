@@ -344,11 +344,7 @@ private struct EnglishOnlyNotice: View {
         let target = models.pendingID ?? models.multilingualModel
         let setup = models.setup(for: target)
         VStack(spacing: 6) {
-            Image(systemName: models.activeID.systemImage)
-                .font(.system(size: 19, weight: .medium))
-                .foregroundStyle(Theme.spectrumGradient)
-                .frame(width: 44, height: 44)
-                .background(RoundedRectangle(cornerRadius: 11, style: .continuous).fill(Theme.field))
+            ModelIcon(model: models.activeID, size: 44)
                 .padding(.bottom, 10)
             Text("\(models.activeID.shortName) only understands English")
                 .font(.system(size: 14, weight: .semibold))
@@ -358,12 +354,7 @@ private struct EnglishOnlyNotice: View {
                 .foregroundStyle(.white.opacity(0.55))
             Group {
                 if models.pendingID != nil {
-                    HStack(spacing: 8) {
-                        ProgressRing(progress: nil, color: Theme.accent)
-                        Text(setup.state == .preparing ? "Compiling \(target.shortName)…" : "Downloading \(target.shortName)…")
-                            .font(.system(size: 12, weight: .medium))
-                            .foregroundStyle(.white)
-                    }
+                    SwitchProgress(models: models, setup: setup).frame(width: 260)
                 } else {
                     Button(setup.isReady
                            ? "Switch to \(target.name)"
@@ -376,6 +367,25 @@ private struct EnglishOnlyNotice: View {
         }
         .padding(.horizontal, 40)
         .frame(maxWidth: .infinity, maxHeight: .infinity)
+    }
+}
+
+/// How far the Whisper model being switched to has got.
+private struct SwitchProgress: View {
+    @ObservedObject var models: SpeechModelLibrary
+    @ObservedObject var setup: WhisperModelSetup
+
+    var body: some View {
+        switch setup.state {
+        case .downloading(let completed, let total), .paused(let completed, let total),
+             .interrupted(let completed, let total, _):
+            let fraction = total > 0 ? Double(completed) / Double(total) : 0
+            ModelProgressLine(label: "Downloading", progress: fraction, detail: "\(Int(fraction * 100))%", stacked: true)
+        case .preparing:
+            CompileProgressLine(models: models, model: setup.modelID, stacked: true)
+        default:
+            ModelProgressLine(label: "Verifying", progress: 0, detail: "a few seconds", stacked: true)
+        }
     }
 }
 

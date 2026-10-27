@@ -643,7 +643,6 @@ private struct HistoryRow: View {
 struct ModelPage: View {
     let context: AppContext
     @ObservedObject private var models: SpeechModelLibrary
-    @State private var confirmSwitch: SpeechModelID?
     @State private var confirmDelete: SpeechModelID?
 
     init(context: AppContext) {
@@ -652,63 +651,17 @@ struct ModelPage: View {
     }
 
     var body: some View {
-        let active = models.active
         SettingsPageBody {
             SettingsGroup {
-                HStack(spacing: 16) {
-                    modelIcon(failed: isFailed(active.state))
-                    VStack(alignment: .leading, spacing: 2) {
-                        HStack(spacing: 8) {
-                            Text(active.modelID.name).font(.system(size: 14, weight: .semibold))
-                            Tag(title: "In use")
-                        }
-                        Text("\(active.modelID.summary) · \(active.totalBytes.map(Format.bytes) ?? "")")
-                            .font(.system(size: 12))
-                            .foregroundStyle(Theme.secondary)
-                    }
-                    .frame(maxWidth: .infinity, alignment: .leading)
-                }
-                .padding(16)
-                RowDivider()
-                ActiveModelStatus(setup: active)
-                RowDivider()
-                SettingsRow(title: "Stored in Application Support") {
-                    Button("Show in Finder") {
-                        let folder = active.modelFolder
-                        if FileManager.default.fileExists(atPath: folder.path) {
-                            NSWorkspace.shared.activateFileViewerSelecting([folder])
-                        } else {
-                            NSWorkspace.shared.open(folder.deletingLastPathComponent())
-                        }
-                    }
-                    .buttonStyle(.spectrumGhost)
-                }
-            }
-
-            GroupLabel(title: "Other models")
-            SettingsGroup {
-                let others = SpeechModelID.available.filter { $0 != models.activeID }
-                ForEach(Array(others.enumerated()), id: \.element) { index, id in
+                ModelColumnsHeader(trailingWidth: ModelListRow.trailingWidth)
+                    .padding(.horizontal, 14)
+                    .padding(.top, 10)
+                ForEach(Array(SpeechModelID.available.enumerated()), id: \.element) { index, id in
                     if index > 0 { RowDivider() }
-                    OtherModelRow(
-                        setup: models.setup(for: id),
-                        activeName: models.activeID.shortName,
-                        isPending: models.pendingID == id,
-                        onSwitch: { confirmSwitch = id },
-                        onDelete: { confirmDelete = id }
-                    )
+                    ModelListRow(setup: models.setup(for: id), models: models) { confirmDelete = id }
                 }
             }
-        }
-        .alert(
-            "Switch to \(confirmSwitch?.shortName ?? "")?",
-            isPresented: Binding(get: { confirmSwitch != nil }, set: { if !$0 { confirmSwitch = nil } }),
-            presenting: confirmSwitch
-        ) { id in
-            Button("Switch") { models.switchTo(id) }
-            Button("Cancel", role: .cancel) {}
-        } message: { _ in
-            Text("It loads in the background, which can take a few minutes the first time. Dictation keeps using \(models.activeID.shortName) until it’s ready.")
+            ModelListFootnote().padding(.horizontal, 4)
         }
         .alert(
             "Delete \(confirmDelete?.shortName ?? "")?",
@@ -721,179 +674,116 @@ struct ModelPage: View {
                 }
             }
             Button("Cancel", role: .cancel) {}
-        } message: { _ in
-            Text("This frees about 630 MB. You can download it again later.")
-        }
-    }
-
-    private func isFailed(_ state: WhisperModelSetup.State) -> Bool {
-        if case .failed = state { return true }
-        return false
-    }
-
-    private func modelIcon(failed: Bool) -> some View {
-        Group {
-            if failed {
-                FillWave(progress: 2.0 / 7.0, paused: true, barWidth: 4, spacing: 3, height: 30)
-            } else {
-                SpectrumBars(mode: .still, barWidth: 4, spacing: 3, height: 22)
-            }
-        }
-        .frame(width: 52, height: 52)
-        .background(RoundedRectangle(cornerRadius: 12, style: .continuous).fill(Theme.field))
-        .overlay(RoundedRectangle(cornerRadius: 12, style: .continuous).strokeBorder(Theme.hairline))
-    }
-}
-
-private struct ActiveModelStatus: View {
-    @ObservedObject var setup: WhisperModelSetup
-
-    var body: some View {
-        switch setup.state {
-        case .ready:
-            SettingsRow(title: "Works offline", detail: "Speech never leaves this Mac") {
-                Label("Ready", systemImage: "checkmark").font(.system(size: 13, weight: .medium)).foregroundStyle(Theme.ok)
-            }
-        case .checking:
-            SettingsRow(title: "Checking the downloaded files…") { ProgressRing(progress: nil, color: Theme.accent) }
-        case .preparing:
-            SettingsRow(title: "Preparing the model for this Mac", detail: "The first load can take a few minutes.") {
-                ProgressRing(progress: nil, color: Theme.accent)
-            }
-        case .downloading(let completed, let total), .paused(let completed, let total),
-             .notDownloaded(let completed, let total), .interrupted(let completed, let total, _):
-            DownloadProgressRow(setup: setup, completed: completed, total: total, pauseTitle: "Pause")
-        case .failed(let message):
-            VStack(alignment: .leading, spacing: 10) {
-                Text(message).font(.system(size: 12)).foregroundStyle(Theme.secondary)
-                    .fixedSize(horizontal: false, vertical: true)
-                HStack {
-                    if message.contains("disk space") {
-                        Button("Open Storage Settings") { SystemSettings.open(.storage) }.buttonStyle(.spectrum)
-                    }
-                    Spacer()
-                    Button("Try again") { setup.start() }.buttonStyle(.spectrumPrimary)
-                }
-            }
-            .padding(14)
+        } message: { id in
+            Text("This frees \(models.setup(for: id).totalBytes.map(Format.bytes) ?? "its space"). You can download it again later.")
         }
     }
 }
 
-private struct DownloadProgressRow: View {
+/// A model with its numbers, one action for its state, and the rest in a menu.
+private struct ModelListRow: View {
+    static let trailingWidth: CGFloat = 118
+
     @ObservedObject var setup: WhisperModelSetup
-    let completed: Int64
-    let total: Int64
-    let pauseTitle: String
-    var note: String?
+    @ObservedObject var models: SpeechModelLibrary
+    let onDelete: () -> Void
+
+    private var model: SpeechModelID { setup.modelID }
+    private var isActive: Bool { models.activeID == model }
+    private var isPending: Bool { models.pendingID == model }
+    private var isDownloaded: Bool { WhisperModelLocator.isComplete(setup.modelFolder, for: model) }
 
     var body: some View {
         VStack(alignment: .leading, spacing: 10) {
-            HStack(spacing: 14) {
-                VStack(alignment: .leading, spacing: 1) {
-                    Text(title).font(.system(size: 13, weight: .medium))
-                    Text(detail).font(.system(size: 11.5)).foregroundStyle(Theme.secondary)
-                }
-                .frame(maxWidth: .infinity, alignment: .leading)
-                switch setup.state {
-                case .downloading:
-                    Button(pauseTitle) { pauseTitle == "Cancel" ? setup.cancel() : setup.pause() }.buttonStyle(.spectrum)
-                default:
-                    Button(completed > 0 ? "Resume" : "Download") { setup.start() }.buttonStyle(.spectrum)
+            ModelSummaryRow(model: model, size: setup.totalBytes, trailingWidth: Self.trailingWidth) {
+                HStack(spacing: 6) {
+                    action
+                    menu
                 }
             }
-            SpectrumMeter(progress: total > 0 ? Double(completed) / Double(total) : 0)
-            if let note {
-                Text(note).font(.system(size: 11.5)).foregroundStyle(Theme.tertiary)
-            }
+            status.padding(.leading, 46)
         }
-        .padding(14)
-    }
-
-    private var title: String {
-        switch setup.state {
-        case .downloading: return "Downloading"
-        case .paused: return "Download paused"
-        case .interrupted: return "Waiting for a connection"
-        default: return "Not downloaded"
-        }
-    }
-
-    private var detail: String {
-        var parts = ["\(Format.bytes(completed)) of \(Format.bytes(total))"]
-        if let remaining = Format.timeRemaining(setup.secondsRemaining) { parts.append(remaining) }
-        if case .interrupted(_, _, let reason) = setup.state { parts.append(reason) }
-        return parts.joined(separator: " · ")
-    }
-}
-
-private struct OtherModelRow: View {
-    @ObservedObject var setup: WhisperModelSetup
-    let activeName: String
-    let isPending: Bool
-    let onSwitch: () -> Void
-    let onDelete: () -> Void
-
-    var body: some View {
-        VStack(alignment: .leading, spacing: 0) {
-            HStack(spacing: 14) {
-                VStack(alignment: .leading, spacing: 2) {
-                    HStack(spacing: 6) {
-                        Text(setup.modelID.name).font(.system(size: 13, weight: .medium))
-                        Tag(title: setup.modelID.badge, color: Theme.accent)
-                    }
-                    Text("\(setup.modelID.summary) · \(setup.totalBytes.map(Format.bytes) ?? "")")
-                        .font(.system(size: 11.5))
-                        .foregroundStyle(Theme.secondary)
-                        .fixedSize(horizontal: false, vertical: true)
-                }
-                .frame(maxWidth: .infinity, alignment: .leading)
-                actions
-            }
-            .padding(.horizontal, 14)
-            .padding(.vertical, 12)
-            switch setup.state {
-            case .downloading(let completed, let total), .paused(let completed, let total),
-                 .interrupted(let completed, let total, _):
-                DownloadProgressRow(
-                    setup: setup,
-                    completed: completed,
-                    total: total,
-                    pauseTitle: "Cancel",
-                    note: isPending
-                        ? "Dictation keeps using \(activeName) until this is downloaded and loaded. Then it switches over."
-                        : "Dictation keeps using \(activeName) until this finishes. You’ll be asked before switching."
-                )
-                .padding(.top, -12)
-            case .failed(let message):
-                Text(message).font(.system(size: 11.5)).foregroundStyle(Theme.bad)
-                    .padding(.horizontal, 14).padding(.bottom, 12)
-            case .checking, .preparing where isPending:
-                Text("Loading for this Mac. The first time can take a few minutes. Dictation keeps using \(activeName) until it’s ready.")
-                    .font(.system(size: 11.5)).foregroundStyle(Theme.tertiary)
-                    .fixedSize(horizontal: false, vertical: true)
-                    .padding(.horizontal, 14).padding(.bottom, 12)
-            default:
-                EmptyView()
-            }
-        }
+        .padding(.horizontal, 14)
+        .padding(.vertical, 12)
     }
 
     @ViewBuilder
-    private var actions: some View {
+    private var action: some View {
         switch setup.state {
+        case .ready where isActive:
+            Label("In use", systemImage: "checkmark")
+                .font(.system(size: 12, weight: .semibold))
+                .foregroundStyle(Theme.ok)
+                .fixedSize()
         case .ready:
-            Button("Delete…", action: onDelete).buttonStyle(.spectrum(.danger))
-            Button("Use this model", action: onSwitch).buttonStyle(.spectrumPrimary)
+            Button("Use") { models.switchTo(model) }.buttonStyle(.spectrum)
         case .notDownloaded(let completed, _):
             Button(completed > 0 ? "Resume" : "Download") { setup.start() }.buttonStyle(.spectrum)
+        case .paused:
+            Button("Resume") { setup.start() }.buttonStyle(.spectrum)
         case .failed:
             Button("Try again") { setup.start() }.buttonStyle(.spectrum)
-        case .checking, .preparing:
-            ProgressRing(progress: nil, color: Theme.accent)
-        case .downloading, .paused, .interrupted:
+        case .checking, .downloading, .interrupted, .preparing:
             EmptyView()
         }
+    }
+
+    private var menu: some View {
+        Menu {
+            Button("Open on Hugging Face") { NSWorkspace.shared.open(model.homepage) }
+            if isDownloaded {
+                Button("Show in Finder") { NSWorkspace.shared.activateFileViewerSelecting([setup.modelFolder]) }
+                if !isActive, !isPending {
+                    Divider()
+                    Button("Delete…", role: .destructive, action: onDelete)
+                }
+            }
+        } label: {
+            Image(systemName: "ellipsis")
+                .font(.system(size: 12, weight: .semibold))
+                .foregroundStyle(Theme.secondary)
+                .frame(width: 18, height: 22)
+                .contentShape(Rectangle())
+        }
+        .menuStyle(.borderlessButton)
+        .menuIndicator(.hidden)
+        .fixedSize()
+        .accessibilityLabel("More for \(model.name)")
+    }
+
+    @ViewBuilder
+    private var status: some View {
+        switch setup.state {
+        case .downloading(let completed, let total):
+            ModelProgressLine(label: "Downloading", progress: fraction(completed, total), detail: percent(completed, total)) {
+                Button(isActive ? "Pause" : "Cancel") { isActive ? setup.pause() : setup.cancel() }
+                    .buttonStyle(.spectrumGhost)
+            }
+        case .paused(let completed, let total):
+            ModelProgressLine(label: "Paused", progress: fraction(completed, total), detail: percent(completed, total))
+        case .interrupted(let completed, let total, _):
+            ModelProgressLine(label: "Offline", progress: fraction(completed, total), detail: "resumes on its own")
+        case .checking where isActive || isPending:
+            ModelProgressLine(label: "Verifying", progress: 0, detail: "a few seconds")
+        case .preparing:
+            CompileProgressLine(models: models, model: model)
+        case .failed(let message):
+            Text(message)
+                .font(.system(size: 11.5))
+                .foregroundStyle(Theme.bad)
+                .lineLimit(2)
+                .fixedSize(horizontal: false, vertical: true)
+        default:
+            EmptyView()
+        }
+    }
+
+    private func fraction(_ completed: Int64, _ total: Int64) -> Double {
+        total > 0 ? Double(completed) / Double(total) : 0
+    }
+
+    private func percent(_ completed: Int64, _ total: Int64) -> String {
+        "\(Int(fraction(completed, total) * 100))%"
     }
 }
 

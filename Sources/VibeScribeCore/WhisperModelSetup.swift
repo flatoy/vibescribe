@@ -305,7 +305,13 @@ final class WhisperModelSetup: ObservableObject {
         case failed(String)
     }
 
-    @Published private(set) var state: State = .checking
+    @Published private(set) var state: State = .checking {
+        didSet {
+            if state != .preparing { preparingSince = nil } else if oldValue != .preparing { preparingSince = Date() }
+        }
+    }
+    /// When compiling and loading started, for the progress estimate.
+    @Published private(set) var preparingSince: Date?
     /// Recent download speed, used for the time estimate.
     @Published private(set) var bytesPerSecond: Double?
     var onNeedsAttention: (() -> Void)?

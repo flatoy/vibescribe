@@ -111,7 +111,8 @@ final class MenuBarController: NSObject, NSMenuDelegate {
 
     private func buildSetupMenu() {
         let setup = context.models.active
-        menu.addItem(hostingItem(MenuSetupHeader(setup: setup)))
+        let estimate = context.models.compileEstimate(for: setup.modelID)
+        menu.addItem(hostingItem(MenuSetupHeader(setup: setup, compileProgress: estimate?.progress, compileRemaining: estimate?.remaining)))
         menu.addItem(.separator())
         switch setup.state {
         case .downloading:
@@ -262,12 +263,15 @@ struct MenuStatusHeader: View {
 
 struct MenuSetupHeader: View {
     @ObservedObject var setup: WhisperModelSetup
+    /// Estimated, since Core ML reports no progress while it compiles.
+    var compileProgress: Double?
+    var compileRemaining: TimeInterval?
 
     var body: some View {
         VStack(alignment: .leading, spacing: 6) {
             Label(title, systemImage: "arrow.down.to.line")
                 .font(.system(size: 13, weight: .semibold))
-            SpectrumMeter(progress: setup.progress ?? 0, track: Color.primary.opacity(0.1))
+            SpectrumMeter(progress: setup.state == .preparing ? compileProgress ?? 0 : setup.progress ?? 0, track: Color.primary.opacity(0.1))
             Text(detail).font(.system(size: 12)).foregroundStyle(.secondary)
         }
         .padding(.horizontal, 14)
@@ -279,7 +283,8 @@ struct MenuSetupHeader: View {
         case .paused: return "Download paused"
         case .notDownloaded(let completed, _): return completed > 0 ? "Download paused" : "Speech model not downloaded"
         case .interrupted: return "Waiting for a connection"
-        case .checking, .preparing: return "Preparing speech model"
+        case .checking: return "Verifying speech model"
+        case .preparing: return "Compiling speech model"
         default: return "Downloading speech model"
         }
     }
@@ -293,8 +298,10 @@ struct MenuSetupHeader: View {
             var text = "\(Format.bytes(completed)) of \(Format.bytes(total))"
             if let remaining = Format.timeRemaining(setup.secondsRemaining) { text += " · \(remaining)" }
             return text
+        case .preparing:
+            return Format.compileTimeLeft(compileRemaining)
         default:
-            return "The first load can take a few minutes."
+            return "A few seconds."
         }
     }
 }

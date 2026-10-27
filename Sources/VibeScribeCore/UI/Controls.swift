@@ -400,6 +400,19 @@ enum Format {
         return String(format: "%d:%02d", total / 60, total % 60)
     }
 
+    /// "0.4 s", or "2 s" from ten seconds up.
+    static func seconds(_ value: Double) -> String {
+        value < 10 ? String(format: "%.1f s", value) : String(format: "%.0f s", value)
+    }
+
+    /// Time left on an estimated compile, or "almost done" once the estimate has run out.
+    static func compileTimeLeft(_ seconds: TimeInterval?) -> String {
+        guard let seconds else { return "" }
+        if seconds < 1 { return "almost done" }
+        if seconds < 50 { return "under a minute left" }
+        return "about \(max(Int((seconds / 60).rounded()), 1)) min left"
+    }
+
     static func timeRemaining(_ seconds: TimeInterval?) -> String? {
         guard let seconds, seconds.isFinite else { return nil }
         if seconds < 50 { return "less than a minute left" }

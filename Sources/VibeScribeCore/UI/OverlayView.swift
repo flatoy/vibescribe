@@ -5,8 +5,10 @@ enum OverlayResult: Equatable {
     case copied
     case noSpeech
     case cancelled
-    /// The shortcut was pressed before the model finished loading.
+    /// The shortcut was pressed before the model finished downloading.
     case loading(Double?)
+    /// The shortcut was pressed while the model compiles. The progress is estimated.
+    case compiling(Double?)
     case microphoneOff
     case failed(String)
 }
@@ -128,6 +130,7 @@ struct OverlayPill: View {
             case .noSpeech: return "No speech heard"
             case .cancelled: return "Cancelled"
             case .loading: return "Loading speech model"
+            case .compiling: return "Compiling speech model"
             case .microphoneOff: return "Microphone access is off"
             case .failed: return "Couldn’t transcribe"
             }
@@ -153,7 +156,7 @@ struct OverlayPill: View {
                 SpectrumBars(mode: .flat, tint: .white)
             case .cancelled:
                 SpectrumBars(mode: .still, tint: .white).opacity(0.35)
-            case .loading(let progress):
+            case .loading(let progress), .compiling(let progress):
                 ProgressRing(progress: progress)
             case .microphoneOff, .failed:
                 Image(systemName: "exclamationmark.triangle").foregroundStyle(Theme.warn).font(.system(size: 12, weight: .semibold))
@@ -203,6 +206,8 @@ struct OverlayPill: View {
                 hint { Text("Nothing pasted") }
             case .loading(let progress):
                 if let progress { meta("\(Int(progress * 100))%") }
+            case .compiling:
+                EmptyView()
             case .microphoneOff:
                 separator
                 hint { Text("See menu bar") }

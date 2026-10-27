@@ -409,6 +409,12 @@ MainActor.assumeIsolated {
         to: shots.appendingPathComponent("setup-welcome.jpg")
     )
     render(
+        onboarding(sample, step: .chooseModel).padding(pad).background(Wallpaper()),
+        size: CGSize(width: OnboardingView.size.width + pad * 2, height: OnboardingView.size.height + pad * 2),
+        to: shots.appendingPathComponent("setup-model.jpg")
+    )
+
+    render(
         ZStack(alignment: .top) {
             Wallpaper()
             VStack(spacing: 14) {

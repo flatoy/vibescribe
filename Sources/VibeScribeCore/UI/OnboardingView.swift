@@ -4,6 +4,7 @@ import SwiftUI
 final class OnboardingNavigation: ObservableObject {
     enum Step: Int, CaseIterable {
         case welcome
+        case chooseModel
         case permissions
         case model
         case practice
@@ -40,6 +41,12 @@ struct OnboardingView: View {
             Group {
                 switch navigation.step {
                 case .welcome: welcome
+                case .chooseModel:
+                    ModelChoiceStep(models: models, initial: models.activeID) { id in
+                        models.choose(id)
+                        models.active.start()
+                        navigation.step = allGranted ? .model : .permissions
+                    }
                 case .permissions: permissionsStep
                 case .model: ModelStep(setup: models.active, navigation: navigation, context: context)
                 case .practice: practice
@@ -73,12 +80,11 @@ struct OnboardingView: View {
                 .frame(maxWidth: 360)
                 .padding(.bottom, 26)
             Button("Set up VibeScribe") {
-                models.active.start()
-                navigation.step = allGranted ? .model : .permissions
+                navigation.step = .chooseModel
             }
             .buttonStyle(.spectrum(.primary, large: true))
             .keyboardShortcut(.defaultAction)
-            Text("Downloads a \(downloadSize) speech model once. No account needed.")
+            Text("Next, pick a speech model. No account needed.")
                 .font(.system(size: 11.5))
                 .foregroundStyle(Theme.tertiary)
                 .padding(.top, 18)
@@ -86,10 +92,6 @@ struct OnboardingView: View {
             Spacer().frame(height: 30)
         }
         .padding(.horizontal, 36)
-    }
-
-    private var downloadSize: String {
-        models.active.totalBytes.map(Format.bytes) ?? "630 MB"
     }
 
     // MARK: Permissions
@@ -224,6 +226,78 @@ struct OnboardingView: View {
     }
 }
 
+/// Picks the first model before anything is downloaded.
+private struct ModelChoiceStep: View {
+    @ObservedObject var models: SpeechModelLibrary
+    @State private var selection: SpeechModelID
+    let onContinue: (SpeechModelID) -> Void
+
+    init(models: SpeechModelLibrary, initial: SpeechModelID, onContinue: @escaping (SpeechModelID) -> Void) {
+        self.models = models
+        _selection = State(initialValue: initial)
+        self.onContinue = onContinue
+    }
+
+    var body: some View {
+        VStack(spacing: 0) {
+            VStack(alignment: .leading, spacing: 0) {
+                StepBar(current: .chooseModel)
+                Text("Choose a speech model")
+                    .font(.system(size: 24, weight: .semibold))
+                    .tracking(-0.4)
+                    .padding(.bottom, 6)
+                Text("It runs on this Mac. You can switch later.")
+                    .font(.system(size: 13.5))
+                    .foregroundStyle(Theme.secondary)
+                    .padding(.bottom, 20)
+                ModelColumnsHeader(trailingWidth: 18)
+                    .padding(.horizontal, 12)
+                    .padding(.bottom, 6)
+                VStack(spacing: 0) {
+                    ForEach(Array(SpeechModelID.available.enumerated()), id: \.element) { index, id in
+                        if index > 0 { RowDivider() }
+                        choice(id)
+                    }
+                }
+                .background(Theme.panel)
+                .clipShape(RoundedRectangle(cornerRadius: 10, style: .continuous))
+                .overlay(RoundedRectangle(cornerRadius: 10, style: .continuous).strokeBorder(Theme.hairline))
+            }
+            .padding(.horizontal, 36)
+            .padding(.top, 8)
+            Spacer(minLength: 0)
+            OnboardingFooter {
+                ModelListFootnote(compact: true)
+                Spacer()
+                Button("Continue") { onContinue(selection) }
+                    .buttonStyle(.spectrum(.primary, large: true))
+                    .keyboardShortcut(.defaultAction)
+            }
+        }
+    }
+
+    private func choice(_ id: SpeechModelID) -> some View {
+        let isSelected = selection == id
+        return Button {
+            selection = id
+        } label: {
+            ModelSummaryRow(model: id, size: models.setup(for: id).totalBytes, trailingWidth: 18) {
+                Image(systemName: isSelected ? "checkmark.circle.fill" : "circle")
+                    .font(.system(size: 15))
+                    .foregroundStyle(isSelected ? Theme.accent : Theme.tertiary)
+            }
+            .padding(.horizontal, 12)
+            .padding(.vertical, 12)
+            .background(isSelected ? Theme.accent.opacity(0.1) : Color.clear)
+            .contentShape(Rectangle())
+        }
+        .buttonStyle(.plain)
+        .animation(.easeOut(duration: 0.15), value: isSelected)
+        .accessibilityLabel(id.name)
+        .accessibilityAddTraits(isSelected ? .isSelected : [])
+    }
+}
+
 private struct ModelStep: View {
     @ObservedObject var setup: WhisperModelSetup
     @ObservedObject var navigation: OnboardingNavigation
@@ -294,7 +368,7 @@ private struct ModelStep: View {
         case .notDownloaded, .downloading: return "Downloading the speech model"
         case .paused: return "Download paused"
         case .interrupted: return "Download paused. You’re offline."
-        case .preparing: return "Preparing the model for this Mac"
+        case .preparing: return "Compiling for this Mac"
         case .ready: return "Speech model ready"
         case .failed: return "Speech model setup stopped"
         }
@@ -308,8 +382,7 @@ private struct ModelStep: View {
             return "\(Format.bytes(completed)) is saved. Resume whenever you like."
         case .interrupted(let completed, _, _):
             return "\(Format.bytes(completed)) is saved. VibeScribe resumes on its own when your connection is back."
-        case .preparing:
-            return "The download is done. The first load optimises the model for your chip and can take a few minutes. Later launches are faster."
+        case .preparing: return "Only needed the first time."
         case .ready: return "Everything runs on this Mac."
         case .failed(let message): return message
         }
@@ -335,7 +408,18 @@ private struct ModelStep: View {
                 Button("Resume now") { setup.start() }.buttonStyle(.spectrum(.primary, large: true))
                 Button("Show details") { context.openSettings(.about) }.buttonStyle(.spectrum(.normal, large: true))
             }
-        case .preparing, .checking:
+        case .preparing:
+            TimelineView(.periodic(from: .now, by: 1)) { timeline in
+                let estimate = context.models.compileEstimate(for: setup.modelID, now: timeline.date)
+                VStack(spacing: 8) {
+                    SpectrumMeter(progress: estimate?.progress ?? 0)
+                    Text(Format.compileTimeLeft(estimate?.remaining))
+                        .font(.system(size: 11.5, weight: .medium))
+                        .foregroundStyle(Theme.secondary)
+                }
+                .frame(width: 360)
+            }
+        case .checking:
             SpectrumMeter(progress: 1).opacity(0.5).frame(width: 360)
         case .failed:
             Button("Try again") { setup.start() }.buttonStyle(.spectrum(.primary, large: true))

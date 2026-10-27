@@ -323,7 +323,12 @@ public final class VibeScribeApp: NSObject, NSApplicationDelegate {
             default:
                 break
             }
-            overlay.show(.loading(setup.state == .preparing ? nil : setup.progress), for: 1.8)
+            overlay.show(
+                setup.state == .preparing
+                    ? .compiling(models.compileEstimate(for: setup.modelID)?.progress)
+                    : .loading(setup.progress),
+                for: 1.8
+            )
             return
         }
         permissions.refresh()

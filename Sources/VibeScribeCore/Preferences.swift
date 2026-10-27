@@ -77,6 +77,7 @@ final class Preferences: ObservableObject {
         static let retention = "VibeScribe.HistoryRetention"
         static let onboarding = "VibeScribe.CompletedOnboarding"
         static let speechModel = "VibeScribe.SpeechModel"
+        static let compileSpeed = "VibeScribe.CompileSpeed"
         static let modelLayout = "VibeScribe.ModelLayout"
     }
 
@@ -127,6 +128,11 @@ final class Preferences: ObservableObject {
     }
     @Published var speechModel: SpeechModelID {
         didSet { defaults.set(speechModel.rawValue, forKey: Key.speechModel) }
+    }
+    /// How long this Mac takes to compile a speech model, relative to an M4 Pro. Scales compile estimates.
+    var compileSpeed: Double {
+        get { defaults.object(forKey: Key.compileSpeed) as? Double ?? 1 }
+        set { defaults.set(newValue, forKey: Key.compileSpeed) }
     }
     /// Not persisted: pausing the shortcut lasts until relaunch.
     @Published var isShortcutPaused = false
