@@ -23,6 +23,18 @@ func runBarkTests(_ t: TestHarness) {
         t.expect(pieces.allSatisfy { $0.count <= Int(14.75 * Double(rate)) })
     }
 
+    t.run("phrases without capitals or punctuation get both") {
+        t.expectEqual(BarkText.formatted("can you call me back when you get this"), "Can you call me back when you get this.")
+        t.expectEqual(BarkText.formatted("i'll send you the slides tonight"), "I'll send you the slides tonight.")
+        t.expectEqual(BarkText.formatted("so i think it's fine"), "So I think it's fine.")
+    }
+
+    t.run("text the model formatted is left alone") {
+        t.expectEqual(BarkText.formatted("Could you send me the report? Thanks."), "Could you send me the report? Thanks.")
+        t.expectEqual(BarkText.formatted("let's meet at three, ok"), "let's meet at three, ok")
+        t.expectEqual(BarkText.formatted(""), "")
+    }
+
     t.run("encoder length follows three stride-2 convolutions") {
         t.expectEqual(BarkFrontend.encodedLength(1501), 188)
         t.expectEqual(BarkFrontend.encodedLength(801), 101)

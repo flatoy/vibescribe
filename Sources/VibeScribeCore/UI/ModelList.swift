@@ -108,7 +108,7 @@ private struct ModelTraits: View {
                 trait("checkmark", "Punctuation", color: Theme.secondary)
             } else {
                 trait("circle.lefthalf.filled", "Punctuation", color: Theme.warn)
-                    .help("Short phrases often come out lowercase, without punctuation")
+                    .help("Short phrases get a capital and a full stop, but no commas or question marks")
             }
             if model.supportsVocabulary {
                 trait("checkmark", "Vocabulary", color: Theme.secondary)

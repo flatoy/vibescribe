@@ -71,7 +71,7 @@ actor BarkEngine: SpeechEngine {
         var texts: [String] = []
         for piece in BarkAudio.pieces(of: audio, maxSeconds: maxSeconds) {
             try Task.checkCancellation()
-            texts.append(parts.decoder.text(for: try transcribe(piece: piece, with: parts)))
+            texts.append(BarkText.formatted(parts.decoder.text(for: try transcribe(piece: piece, with: parts))))
         }
         return EngineResult(text: texts.joined(separator: " ").trimmed, language: "en")
     }
@@ -418,6 +418,21 @@ struct BarkDecoder {
         var best = values.startIndex
         for index in values.indices where values[index] > values[best] { best = index }
         return best - values.startIndex
+    }
+}
+
+enum BarkText {
+    /// Bark keeps Parakeet's conventions of capitals and punctuation, but writes short phrases without either.
+    /// Text like that gets a capital, a capital "I" and a full stop; anything the model formatted is left alone.
+    static func formatted(_ text: String) -> String {
+        guard !text.isEmpty,
+              !text.contains(where: \.isUppercase),
+              !text.contains(where: { ".,?!;:".contains($0) }) else { return text }
+        let words = text.split(separator: " ").map { word in
+            word == "i" || word.hasPrefix("i'") || word.hasPrefix("i’") ? "I" + word.dropFirst() : String(word)
+        }
+        let sentence = words.joined(separator: " ")
+        return sentence.prefix(1).uppercased() + sentence.dropFirst() + "."
     }
 }
 

@@ -65,7 +65,8 @@ enum SpeechModelID: String, CaseIterable, Identifiable, Sendable {
         }
     }
 
-    /// Bark writes short phrases in lowercase without punctuation. Longer speech is punctuated.
+    /// Bark writes short phrases without capitals or punctuation, so VibeScribe adds only a capital and a
+    /// full stop. Longer speech is punctuated.
     var punctuatesShortPhrases: Bool { self != .barkPlus }
 
     /// Seconds Core ML takes to compile the model the first time it loads on an M4 Pro MacBook Pro.
