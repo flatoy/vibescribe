@@ -23,7 +23,7 @@ func runSettingsPreferencesTests(_ t: TestHarness) {
             t.expect(prefs.restoreClipboard)
             t.expect(prefs.playSounds)
             t.expectEqual(prefs.historyRetention, .month)
-            t.expectEqual(prefs.speechModel, .largeV3)
+            t.expectEqual(prefs.speechModel, .largeV3Turbo)
             t.expect(!prefs.hasCompletedOnboarding)
             t.expectNil(prefs.microphoneUID)
         }
@@ -39,7 +39,7 @@ func runSettingsPreferencesTests(_ t: TestHarness) {
             prefs.microphoneUID = "usb-mic"
             prefs.vocabulary = "VibeScribe, WhisperKit"
             prefs.historyRetention = .week
-            prefs.speechModel = .largeV3Turbo
+            prefs.speechModel = .largeV3
             prefs.hasCompletedOnboarding = true
             let restored = Preferences(defaults: defaults)
             t.expectEqual(restored.pushToTalkHotkey, hotkey)
@@ -48,8 +48,18 @@ func runSettingsPreferencesTests(_ t: TestHarness) {
             t.expectEqual(restored.microphoneUID, "usb-mic")
             t.expectEqual(restored.vocabularyWords, ["VibeScribe", "WhisperKit"])
             t.expectEqual(restored.historyRetention, .week)
-            t.expectEqual(restored.speechModel, .largeV3Turbo)
+            t.expectEqual(restored.speechModel, .largeV3)
             t.expect(restored.hasCompletedOnboarding)
+        }
+    }
+
+    t.run("an earlier large-v3 choice moves to large-v3 turbo, whose files it was") {
+        withDefaults { defaults in
+            defaults.set("largeV3", forKey: "VibeScribe.SpeechModel")
+            t.expectEqual(Preferences(defaults: defaults).speechModel, .largeV3Turbo)
+            let prefs = Preferences(defaults: defaults)
+            prefs.speechModel = .largeV3
+            t.expectEqual(Preferences(defaults: defaults).speechModel, .largeV3)
         }
     }
 

@@ -30,8 +30,9 @@ func runModelDownloadTests(_ t: TestHarness) async {
     t.run("model manifest pins a complete remote download") {
         let manifest = try WhisperModelManifest.load(from: manifestURL)
         t.expectEqual(manifest.files.count, 19)
-        t.expect(manifest.totalBytes > 600_000_000)
+        t.expect(manifest.totalBytes > 900_000_000)
         t.expect(manifest.files.contains { $0.path == "tokenizer.json" })
+        t.expect(manifest.files.allSatisfy { $0.source != "model" || $0.sourcePath.hasPrefix("openai_whisper-large-v3_947MB/") })
         for entry in manifest.files {
             let url = try manifest.remoteURL(for: entry)
             t.expectEqual(url.host, "huggingface.co")
@@ -43,7 +44,7 @@ func runModelDownloadTests(_ t: TestHarness) async {
         t.expect(manifest.totalBytes > 600_000_000)
         t.expect(manifest.files.contains { $0.path == "TextDecoder.mlmodelc/weights/weight.bin" })
         t.expect(manifest.files.contains { $0.path == "tokenizer.json" })
-        t.expect(manifest.files.allSatisfy { $0.source != "model" || $0.sourcePath.hasPrefix("openai_whisper-large-v3-v20240930_turbo_632MB/") })
+        t.expect(manifest.files.allSatisfy { $0.source != "model" || $0.sourcePath.hasPrefix("openai_whisper-large-v3-v20240930_626MB/") })
     }
 
     let folder = FileManager.default.temporaryDirectory

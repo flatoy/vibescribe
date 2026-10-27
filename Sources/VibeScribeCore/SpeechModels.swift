@@ -24,7 +24,7 @@ enum SpeechModelID: String, CaseIterable, Identifiable, Sendable {
     var summary: String {
         switch self {
         case .largeV3: return "Most accurate · 100 languages"
-        case .largeV3Turbo: return "Roughly 3× faster to transcribe. Slightly less accurate in less common languages"
+        case .largeV3Turbo: return "About 4× faster to transcribe. Slightly less accurate in less common languages"
         }
     }
 
@@ -37,14 +37,16 @@ enum SpeechModelID: String, CaseIterable, Identifiable, Sendable {
 
     var folderName: String {
         switch self {
-        case .largeV3: return "WhisperModel-large-v3-v20240930_626MB"
-        case .largeV3Turbo: return "WhisperModel-large-v3-v20240930_turbo_632MB"
+        case .largeV3: return "WhisperModel-large-v3_947MB"
+        // Argmax's v20240930 is large-v3-turbo. Before VibeScribe offered the original large-v3, these files were
+        // called large-v3, so most Macs already have this folder.
+        case .largeV3Turbo: return "WhisperModel-large-v3-v20240930_626MB"
         }
     }
 
     var developmentFolderName: String {
         switch self {
-        case .largeV3: return "WhisperModel"
+        case .largeV3: return "WhisperModel-large-v3"
         case .largeV3Turbo: return "WhisperModel-turbo"
         }
     }

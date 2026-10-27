@@ -101,8 +101,8 @@ struct FilmContext {
             client: client,
             folder: { temp.appendingPathComponent($0.rawValue) }
         )
-        models.setup(for: .largeV3).simulate(.ready)
-        models.setup(for: .largeV3Turbo).simulate(.notDownloaded(0, 648_432_373))
+        models.setup(for: .largeV3).simulate(.notDownloaded(0, 950_872_246))
+        models.setup(for: .largeV3Turbo).simulate(.ready)
         history = TranscriptHistory(fileURL: nil)
         let now = Date()
         let calendar = Calendar.current

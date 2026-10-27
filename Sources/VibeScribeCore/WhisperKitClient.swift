@@ -42,6 +42,25 @@ enum WhisperModelLocator {
         return support.appendingPathComponent(name, isDirectory: true)
     }
 
+    /// Downloads no model uses any more: large-v3 turbo used to be Argmax's 632 MB build.
+    private static let retiredFolders = ["WhisperModel-large-v3-v20240930_turbo_632MB"]
+
+    /// Frees the space taken by retired downloads.
+    @MainActor
+    static func removeRetiredModels(logger: Logger) {
+        guard isAppBundle else { return }
+        for name in retiredFolders {
+            let folder = supportFolder().appendingPathComponent(name, isDirectory: true)
+            guard FileManager.default.fileExists(atPath: folder.path) else { continue }
+            do {
+                try FileManager.default.removeItem(at: folder)
+                logger.append("Removed \(name), which no speech model uses any more.")
+            } catch {
+                logger.append("Could not remove \(name): \(error.localizedDescription)", level: .warning)
+            }
+        }
+    }
+
     static func isComplete(_ folder: URL) -> Bool {
         let requiredFiles = [
             "AudioEncoder.mlmodelc/weights/weight.bin",

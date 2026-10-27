@@ -77,6 +77,7 @@ final class Preferences: ObservableObject {
         static let retention = "VibeScribe.HistoryRetention"
         static let onboarding = "VibeScribe.CompletedOnboarding"
         static let speechModel = "VibeScribe.SpeechModel"
+        static let modelLayout = "VibeScribe.ModelLayout"
     }
 
     private let defaults: UserDefaults
@@ -157,7 +158,7 @@ final class Preferences: ObservableObject {
         vocabulary = defaults.string(forKey: Key.vocabulary) ?? ""
         historyRetention = defaults.string(forKey: Key.retention).flatMap(HistoryRetention.init(rawValue:)) ?? .month
         hasCompletedOnboarding = defaults.bool(forKey: Key.onboarding)
-        speechModel = defaults.string(forKey: Key.speechModel).flatMap(SpeechModelID.init(rawValue:)) ?? .largeV3
+        speechModel = Self.migrateSpeechModel(in: defaults)
     }
 
     /// Chooses a language and remembers it as recent.
@@ -197,6 +198,20 @@ final class Preferences: ObservableObject {
 
     private static func load(key: String, from defaults: UserDefaults) -> Hotkey? {
         defaults.data(forKey: key).flatMap { try? JSONDecoder().decode(Hotkey.self, from: $0) }
+    }
+
+    /// Until layout 2, "large-v3" was Argmax's build of large-v3-turbo. Those files now belong to large-v3 turbo,
+    /// and large-v3 is OpenAI's original model.
+    private static func migrateSpeechModel(in defaults: UserDefaults) -> SpeechModelID {
+        var saved = defaults.string(forKey: Key.speechModel)
+        if defaults.integer(forKey: Key.modelLayout) < 2 {
+            if saved == SpeechModelID.largeV3.rawValue {
+                saved = SpeechModelID.largeV3Turbo.rawValue
+                defaults.set(saved, forKey: Key.speechModel)
+            }
+            defaults.set(2, forKey: Key.modelLayout)
+        }
+        return saved.flatMap(SpeechModelID.init(rawValue:)) ?? .largeV3Turbo
     }
 
     private static func migrateLanguage(_ saved: String?) -> WhisperLanguage {

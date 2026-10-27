@@ -666,8 +666,8 @@ private func storeSample() -> Sample {
         HistoryEntry(date: at(16, 5, daysAgo: 1), text: "Can you book a table for four on Friday at seven? Ask if they have something by the window.", languageCode: "en", duration: 5, appName: "Messages"),
     ])
 
-    sample.models.setup(for: .largeV3).simulate(.ready)
-    sample.models.setup(for: .largeV3Turbo).simulate(.notDownloaded(0, 648_432_373))
+    sample.models.setup(for: .largeV3).simulate(.notDownloaded(0, 950_872_246))
+    sample.models.setup(for: .largeV3Turbo).simulate(.ready)
     return sample
 }
 

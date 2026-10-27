@@ -42,6 +42,7 @@ public final class VibeScribeApp: NSObject, NSApplicationDelegate {
         NSApp.mainMenu = AppMenuBuilder.build()
 
         logger = Logger()
+        WhisperModelLocator.removeRetiredModels(logger: logger)
         preferences = Preferences()
         permissions = Permissions()
         let client = WhisperKitClient()

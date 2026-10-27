@@ -214,8 +214,8 @@ struct Sample {
             client: client,
             folder: { temp.appendingPathComponent($0.rawValue) }
         )
-        models.setup(for: .largeV3).simulate(.ready)
-        models.setup(for: .largeV3Turbo).simulate(.notDownloaded(0, 648_432_373))
+        models.setup(for: .largeV3).simulate(.notDownloaded(0, 950_872_246))
+        models.setup(for: .largeV3Turbo).simulate(.ready)
         history = TranscriptHistory(fileURL: nil)
         let now = Date()
         func at(_ hour: Int, _ minute: Int, daysAgo: Int = 0) -> Date {
@@ -382,7 +382,7 @@ MainActor.assumeIsolated {
         )
     }
 
-    sample.models.setup(for: .largeV3Turbo).simulate(.downloading(214_000_000, 648_432_373), bytesPerSecond: 11_000_000)
+    sample.models.setup(for: .largeV3).simulate(.downloading(214_000_000, 950_872_246), bytesPerSecond: 11_000_000)
     render(
         settings(sample, page: .model).padding(pad).background(Wallpaper()),
         size: CGSize(width: SettingsView.size.width + pad * 2, height: SettingsView.size.height + pad * 2),
@@ -391,15 +391,15 @@ MainActor.assumeIsolated {
 
     let setupSize = CGSize(width: OnboardingView.size.width * 2 + pad * 3, height: OnboardingView.size.height + pad * 2)
     sample.context.permissions.simulate(microphone: .authorized, inputMonitoring: .denied, accessibility: .notDetermined)
-    sample.models.setup(for: .largeV3).simulate(.downloading(114_000_000, 629_481_698), bytesPerSecond: 9_000_000)
+    sample.models.setup(for: .largeV3Turbo).simulate(.downloading(114_000_000, 629_481_698), bytesPerSecond: 9_000_000)
     let permissionsStep = onboarding(sample, step: .permissions)
-    sample.models.setup(for: .largeV3).simulate(.downloading(308_000_000, 629_481_698), bytesPerSecond: 5_200_000)
+    sample.models.setup(for: .largeV3Turbo).simulate(.downloading(308_000_000, 629_481_698), bytesPerSecond: 5_200_000)
     render(
         HStack(spacing: pad) { permissionsStep; onboarding(sample, step: .model) }.padding(pad).background(Wallpaper()),
         size: setupSize,
         to: shots.appendingPathComponent("setup.jpg")
     )
-    sample.models.setup(for: .largeV3).simulate(.ready)
+    sample.models.setup(for: .largeV3Turbo).simulate(.ready)
     sample.context.permissions.simulate(microphone: .authorized, inputMonitoring: .authorized, accessibility: .authorized)
     render(
         HStack(spacing: pad) { onboarding(sample, step: .welcome); onboarding(sample, step: .practice, practice: true) }.padding(pad).background(Wallpaper()),
