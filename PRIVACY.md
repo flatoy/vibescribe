@@ -9,7 +9,7 @@ This policy explains how VibeScribe, the dictation app for Mac, handles your inf
 - **VibeScribe does not collect any personal data.** Nothing you say, dictate or type is sent to us or to anyone else.
 - **Your voice is processed on your Mac.** The audio is held in memory only while it is being transcribed, then discarded. It is never saved to disk and never uploaded.
 - **Your transcripts, history, vocabulary and settings stay on your Mac**, and you can delete them at any time.
-- **The only network access is downloading the Whisper speech model** from Hugging Face (huggingface.co). Like any download, this reveals your Mac's IP address to Hugging Face.
+- **The only network access is downloading the speech model you choose** from Hugging Face (huggingface.co). Like any download, this reveals your Mac's IP address to Hugging Face.
 - **There are no analytics, ads, tracking, third-party SDKs or accounts.**
 
 ## Who is responsible
@@ -25,7 +25,7 @@ Nothing. VibeScribe has no servers of its own and no sign-in. We do not receive 
 VibeScribe listens only while you hold your dictation shortcut, or after you tap it to start hands-free dictation, until you stop or cancel. The audio:
 
 - comes from the microphone you choose in Settings > General,
-- is kept in your Mac's memory while the Whisper model transcribes it on your Mac,
+- is kept in your Mac's memory while the speech model transcribes it on your Mac,
 - is discarded as soon as the text is ready or you cancel with esc,
 - is never written to disk, never uploaded and never shared.
 
@@ -50,7 +50,7 @@ Everything below stays on your Mac and is never sent anywhere. History and speec
 - **Transcript history.** When history is on, each transcript is saved with its date and time, its language, the length of the recording, and the name of the app it was pasted into (or "Clipboard"). History is kept for 30 days by default. In Settings > History you can choose Don't keep history, Keep 1 day, Keep 7 days, Keep 30 days or Keep forever. Older entries are deleted automatically.
 - **Your latest transcript** is also kept in memory, even when history is off, so that you can copy it from the menu bar. It is gone when you quit VibeScribe.
 - **Settings and vocabulary.** Your shortcuts, languages (chosen, pinned and recently used), microphone choice, sound, pasting and menu bar options, history setting, chosen speech model and the vocabulary words you enter are stored in the app's standard macOS preferences.
-- **Speech models.** The Whisper model files, about 630 MB for large-v3 and about 650 MB for large-v3 turbo, are stored in the app's Application Support folder.
+- **Speech models.** The speech model files, about 950 MB for Whisper large-v3, about 630 MB for large-v3 turbo and about 210 MB for Underdog Bark 3.0 Plus, are stored in the app's Application Support folder.
 - **Activity log.** VibeScribe keeps a short technical log in memory, such as "Recording stopped" or "Pasted into the active app". It never contains what you said, it is not saved to disk, and it is cleared when you quit. If you click **Copy diagnostic report** in Settings > About & diagnostics, the log, together with the app and macOS versions, model status, permission status and your main settings, is copied to your clipboard so you can decide whether to share it. Nothing is sent automatically.
 
 ## How to delete your data
@@ -66,8 +66,8 @@ We hold no data about you, so there is nothing for us to delete on our side.
 
 VibeScribe connects to the internet for one purpose only: downloading speech model files from Hugging Face, Inc. at huggingface.co, which may hand large files over to its content delivery network.
 
-- **When:** during setup, after you click "Set up VibeScribe"; when you choose to download another model, such as large-v3 turbo, in Settings > Speech model; and if the model files on your Mac are missing or damaged, when you download them again.
-- **What is requested:** fixed versions of public files, namely Argmax's Core ML conversion of Whisper (argmaxinc/whisperkit-coreml) and OpenAI's Whisper tokenizer files (openai/whisper-large-v3). Each file is checked against a known SHA-256 checksum before it is used.
+- **When:** during setup, after you choose a speech model; when you choose to download another model, such as large-v3 or Bark 3.0 Plus, in Settings > Speech model or the language picker; and if the model files on your Mac are missing or damaged, when you download them again.
+- **What is requested:** fixed versions of public files, namely Argmax's Core ML conversion of Whisper (argmaxinc/whisperkit-coreml), OpenAI's Whisper tokenizer files (openai/whisper-large-v3) and Conway Research's Core ML package of Underdog Bark 3.0 Plus (ConwayResearch/Underdog-Bark-3.0-Plus). Each file is checked against a known SHA-256 checksum before it is used.
 - **What is sent:** only ordinary download requests. No audio, transcripts, vocabulary, settings, account details or identifiers are sent. The download keeps no cookies or cache afterwards.
 - **What Hugging Face sees:** like any web server, Hugging Face and its delivery network receive your Mac's IP address and standard request details, such as the time of the request and a basic description of the software making it. Hugging Face handles this under its own privacy policy: https://huggingface.co/privacy. We do not receive this information.
 
@@ -85,7 +85,7 @@ You can change these at any time in System Settings > Privacy & Security.
 
 ## Third-party components
 
-VibeScribe uses WhisperKit, open-source software by Argmax, Inc., to run OpenAI's Whisper speech recognition models on your Mac. Both run entirely on your Mac inside VibeScribe and send nothing to Argmax, OpenAI or anyone else. VibeScribe contains no analytics, advertising, crash-reporting or tracking code.
+VibeScribe uses WhisperKit, open-source software by Argmax, Inc., to run OpenAI's Whisper speech recognition models on your Mac, and Apple's Core ML to run Underdog Bark, an English speech recognition model by Conway Research. All of it runs entirely on your Mac inside VibeScribe and sends nothing to Argmax, OpenAI, Conway Research or anyone else. VibeScribe contains no analytics, advertising, crash-reporting or tracking code.
 
 ## Children
 

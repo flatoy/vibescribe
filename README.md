@@ -2,7 +2,7 @@
 
 ![VibeScribe: hold a key, speak, and it’s pasted](assets/hero.jpg)
 
-A menu bar app for push-to-talk dictation on Mac. Hold a key, speak, and let go: VibeScribe types what you said wherever your cursor is. Speech is transcribed on your Mac with [WhisperKit](https://github.com/argmaxinc/argmax-oss-swift), in 100 languages. No account, API key or cloud service is involved.
+A menu bar app for push-to-talk dictation on Mac. Hold a key, speak, and let go: VibeScribe types what you said wherever your cursor is. Speech is transcribed on your Mac, either by Whisper through [WhisperKit](https://github.com/argmaxinc/argmax-oss-swift) in 100 languages, or by the faster, English-only [Underdog Bark](https://huggingface.co/ConwayResearch/Underdog-Bark-3.0-Plus). No account, API key or cloud service is involved.
 
 ## Install
 
@@ -19,7 +19,7 @@ The app runs on macOS 14 or later on Apple Silicon. Building it requires macOS 1
    ```
 
 2. Move `VibeScribe.app` to your Applications folder and open it.
-3. Follow the setup window. It asks for three permissions and downloads the speech model (about 630 MB) while you grant them:
+3. Follow the setup window. Pick a speech model, then grant three permissions while it downloads:
    - **Microphone**, to hear you
    - **Input Monitoring**, so the shortcut works in every app
    - **Accessibility**, to paste for you. Without it, transcripts are copied and you press ⌘V yourself.
@@ -46,17 +46,21 @@ A small pill below the menu bar shows what’s happening. The waveform follows y
 
 ### First launch
 
-The model download starts on the first screen and continues while you grant permissions, so you rarely wait on a progress bar. You can pause it, and if your connection drops it resumes on its own.
+The second screen compares the speech models by size, speed, accuracy and languages. The one you pick starts downloading right away and keeps going while you grant permissions, so you rarely wait on a progress bar. You can pause it, and if your connection drops it resumes on its own.
 
 ![Setup: welcome screen and practice run](assets/screenshots/setup-welcome.jpg)
+
+<img src="assets/screenshots/setup-model.jpg" width="560" alt="Setup: choosing a speech model, with size, speed, word errors and languages for Whisper large-v3, large-v3 turbo and Underdog Bark 3.0 Plus">
 
 ![Setup: permissions and the model download](assets/screenshots/setup.jpg)
 
 ### Languages
 
-Press **⌥⇧** anywhere to search the 100 languages by English or native name. Pin up to three favourites for **⌘1–⌘3**; the languages you used recently sit just below them. **Automatic** detects the language for you.
+Press **⌥⇧** anywhere to search the 100 languages by English or native name. Pin up to three favourites for **⌘1–⌘3**; the languages you used recently sit just below them. **Automatic** detects the language for you. Bark understands only English, so while it’s in use the picker offers to switch to Whisper instead.
 
 ![The language picker, empty and while searching](assets/screenshots/language-picker.jpg)
+
+<img src="assets/screenshots/language-picker-english.jpg" width="380" alt="The language picker while Bark is in use: Bark 3.0 Plus only understands English, with a button to switch to Whisper large-v3 turbo">
 
 ### The menu bar
 
@@ -66,7 +70,7 @@ The icon shows what VibeScribe is doing: ready, recording (the only time it turn
 
 ### Settings
 
-Pick a microphone and watch its input level, choose whether text is pasted or only copied, record any shortcut, and add a vocabulary of names and jargon so the model spells them your way.
+Pick a microphone and watch its input level, choose whether text is pasted or only copied, record any shortcut, and add a vocabulary of names and jargon so Whisper spells them your way.
 
 ![General settings](assets/screenshots/settings-general.jpg)
 
@@ -76,9 +80,20 @@ Pick a microphone and watch its input level, choose whether text is pasted or on
 
 ![Transcript history](assets/screenshots/settings-history.jpg)
 
-**Speech model** shows what’s installed. Switch to **large-v3 turbo** for roughly 3× faster transcription, at a small cost in accuracy for less common languages. It downloads in the background while dictation keeps working.
+**Speech model** compares the models and shows what’s installed. A new model downloads and loads in the background, and dictation keeps using the current one until it’s ready.
 
-![Speech model settings with the turbo model downloading](assets/screenshots/settings-model.jpg)
+| Model | Download | A minute of speech¹ | Word errors² | Languages |
+|---|--:|--:|--:|---|
+| Whisper large-v3 | 951 MB | 12 s | 6.0% | 100 |
+| Whisper large-v3 turbo | 629 MB | 3.0 s | 6.6% | 100 |
+| [Underdog Bark 3.0 Plus](https://huggingface.co/ConwayResearch/Underdog-Bark-3.0-Plus) | 206 MB | 0.6 s | 4.8% | English |
+
+¹ Time to transcribe on an M4 Pro MacBook Pro, the median of three runs after a warm-up.
+² Average across the [Open ASR Leaderboard](https://huggingface.co/spaces/hf-audio/open_asr_leaderboard)’s seven English test sets; lower is better. Whisper’s scores are the leaderboard’s for OpenAI’s models, of which the downloads are Argmax’s compressed builds. Bark’s score is Underdog’s, measured with the leaderboard’s code.
+
+Bark needs macOS 15. It understands only English and doesn’t use your vocabulary. It writes short phrases without capitals or punctuation, so VibeScribe gives those a capital and a full stop. Each model’s first load compiles it for your Mac’s chip: under a minute for the Whisper models, about three for Bark.
+
+![Speech model settings with Bark in use](assets/screenshots/settings-model.jpg)
 
 ## Privacy
 
@@ -94,13 +109,19 @@ Run from source with the same first-launch flow:
 swift run VibeScribe
 ```
 
-To prefetch the model into the ignored build cache for development or offline smoke tests, run `python3 scripts/download_whisper_model.py`.
+To prefetch a model into the ignored build cache for development or offline smoke tests, run `python3 scripts/download_whisper_model.py`, adding `--model large-v3` or `--model bark-plus` for the others.
 
 Build and run the tests. They use a small executable harness, so Xcode isn’t required:
 
 ```bash
 swift build
 swift run VibeScribeTests
+```
+
+Three smoke tests use downloaded models. `--model-smoke <folder> <audio>` transcribes with a Whisper model, `--bark-smoke <folder> <audio>…` with Bark, and `--switch-smoke <turbo folder> <model> <folder> <audio>` checks that dictation keeps working while another model compiles. The speeds above come from a release build:
+
+```bash
+swift run -c release -Xswiftc -enable-testing VibeScribeTests --benchmark barkPlus .build/BarkModel-plus minute.wav
 ```
 
 The README images are rendered from the app’s real SwiftUI views with sample data:
@@ -118,10 +139,12 @@ swift run VibeScribeScreenshots assets
 | Setup window | `Sources/VibeScribeCore/UI/OnboardingView.swift` |
 | Settings window | `Sources/VibeScribeCore/UI/SettingsView.swift`, `SettingsPages.swift` |
 | Language picker | `Sources/VibeScribeCore/UI/LanguagePickerView.swift` |
+| Speech models and switching | `Sources/VibeScribeCore/SpeechModels.swift`, `WhisperKitClient.swift` |
+| Bark (frontend, decoder, `.npz` reader) | `Sources/VibeScribeCore/BarkEngine.swift`, `NumpyArchive.swift` |
 | Menu bar | `Sources/VibeScribeCore/MenuBarController.swift` |
 | Colours and components | `Sources/VibeScribeCore/UI/Theme.swift`, `Spectrum.swift`, `Controls.swift` |
 | Shortcuts and hold/tap logic | `HotkeyListener.swift`, `HotkeyCoordinator.swift` |
-| Pinned model downloads | `scripts/whisper_model_manifest.json`, `scripts/whisper_model_manifest_turbo.json` |
+| Pinned model downloads | `scripts/whisper_model_manifest.json`, `scripts/whisper_model_manifest_turbo.json`, `scripts/bark_model_manifest_plus.json` |
 
 ### Packaging
 
