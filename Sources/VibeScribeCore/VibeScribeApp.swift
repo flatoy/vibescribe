@@ -44,12 +44,7 @@ public final class VibeScribeApp: NSObject, NSApplicationDelegate {
         logger = Logger()
         preferences = Preferences()
         permissions = Permissions()
-        let client = WhisperKitClient(
-            modelFolder: WhisperModelLocator.modelFolder(for: preferences.speechModel),
-            onLog: { [weak self] message, level in
-                Task { @MainActor in self?.logger.append(message, level: level) }
-            }
-        )
+        let client = WhisperKitClient()
         client.setVocabulary(preferences.vocabulary)
         whisperKitClient = client
         models = SpeechModelLibrary(preferences: preferences, logger: logger, client: client)

@@ -309,7 +309,7 @@ private struct ModelStep: View {
         case .interrupted(let completed, _, _):
             return "\(Format.bytes(completed)) is saved. VibeScribe resumes on its own when your connection is back."
         case .preparing:
-            return "The download is done. The first load optimises the model for your chip and takes about a minute. Later launches are faster."
+            return "The download is done. The first load optimises the model for your chip and can take a few minutes. Later launches are faster."
         case .ready: return "Everything runs on this Mac."
         case .failed(let message): return message
         }

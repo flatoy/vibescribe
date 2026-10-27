@@ -24,11 +24,11 @@ func runOfflineModelSmoke(
             t.expectEqual(pickerCodes, tokenCodes)
         }
 
-        let client = WhisperKitClient(modelFolder: folder) { message, level in
-            let elapsed = ProcessInfo.processInfo.systemUptime - startedAt
-            print("  \(level.rawValue) \(message) (\(String(format: "%.1f", elapsed))s)")
-        }
-        try await client.prepare()
+        let engine = WhisperEngine(modelFolder: folder)
+        try await engine.prepare()
+        print("  Model loaded at \(String(format: "%.1f", ProcessInfo.processInfo.systemUptime - startedAt))s")
+        let client = WhisperKitClient()
+        client.install(engine)
 
         /// With `switchingRate`, the last two thirds arrive at another sample rate, the way
         /// AirPods switch once their microphone opens.

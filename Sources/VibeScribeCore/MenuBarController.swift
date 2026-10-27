@@ -281,7 +281,7 @@ struct MenuSetupHeader: View {
             if let remaining = Format.timeRemaining(setup.secondsRemaining) { text += " · \(remaining)" }
             return text
         default:
-            return "This takes about a minute."
+            return "The first load can take a few minutes."
         }
     }
 }

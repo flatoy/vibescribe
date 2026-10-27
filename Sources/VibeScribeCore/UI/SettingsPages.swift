@@ -652,6 +652,7 @@ struct ModelPage: View {
                     OtherModelRow(
                         setup: models.setup(for: id),
                         activeName: models.activeID.shortName,
+                        isPending: models.pendingID == id,
                         onSwitch: { confirmSwitch = id },
                         onDelete: { confirmDelete = id }
                     )
@@ -666,7 +667,7 @@ struct ModelPage: View {
             Button("Switch") { models.switchTo(id) }
             Button("Cancel", role: .cancel) {}
         } message: { _ in
-            Text("Dictation pauses for about a minute while the model loads for this Mac.")
+            Text("It loads in the background, which can take a few minutes the first time. Dictation keeps using \(models.activeID.shortName) until it’s ready.")
         }
         .alert(
             "Delete \(confirmDelete?.shortName ?? "")?",
@@ -715,7 +716,7 @@ private struct ActiveModelStatus: View {
         case .checking:
             SettingsRow(title: "Checking the downloaded files…") { ProgressRing(progress: nil, color: Theme.accent) }
         case .preparing:
-            SettingsRow(title: "Preparing the model for this Mac", detail: "The first load takes about a minute.") {
+            SettingsRow(title: "Preparing the model for this Mac", detail: "The first load can take a few minutes.") {
                 ProgressRing(progress: nil, color: Theme.accent)
             }
         case .downloading(let completed, let total), .paused(let completed, let total),
@@ -788,6 +789,7 @@ private struct DownloadProgressRow: View {
 private struct OtherModelRow: View {
     @ObservedObject var setup: WhisperModelSetup
     let activeName: String
+    let isPending: Bool
     let onSwitch: () -> Void
     let onDelete: () -> Void
 
@@ -817,11 +819,18 @@ private struct OtherModelRow: View {
                     completed: completed,
                     total: total,
                     pauseTitle: "Cancel",
-                    note: "Dictation keeps using \(activeName) until this finishes. You’ll be asked before switching."
+                    note: isPending
+                        ? "Dictation keeps using \(activeName) until this is downloaded and loaded. Then it switches over."
+                        : "Dictation keeps using \(activeName) until this finishes. You’ll be asked before switching."
                 )
                 .padding(.top, -12)
             case .failed(let message):
                 Text(message).font(.system(size: 11.5)).foregroundStyle(Theme.bad)
+                    .padding(.horizontal, 14).padding(.bottom, 12)
+            case .checking, .preparing where isPending:
+                Text("Loading for this Mac. The first time can take a few minutes. Dictation keeps using \(activeName) until it’s ready.")
+                    .font(.system(size: 11.5)).foregroundStyle(Theme.tertiary)
+                    .fixedSize(horizontal: false, vertical: true)
                     .padding(.horizontal, 14).padding(.bottom, 12)
             default:
                 EmptyView()

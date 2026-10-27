@@ -207,7 +207,7 @@ struct Sample {
         let permissions = Permissions()
         permissions.simulate(microphone: .authorized, inputMonitoring: .authorized, accessibility: .authorized)
         let temp = FileManager.default.temporaryDirectory.appendingPathComponent("VibeScribeScreenshots")
-        let client = WhisperKitClient(modelFolder: temp) { _, _ in }
+        let client = WhisperKitClient()
         models = SpeechModelLibrary(
             preferences: preferences,
             logger: logger,

@@ -5,7 +5,6 @@ import WhisperKit
 enum WhisperModelError: LocalizedError {
     case missing
     case notReady
-    case failed(String)
 
     var errorDescription: String? {
         switch self {
@@ -13,8 +12,6 @@ enum WhisperModelError: LocalizedError {
             return "The speech model is missing. Open VibeScribe to download it."
         case .notReady:
             return "The speech model is still being prepared. Open VibeScribe to check its progress."
-        case .failed(let message):
-            return "The local speech model could not load: \(message)"
         }
     }
 }
@@ -70,33 +67,20 @@ private final class AudioRecording {
     }
 }
 
+/// Collects a recording and transcribes it with the installed speech model.
 final class WhisperKitClient: RecordingSessionTranscription, @unchecked Sendable {
-    private var engine: WhisperEngine?
+    private var engine: (any SpeechEngine)?
     private var vocabulary = ""
-    private let onLog: @Sendable (String, LogLevel) -> Void
     private let lock = NSLock()
     private var recording: AudioRecording?
     private var activeID: UUID?
     private var transcriptionTask: Task<Void, Never>?
-    private var preparationError: String?
-    private var prepared = false
 
-    init(modelFolder: URL?, onLog: @Sendable @escaping (String, LogLevel) -> Void) {
-        self.engine = modelFolder.map(WhisperEngine.init(modelFolder:))
-        self.onLog = onLog
-    }
+    init() {}
 
-    /// Switches to another downloaded model. Call `prepare()` afterwards.
-    func use(modelFolder: URL) {
-        lock.lock()
-        transcriptionTask?.cancel()
-        transcriptionTask = nil
-        recording = nil
-        activeID = nil
-        engine = WhisperEngine(modelFolder: modelFolder)
-        prepared = false
-        preparationError = nil
-        lock.unlock()
+    /// Makes a loaded model the one dictation uses. A transcription already under way finishes with the previous one.
+    func install(_ engine: any SpeechEngine) {
+        lock.withLock { self.engine = engine }
     }
 
     /// Names and jargon to prompt the decoder with, comma separated.
@@ -106,31 +90,10 @@ final class WhisperKitClient: RecordingSessionTranscription, @unchecked Sendable
         lock.unlock()
     }
 
-    func prepare() async throws {
-        let engine = lock.withLock { self.engine }
-        guard let engine else {
-            onLog(WhisperModelError.missing.localizedDescription, .error)
-            throw WhisperModelError.missing
-        }
-        do {
-            try await engine.prepare()
-            setPrepared()
-            onLog("Offline WhisperKit model is ready.", .info)
-        } catch {
-            setPreparationError(error.localizedDescription)
-            onLog("Local model failed to load: \(error.localizedDescription)", .error)
-            throw error
-        }
-    }
-
     func start(language: WhisperLanguage) throws {
         lock.lock()
         defer { lock.unlock() }
-        guard engine != nil else { throw WhisperModelError.missing }
-        if let preparationError {
-            throw WhisperModelError.failed(preparationError)
-        }
-        guard prepared else { throw WhisperModelError.notReady }
+        guard engine != nil else { throw WhisperModelError.notReady }
         transcriptionTask?.cancel()
         transcriptionTask = nil
         let recording = AudioRecording(language: language)
@@ -223,28 +186,20 @@ final class WhisperKitClient: RecordingSessionTranscription, @unchecked Sendable
         guard current else { return }
         onFinished(outcome)
     }
-
-    private func setPreparationError(_ message: String) {
-        lock.lock()
-        prepared = false
-        preparationError = message
-        lock.unlock()
-    }
-
-    private func setPrepared() {
-        lock.lock()
-        prepared = true
-        preparationError = nil
-        lock.unlock()
-    }
 }
 
-private struct EngineResult: Sendable {
+struct EngineResult: Sendable {
     let text: String
     let language: String?
 }
 
-private actor WhisperEngine {
+/// A speech model that turns microphone audio into text once `prepare()` has loaded it.
+protocol SpeechEngine: Actor {
+    func prepare() async throws
+    func transcribe(segments: [AudioSegment], language: WhisperLanguage, vocabulary: String) async throws -> EngineResult
+}
+
+actor WhisperEngine: SpeechEngine {
     private let modelFolder: URL
     private var model: WhisperKit?
     private var loadTask: Task<Void, Error>?

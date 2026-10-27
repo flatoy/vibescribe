@@ -57,6 +57,9 @@ func main() async {
     print("ModelDownload")
     await runModelDownloadTests(harness)
 
+    print("ModelSwitch")
+    await runModelSwitchTests(harness)
+
     if CommandLine.arguments.count == 2, CommandLine.arguments[1] == "--download-smoke" {
         print("Remote model download")
         await runRemoteModelDownloadSmoke(harness)
@@ -77,6 +80,16 @@ func main() async {
             language: language,
             requiredTerms: CommandLine.arguments.count == 6
                 ? CommandLine.arguments[5].split(separator: ",").map(String.init) : []
+        )
+    }
+
+    if CommandLine.arguments.count == 5, CommandLine.arguments[1] == "--switch-smoke" {
+        print("Model switch")
+        await runModelSwitchSmoke(
+            harness,
+            current: CommandLine.arguments[2],
+            compiling: CommandLine.arguments[3],
+            audioPath: CommandLine.arguments[4]
         )
     }
 
