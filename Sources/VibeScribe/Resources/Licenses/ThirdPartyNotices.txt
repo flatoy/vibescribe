@@ -15,3 +15,15 @@ https://huggingface.co/openai/whisper-large-v3
 Revision: 06f233fe06e710322aca913c1bc4249a0d71fce1
 The model repository lists the tokenizer under the Apache License 2.0.
 The Apache License 2.0 text is included in ArgmaxOSS-NOTICES.txt.
+
+Underdog Bark 3.0 Plus Core ML model (Neural Engine package)
+https://huggingface.co/ConwayResearch/Underdog-Bark-3.0-Plus
+Revision: d4fab2f8b95681e5ad3cfb4e8c5f4e0c009b3deb
+Post-trained and compressed by Conway Research. Licensed under CC BY 4.0:
+https://creativecommons.org/licenses/by/4.0/
+It derives from nvidia/parakeet-tdt-0.6b-v3, (c) NVIDIA Corporation, CC BY 4.0
+(https://huggingface.co/nvidia/parakeet-tdt-0.6b-v3), and moondream/parakeet-ultra,
+(c) Moondream, CC BY 4.0 (https://huggingface.co/moondream/parakeet-ultra).
+VibeScribe runs the model unchanged. Its audio frontend and decoder are ported to Swift
+from the repository's bark_coreml.py. The model's LICENSE and NOTICE files are downloaded
+with it.

@@ -47,6 +47,16 @@ func runModelDownloadTests(_ t: TestHarness) async {
         t.expect(manifest.files.allSatisfy { $0.source != "model" || $0.sourcePath.hasPrefix("openai_whisper-large-v3-v20240930_626MB/") })
     }
 
+    t.run("every model's manifest has the files that mark it complete") {
+        for model in SpeechModelID.allCases {
+            let manifest = try WhisperModelManifest.load(from: root.appendingPathComponent("scripts/\(model.manifestName)"))
+            let paths = Set(manifest.files.map(\.path))
+            for file in model.requiredFiles {
+                t.expect(paths.contains(file), "\(model.manifestName) lacks \(file)")
+            }
+        }
+    }
+
     let folder = FileManager.default.temporaryDirectory
         .appendingPathComponent("VibeScribeModelTests-\(UUID().uuidString)", isDirectory: true)
     defer { try? FileManager.default.removeItem(at: folder) }

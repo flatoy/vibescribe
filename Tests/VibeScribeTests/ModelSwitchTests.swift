@@ -179,17 +179,17 @@ func runModelSwitchTests(_ t: TestHarness) async {
         t.expectEqual(afterSwitch, "largeV3Turbo")
     }
 
-    let largeGate = LoadGate()
-    loads[.largeV3] = .gated(largeGate)
-    models.switchTo(.largeV3)
-    let largeLoading = await waitUntil { models.setup(for: .largeV3).state == .preparing }
-    models.setup(for: .largeV3).cancel()
-    largeGate.open()
-    let largeSettled = await waitUntil { models.setup(for: .largeV3).state != .preparing }
+    let barkGate = LoadGate()
+    loads[.barkPlus] = .gated(barkGate)
+    models.switchTo(.barkPlus)
+    let barkLoading = await waitUntil { models.setup(for: .barkPlus).state == .preparing }
+    models.setup(for: .barkPlus).cancel()
+    barkGate.open()
+    let barkSettled = await waitUntil { models.setup(for: .barkPlus).state != .preparing }
     let afterCancel = await dictate(client)
     t.run("cancelling the next model's setup ends the switch") {
-        t.expect(largeLoading, "large-v3 never started loading")
-        t.expect(largeSettled)
+        t.expect(barkLoading, "Bark never started loading")
+        t.expect(barkSettled)
         t.expectNil(models.pendingID)
         t.expectEqual(models.activeID, .largeV3Turbo)
         t.expectEqual(afterCancel, "largeV3Turbo")
@@ -210,10 +210,10 @@ func runModelSwitchTests(_ t: TestHarness) async {
     }
 }
 
-/// Dictation while switching to a model that still has to compile for this Mac.
-/// Pass a copy of a model in a new folder so Core ML has nothing cached for it.
+/// Dictation while switching from large-v3 turbo to a model that still has to compile for this Mac.
+/// Pass a copy of the target model in a new folder so Core ML has nothing cached for it.
 @MainActor
-func runModelSwitchSmoke(_ t: TestHarness, current: String, compiling: String, audioPath: String) async {
+func runModelSwitchSmoke(_ t: TestHarness, current: String, target: SpeechModelID, compiling: String, audioPath: String) async {
     let suite = "VibeScribeModelSwitchSmoke-\(UUID().uuidString)"
     let defaults = UserDefaults(suiteName: suite)!
     defer { defaults.removePersistentDomain(forName: suite) }
@@ -225,13 +225,13 @@ func runModelSwitchSmoke(_ t: TestHarness, current: String, compiling: String, a
         .deletingLastPathComponent()
 
     let preferences = Preferences(defaults: defaults)
-    preferences.speechModel = .largeV3
+    preferences.speechModel = .largeV3Turbo
     let client = WhisperKitClient()
     let models = SpeechModelLibrary(
         preferences: preferences,
         logger: Logger(),
         client: client,
-        folder: { URL(fileURLWithPath: $0 == .largeV3 ? current : compiling, isDirectory: true) },
+        folder: { URL(fileURLWithPath: $0 == .largeV3Turbo ? current : $0 == target ? compiling : "/nonexistent", isDirectory: true) },
         manifest: { root.appendingPathComponent("scripts/\($0.manifestName)") }
     )
 
@@ -255,9 +255,9 @@ func runModelSwitchSmoke(_ t: TestHarness, current: String, compiling: String, a
             if case .failed(let message) = models.activeState { throw TestFailure(message: message) }
             try await Task.sleep(for: .milliseconds(100))
         }
-        print("  large-v3 ready at \(elapsed())")
+        print("  large-v3 turbo ready at \(elapsed())")
 
-        models.switchTo(.largeV3Turbo)
+        models.switchTo(target)
         var rounds: [(String, TimeInterval, TranscriptionOutcome)] = []
         for _ in 1...3 {
             try await Task.sleep(for: .seconds(10))
@@ -265,9 +265,9 @@ func runModelSwitchSmoke(_ t: TestHarness, current: String, compiling: String, a
             let outcome = try await dictateFile()
             rounds.append((elapsed(), ProcessInfo.processInfo.systemUptime - began, outcome))
         }
-        let stillLoading = models.pendingID == .largeV3Turbo
+        let stillLoading = models.pendingID == target
         t.run("dictation keeps working while the next model compiles") {
-            t.expect(stillLoading, "turbo finished loading before the rounds were over; use an uncompiled copy")
+            t.expect(stillLoading, "\(target.shortName) finished loading before the rounds were over; use an uncompiled copy")
             for (at, took, outcome) in rounds {
                 print("  at \(at), took \(String(format: "%.1fs", took)): \(outcome)")
                 guard case .success(let text, _) = outcome, !text.isEmpty else {
@@ -278,11 +278,11 @@ func runModelSwitchSmoke(_ t: TestHarness, current: String, compiling: String, a
             }
         }
 
-        while models.activeID != .largeV3Turbo {
-            if case .failed(let message) = models.setup(for: .largeV3Turbo).state { throw TestFailure(message: message) }
+        while models.activeID != target {
+            if case .failed(let message) = models.setup(for: target).state { throw TestFailure(message: message) }
             try await Task.sleep(for: .milliseconds(100))
         }
-        print("  turbo took over at \(elapsed())")
+        print("  \(target.shortName) took over at \(elapsed())")
         let outcome = try await dictateFile()
         t.run("the compiled model takes over") {
             print("  \(outcome)")

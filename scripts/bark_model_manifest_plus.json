@@ -1,0 +1,59 @@
+{
+  "sources": {
+    "model": {
+      "repo": "ConwayResearch/Underdog-Bark-3.0-Plus",
+      "revision": "d4fab2f8b95681e5ad3cfb4e8c5f4e0c009b3deb"
+    }
+  },
+  "files": [
+    {
+      "source": "model",
+      "sourcePath": "coreml/ane/BarkEncoder.mlpackage/Manifest.json",
+      "path": "BarkEncoder.mlpackage/Manifest.json",
+      "size": 617,
+      "sha256": "ab559f86066abca46cd92a80941b6140770247b12bcc594955416981706d76a1"
+    },
+    {
+      "source": "model",
+      "sourcePath": "coreml/ane/BarkEncoder.mlpackage/Data/com.apple.CoreML/model.mlmodel",
+      "path": "BarkEncoder.mlpackage/Data/com.apple.CoreML/model.mlmodel",
+      "size": 1784701,
+      "sha256": "bfc5b4e6fde8cd06722ae37bee6bea044f9c4e3bbb25c9945a48edc3e5df0ec1"
+    },
+    {
+      "source": "model",
+      "sourcePath": "coreml/ane/BarkEncoder.mlpackage/Data/com.apple.CoreML/weights/weight.bin",
+      "path": "BarkEncoder.mlpackage/Data/com.apple.CoreML/weights/weight.bin",
+      "size": 192940480,
+      "sha256": "6b2c1c9ca7fdd8d18abee2452b54a978dcb1c31d0460bded396d9e61e3e9a59f"
+    },
+    {
+      "source": "model",
+      "sourcePath": "coreml/ane/decoder.npz",
+      "path": "decoder.npz",
+      "size": 11168286,
+      "sha256": "1ce79071f54c3dcec9aa9bb1d488486766f1fdbb3fd988b776da3f4da8024665"
+    },
+    {
+      "source": "model",
+      "sourcePath": "coreml/ane/vocab.json",
+      "path": "vocab.json",
+      "size": 115878,
+      "sha256": "eee86951e9f74921342fdc60ba26711eb70f7188e8784d98d2aecfc525b72270"
+    },
+    {
+      "source": "model",
+      "sourcePath": "coreml/LICENSE",
+      "path": "LICENSE",
+      "size": 18657,
+      "sha256": "9ba9550ad48438d0836ddab3da480b3b69ffa0aac7b7878b5a0039e7ab429411"
+    },
+    {
+      "source": "model",
+      "sourcePath": "coreml/NOTICE",
+      "path": "NOTICE",
+      "size": 613,
+      "sha256": "0d4bc9bcb50fc5b239e573a7ec5765534636c13b7d312866a9b423ad0b8621cf"
+    }
+  ]
+}

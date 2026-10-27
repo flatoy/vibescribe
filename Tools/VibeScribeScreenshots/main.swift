@@ -188,9 +188,10 @@ struct Sample {
     let models: SpeechModelLibrary
     let history: TranscriptHistory
 
-    init() {
+    init(speechModel: SpeechModelID = .largeV3Turbo) {
         let defaults = UserDefaults(suiteName: "VibeScribeScreenshots.\(UUID().uuidString)")!
         preferences = Preferences(defaults: defaults)
+        preferences.speechModel = speechModel
         preferences.pinnedLanguages = [.automatic, WhisperLanguage(rawValue: "no")!, .english]
         preferences.select(WhisperLanguage(rawValue: "sv")!)
         preferences.select(.automatic)
@@ -216,6 +217,7 @@ struct Sample {
         )
         models.setup(for: .largeV3).simulate(.notDownloaded(0, 950_872_246))
         models.setup(for: .largeV3Turbo).simulate(.ready)
+        models.setup(for: .barkPlus).simulate(speechModel == .barkPlus ? .ready : .notDownloaded(0, 206_029_232))
         history = TranscriptHistory(fileURL: nil)
         let now = Date()
         func at(_ hour: Int, _ minute: Int, daysAgo: Int = 0) -> Date {
@@ -382,9 +384,9 @@ MainActor.assumeIsolated {
         )
     }
 
-    sample.models.setup(for: .largeV3).simulate(.downloading(214_000_000, 950_872_246), bytesPerSecond: 11_000_000)
+    let barkSample = Sample(speechModel: .barkPlus)
     render(
-        settings(sample, page: .model).padding(pad).background(Wallpaper()),
+        settings(barkSample, page: .model).padding(pad).background(Wallpaper()),
         size: CGSize(width: SettingsView.size.width + pad * 2, height: SettingsView.size.height + pad * 2),
         to: shots.appendingPathComponent("settings-model.jpg")
     )
@@ -406,7 +408,6 @@ MainActor.assumeIsolated {
         size: setupSize,
         to: shots.appendingPathComponent("setup-welcome.jpg")
     )
-
     render(
         ZStack(alignment: .top) {
             Wallpaper()
@@ -444,6 +445,14 @@ MainActor.assumeIsolated {
         .background(Color(hex: 0x1B1A22)),
         size: CGSize(width: overlayCell.width * 2 + 24 + 56, height: overlayCell.height * 3 + 48 + 56),
         to: shots.appendingPathComponent("overlay.jpg")
+    )
+
+    render(
+        LanguagePickerView(model: LanguagePickerModel(preferences: barkSample.preferences, models: barkSample.models))
+            .padding(50)
+            .background(Wallpaper()),
+        size: CGSize(width: 380 + 100, height: LanguagePickerView.size.height + 100),
+        to: shots.appendingPathComponent("language-picker-english.jpg")
     )
 
     render(

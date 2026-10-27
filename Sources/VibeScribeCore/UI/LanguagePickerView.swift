@@ -37,12 +37,21 @@ final class LanguagePickerModel: ObservableObject {
     var onCancel: () -> Void = {}
 
     let preferences: Preferences
+    /// `nil` where only the list matters, as in screenshots.
+    let models: SpeechModelLibrary?
     private var cancellables = Set<AnyCancellable>()
 
     var results: [WhisperLanguage] { rows.map(\.language) }
 
-    init(preferences: Preferences) {
+    /// The active model understands only English, so there's nothing to choose.
+    var isEnglishOnly: Bool { models?.activeID.isEnglishOnly == true }
+
+    init(preferences: Preferences, models: SpeechModelLibrary? = nil) {
         self.preferences = preferences
+        self.models = models
+        models?.objectWillChange
+            .sink { [weak self] in self?.objectWillChange.send() }
+            .store(in: &cancellables)
         Publishers.CombineLatest3($query, preferences.$pinnedLanguages, preferences.$recentLanguages)
             .map { query, pinned, recent in Self.compute(query: query, pinned: pinned, recent: recent) }
             .sink { [weak self] rows in
@@ -76,10 +85,16 @@ final class LanguagePickerModel: ObservableObject {
         onCommit(rows[target].language)
     }
 
+    /// Loads a Whisper model in the background. Dictation keeps using the English-only one until it's ready.
+    func switchToMultilingual() {
+        guard let models, isEnglishOnly, models.pendingID == nil else { return }
+        models.switchTo(models.multilingualModel)
+    }
+
     /// ⌘1...⌘3 choose a pinned language.
     func commitPinned(_ number: Int) {
         let pinned = preferences.pinnedLanguages
-        guard pinned.indices.contains(number - 1) else {
+        guard !isEnglishOnly, pinned.indices.contains(number - 1) else {
             NSSound.beep()
             return
         }
@@ -176,12 +191,16 @@ struct LanguagePickerView: View {
 
     var body: some View {
         VStack(alignment: .leading, spacing: 0) {
-            searchBar
-            Rectangle().fill(Color.white.opacity(0.08)).frame(height: 1)
-            if model.rows.isEmpty {
-                emptyState
+            if let models = model.models, model.isEnglishOnly {
+                EnglishOnlyNotice(models: models, switchModel: model.switchToMultilingual)
             } else {
-                resultsList
+                searchBar
+                Rectangle().fill(Color.white.opacity(0.08)).frame(height: 1)
+                if model.rows.isEmpty {
+                    emptyState
+                } else {
+                    resultsList
+                }
             }
             keyHints
         }
@@ -286,9 +305,13 @@ struct LanguagePickerView: View {
 
     private var keyHints: some View {
         HStack(spacing: 14) {
-            hint(["↑", "↓"], "move")
-            hint(["↩"], model.mode == .pin ? "pin" : "choose")
-            if model.mode == .choose { hint(["⌘P"], "pin") }
+            if model.isEnglishOnly {
+                if model.models?.pendingID == nil { hint(["↩"], "switch") }
+            } else {
+                hint(["↑", "↓"], "move")
+                hint(["↩"], model.mode == .pin ? "pin" : "choose")
+                if model.mode == .choose { hint(["⌘P"], "pin") }
+            }
             Spacer()
             hint(["esc"], model.query.isEmpty ? "close" : "clear search")
         }
@@ -309,6 +332,50 @@ struct LanguagePickerView: View {
             }
             Text(label).font(.system(size: 11)).foregroundStyle(.white.opacity(0.42))
         }
+    }
+}
+
+/// Shown instead of the languages while an English-only model is in use.
+private struct EnglishOnlyNotice: View {
+    @ObservedObject var models: SpeechModelLibrary
+    let switchModel: () -> Void
+
+    var body: some View {
+        let target = models.pendingID ?? models.multilingualModel
+        let setup = models.setup(for: target)
+        VStack(spacing: 6) {
+            Image(systemName: models.activeID.systemImage)
+                .font(.system(size: 19, weight: .medium))
+                .foregroundStyle(Theme.spectrumGradient)
+                .frame(width: 44, height: 44)
+                .background(RoundedRectangle(cornerRadius: 11, style: .continuous).fill(Theme.field))
+                .padding(.bottom, 10)
+            Text("\(models.activeID.shortName) only understands English")
+                .font(.system(size: 14, weight: .semibold))
+                .foregroundStyle(.white)
+            Text("Whisper understands 100 languages.")
+                .font(.system(size: 12))
+                .foregroundStyle(.white.opacity(0.55))
+            Group {
+                if models.pendingID != nil {
+                    HStack(spacing: 8) {
+                        ProgressRing(progress: nil, color: Theme.accent)
+                        Text(setup.state == .preparing ? "Compiling \(target.shortName)…" : "Downloading \(target.shortName)…")
+                            .font(.system(size: 12, weight: .medium))
+                            .foregroundStyle(.white)
+                    }
+                } else {
+                    Button(setup.isReady
+                           ? "Switch to \(target.name)"
+                           : "Download \(target.name) · \(setup.totalBytes.map(Format.bytes) ?? "")",
+                           action: switchModel)
+                        .buttonStyle(.spectrum(.primary))
+                }
+            }
+            .padding(.top, 14)
+        }
+        .padding(.horizontal, 40)
+        .frame(maxWidth: .infinity, maxHeight: .infinity)
     }
 }
 

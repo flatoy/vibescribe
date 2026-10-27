@@ -30,7 +30,7 @@ final class MenuBarController: NSObject, NSMenuDelegate {
             context.status.$phase,
             context.preferences.$language,
             context.preferences.$showLanguageInMenuBar,
-            context.models.$activeState
+            Publishers.CombineLatest(context.models.$activeState, context.models.$activeID)
         )
         .receive(on: RunLoop.main)
         .sink { [weak self] phase, _, _, _ in
@@ -58,7 +58,7 @@ final class MenuBarController: NSObject, NSMenuDelegate {
         guard let button = statusItem.button else { return }
         let phase = context.status.phase
         let preferences = context.preferences
-        let code = preferences.showLanguageInMenuBar ? preferences.language.badge : nil
+        let code = preferences.showLanguageInMenuBar ? context.models.language(for: preferences.language).badge : nil
         var title = code
         button.appearsDisabled = false
 
@@ -151,6 +151,31 @@ final class MenuBarController: NSObject, NSMenuDelegate {
 
         menu.addItem(.separator())
         menu.addItem(.sectionHeader(title: "Language"))
+        if context.models.activeID.isEnglishOnly {
+            let english = item("English · \(context.models.activeID.shortName)") {}
+            english.state = .on
+            english.isEnabled = false
+            menu.addItem(english)
+            menu.addItem(item("Other languages…") { [weak self] in self?.context.openLanguagePicker(.choose) })
+        } else {
+            addLanguageItems()
+        }
+
+        menu.addItem(.separator())
+        menu.addItem(item("History…", key: "y") { [weak self] in self?.context.openSettings(.history) })
+        let pause = item("Pause shortcut") { preferences.isShortcutPaused.toggle() }
+        pause.state = preferences.isShortcutPaused ? .on : .off
+        menu.addItem(pause)
+        menu.addItem(item("Settings…", key: ",") { [weak self] in self?.context.openSettings(.general) })
+        if !preferences.hasCompletedOnboarding {
+            menu.addItem(item("Finish setup…") { [weak self] in self?.context.openSetup() })
+        }
+        menu.addItem(.separator())
+        menu.addItem(item("Quit VibeScribe", key: "q") { [weak self] in self?.onQuit() })
+    }
+
+    private func addLanguageItems() {
+        let preferences = context.preferences
         for (index, language) in preferences.pinnedLanguages.enumerated() {
             let entry = item(language.displayName, key: "\(index + 1)") {
                 preferences.select(language)
@@ -164,18 +189,6 @@ final class MenuBarController: NSObject, NSMenuDelegate {
             menu.addItem(current)
         }
         menu.addItem(item("More languages…") { [weak self] in self?.context.openLanguagePicker(.choose) })
-
-        menu.addItem(.separator())
-        menu.addItem(item("History…", key: "y") { [weak self] in self?.context.openSettings(.history) })
-        let pause = item("Pause shortcut") { preferences.isShortcutPaused.toggle() }
-        pause.state = preferences.isShortcutPaused ? .on : .off
-        menu.addItem(pause)
-        menu.addItem(item("Settings…", key: ",") { [weak self] in self?.context.openSettings(.general) })
-        if !preferences.hasCompletedOnboarding {
-            menu.addItem(item("Finish setup…") { [weak self] in self?.context.openSetup() })
-        }
-        menu.addItem(.separator())
-        menu.addItem(item("Quit VibeScribe", key: "q") { [weak self] in self?.onQuit() })
     }
 
     private func subtitle(for phase: AppPhase) -> String {

@@ -13,10 +13,10 @@ final class LanguagePickerWindowController {
     private var isShowing = false
     private var previousFrontmostApp: NSRunningApplication?
 
-    init(preferences: Preferences, logger: Logger) {
+    init(preferences: Preferences, logger: Logger, models: SpeechModelLibrary? = nil) {
         self.preferences = preferences
         self.logger = logger
-        self.model = LanguagePickerModel(preferences: preferences)
+        self.model = LanguagePickerModel(preferences: preferences, models: models)
         self.model.onCommit = { [weak self] language in
             self?.commit(language: language)
         }
@@ -152,6 +152,19 @@ final class LanguagePickerWindowController {
             guard let self else { return event }
             guard self.isShowing else { return event }
             guard self.panel?.isKeyWindow == true else { return event }
+
+            if self.model.isEnglishOnly {
+                switch Int(event.keyCode) {
+                case kVK_Return, kVK_ANSI_KeypadEnter:
+                    self.model.switchToMultilingual()
+                    return nil
+                case kVK_Escape:
+                    self.model.cancel()
+                    return nil
+                default:
+                    return event
+                }
+            }
 
             let command = event.modifierFlags.intersection(.deviceIndependentFlagsMask) == .command
             if command, let number = ["1": 1, "2": 2, "3": 3][event.charactersIgnoringModifiers ?? ""] {

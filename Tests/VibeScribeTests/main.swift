@@ -60,6 +60,9 @@ func main() async {
     print("ModelSwitch")
     await runModelSwitchTests(harness)
 
+    print("Bark")
+    runBarkTests(harness)
+
     if CommandLine.arguments.count == 2, CommandLine.arguments[1] == "--download-smoke" {
         print("Remote model download")
         await runRemoteModelDownloadSmoke(harness)
@@ -83,13 +86,27 @@ func main() async {
         )
     }
 
-    if CommandLine.arguments.count == 5, CommandLine.arguments[1] == "--switch-smoke" {
+    if CommandLine.arguments.count == 6, CommandLine.arguments[1] == "--switch-smoke" {
+        guard let target = SpeechModelID(rawValue: CommandLine.arguments[3]) else {
+            fputs("Unknown model. Use one of: \(SpeechModelID.allCases.map(\.rawValue).joined(separator: ", ")).\n", stderr)
+            exit(1)
+        }
         print("Model switch")
         await runModelSwitchSmoke(
             harness,
             current: CommandLine.arguments[2],
-            compiling: CommandLine.arguments[3],
-            audioPath: CommandLine.arguments[4]
+            target: target,
+            compiling: CommandLine.arguments[4],
+            audioPath: CommandLine.arguments[5]
+        )
+    }
+
+    if CommandLine.arguments.count >= 4, CommandLine.arguments[1] == "--bark-smoke" {
+        print("Bark model")
+        await runBarkModelSmoke(
+            harness,
+            modelFolder: CommandLine.arguments[2],
+            audioPaths: Array(CommandLine.arguments.dropFirst(3))
         )
     }
 

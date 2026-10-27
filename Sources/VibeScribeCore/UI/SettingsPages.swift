@@ -294,30 +294,28 @@ struct ShortcutField: View {
 struct LanguagePage: View {
     let context: AppContext
     @ObservedObject private var preferences: Preferences
+    @ObservedObject private var models: SpeechModelLibrary
     @FocusState private var vocabularyFocused: Bool
 
     init(context: AppContext) {
         self.context = context
         preferences = context.preferences
+        models = context.models
     }
 
     var body: some View {
+        let model = models.activeID
         SettingsPageBody {
             SettingsGroup {
-                SettingsRow(
-                    title: "Speaking",
-                    detail: "Automatic works for most people. Pick a language if short phrases come out in the wrong one."
-                ) {
-                    Button {
-                        context.openLanguagePicker(.choose)
-                    } label: {
-                        HStack(spacing: 8) {
-                            Text(preferences.language.displayName)
-                            Image(systemName: "chevron.up.chevron.down").font(.system(size: 9, weight: .semibold))
-                                .foregroundStyle(Theme.secondary)
-                        }
+                if model.isEnglishOnly {
+                    SettingsRow(
+                        title: "Speaking English",
+                        detail: "\(model.shortName) only understands English. Whisper understands 100 languages."
+                    ) {
+                        MultilingualSwitch(models: models)
                     }
-                    .buttonStyle(.spectrum)
+                } else {
+                    languageRow
                 }
             }
 
@@ -333,13 +331,17 @@ struct LanguagePage: View {
                 .padding(.vertical, 12)
                 .frame(maxWidth: .infinity, alignment: .leading)
             }
+            .disabled(model.isEnglishOnly)
+            .opacity(model.isEnglishOnly ? 0.5 : 1)
 
             GroupLabel(title: "Vocabulary")
             SettingsGroup {
                 VStack(alignment: .leading, spacing: 8) {
                     VStack(alignment: .leading, spacing: 1) {
                         Text("Words to spell your way").font(.system(size: 13, weight: .medium))
-                        Text("Names, products and jargon, separated by commas. These are hints to the model, not guarantees.")
+                        Text(model.supportsVocabulary
+                             ? "Names, products and jargon, separated by commas. These are hints to the model, not guarantees."
+                             : "\(model.shortName) doesn’t use vocabulary hints. Your words are kept for Whisper models.")
                             .font(.system(size: 11.5))
                             .foregroundStyle(Theme.secondary)
                     }
@@ -351,6 +353,8 @@ struct LanguagePage: View {
                         .padding(.vertical, 6)
                         .frame(height: 64)
                         .fieldBackground(focused: vocabularyFocused)
+                        .disabled(!model.supportsVocabulary)
+                        .opacity(model.supportsVocabulary ? 1 : 0.5)
                         .accessibilityLabel("Vocabulary")
                     HStack {
                         let count = preferences.vocabularyWords.count
@@ -364,6 +368,43 @@ struct LanguagePage: View {
                 .padding(.horizontal, 14)
                 .padding(.vertical, 12)
             }
+        }
+    }
+
+    private var languageRow: some View {
+                SettingsRow(
+                    title: "Speaking",
+                    detail: "Automatic works for most people. Pick a language if short phrases come out in the wrong one."
+                ) {
+                    Button {
+                        context.openLanguagePicker(.choose)
+                    } label: {
+                        HStack(spacing: 8) {
+                            Text(preferences.language.displayName)
+                            Image(systemName: "chevron.up.chevron.down").font(.system(size: 9, weight: .semibold))
+                                .foregroundStyle(Theme.secondary)
+                        }
+                    }
+                    .buttonStyle(.spectrum)
+                }
+    }
+}
+
+/// Loads a Whisper model in the background, or shows how far that has got.
+private struct MultilingualSwitch: View {
+    @ObservedObject var models: SpeechModelLibrary
+
+    var body: some View {
+        if let pending = models.pendingID {
+            HStack(spacing: 8) {
+                ProgressRing(progress: nil, color: Theme.accent)
+                Text(models.setup(for: pending).state == .preparing ? "Compiling…" : "Downloading…")
+                    .font(.system(size: 12))
+                    .foregroundStyle(Theme.secondary)
+            }
+        } else {
+            Button("Switch to \(models.multilingualModel.shortName)") { models.switchTo(models.multilingualModel) }
+                .buttonStyle(.spectrum)
         }
     }
 }
@@ -646,7 +687,7 @@ struct ModelPage: View {
 
             GroupLabel(title: "Other models")
             SettingsGroup {
-                let others = SpeechModelID.allCases.filter { $0 != models.activeID }
+                let others = SpeechModelID.available.filter { $0 != models.activeID }
                 ForEach(Array(others.enumerated()), id: \.element) { index, id in
                     if index > 0 { RowDivider() }
                     OtherModelRow(

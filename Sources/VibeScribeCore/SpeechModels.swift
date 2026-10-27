@@ -4,13 +4,22 @@ import Foundation
 enum SpeechModelID: String, CaseIterable, Identifiable, Sendable {
     case largeV3
     case largeV3Turbo
+    case barkPlus
 
     var id: String { rawValue }
+
+    /// The models this Mac can run. Bark's encoder needs macOS 15.
+    static var available: [SpeechModelID] {
+        if #available(macOS 15, *) { return allCases }
+        return allCases.filter { $0 != .barkPlus }
+    }
+
 
     var name: String {
         switch self {
         case .largeV3: return "Whisper large-v3"
         case .largeV3Turbo: return "Whisper large-v3 turbo"
+        case .barkPlus: return "Underdog Bark 3.0 Plus"
         }
     }
 
@@ -18,6 +27,7 @@ enum SpeechModelID: String, CaseIterable, Identifiable, Sendable {
         switch self {
         case .largeV3: return "large-v3"
         case .largeV3Turbo: return "large-v3 turbo"
+        case .barkPlus: return "Bark 3.0 Plus"
         }
     }
 
@@ -25,6 +35,7 @@ enum SpeechModelID: String, CaseIterable, Identifiable, Sendable {
         switch self {
         case .largeV3: return "Most accurate · 100 languages"
         case .largeV3Turbo: return "About 4× faster to transcribe. Slightly less accurate in less common languages"
+        case .barkPlus: return "English only, about 5× faster than turbo. Short phrases come out without capitals or punctuation"
         }
     }
 
@@ -32,8 +43,23 @@ enum SpeechModelID: String, CaseIterable, Identifiable, Sendable {
         switch self {
         case .largeV3: return "Most accurate"
         case .largeV3Turbo: return "Faster"
+        case .barkPlus: return "Fastest"
         }
     }
+
+    var systemImage: String {
+        switch self {
+        case .largeV3, .largeV3Turbo: return "waveform"
+        case .barkPlus: return "dog.fill"
+        }
+    }
+
+    /// Bark understands only English, so the language picker and pinned languages don't apply to it.
+    var isEnglishOnly: Bool { self == .barkPlus }
+
+    /// Whisper reads the vocabulary as preceding text. Bark has nothing similar.
+    var supportsVocabulary: Bool { self != .barkPlus }
+
 
     var folderName: String {
         switch self {
@@ -41,6 +67,7 @@ enum SpeechModelID: String, CaseIterable, Identifiable, Sendable {
         // Argmax's v20240930 is large-v3-turbo. Before VibeScribe offered the original large-v3, these files were
         // called large-v3, so most Macs already have this folder.
         case .largeV3Turbo: return "WhisperModel-large-v3-v20240930_626MB"
+        case .barkPlus: return "BarkModel-3.0-plus"
         }
     }
 
@@ -48,6 +75,7 @@ enum SpeechModelID: String, CaseIterable, Identifiable, Sendable {
         switch self {
         case .largeV3: return "WhisperModel-large-v3"
         case .largeV3Turbo: return "WhisperModel-turbo"
+        case .barkPlus: return "BarkModel-plus"
         }
     }
 
@@ -55,9 +83,51 @@ enum SpeechModelID: String, CaseIterable, Identifiable, Sendable {
         switch self {
         case .largeV3: return "whisper_model_manifest.json"
         case .largeV3Turbo: return "whisper_model_manifest_turbo.json"
+        case .barkPlus: return "bark_model_manifest_plus.json"
+        }
+    }
+
+    /// Files whose presence means the download finished, checked without hashing them.
+    var requiredFiles: [String] {
+        switch self {
+        case .largeV3, .largeV3Turbo:
+            return [
+                "AudioEncoder.mlmodelc/weights/weight.bin",
+                "MelSpectrogram.mlmodelc/weights/weight.bin",
+                "TextDecoder.mlmodelc/weights/weight.bin",
+                "tokenizer.json",
+                "tokenizer_config.json",
+            ]
+        case .barkPlus:
+            return [
+                "BarkEncoder.mlpackage/Manifest.json",
+                "BarkEncoder.mlpackage/Data/com.apple.CoreML/weights/weight.bin",
+                "decoder.npz",
+                "vocab.json",
+            ]
+        }
+    }
+
+    func makeEngine(modelFolder: URL) -> any SpeechEngine {
+        switch self {
+        case .largeV3, .largeV3Turbo:
+            return WhisperEngine(modelFolder: modelFolder)
+        case .barkPlus:
+            if #available(macOS 15, *) { return BarkEngine(modelFolder: modelFolder) }
+            return UnavailableEngine()
         }
     }
 }
+
+/// Stands in for a model this macOS can't run. The app doesn't offer those models.
+private actor UnavailableEngine: SpeechEngine {
+    func prepare() async throws { throw WhisperModelError.missing }
+
+    func transcribe(segments: [AudioSegment], language: WhisperLanguage, vocabulary: String) async throws -> EngineResult {
+        throw WhisperModelError.missing
+    }
+}
+
 
 /// The downloadable speech models and which one dictation uses.
 @MainActor
@@ -86,15 +156,15 @@ final class SpeechModelLibrary: ObservableObject {
         client: WhisperKitClient,
         folder: (SpeechModelID) -> URL = { WhisperModelLocator.modelFolder(for: $0) },
         manifest: (SpeechModelID) -> URL = { WhisperModelLocator.manifestURL(for: $0) },
-        makeEngine: @escaping (SpeechModelID, URL) -> any SpeechEngine = { WhisperEngine(modelFolder: $1) }
+        makeEngine: @escaping (SpeechModelID, URL) -> any SpeechEngine = { $0.makeEngine(modelFolder: $1) }
     ) {
         self.preferences = preferences
         self.logger = logger
         self.client = client
         self.makeEngine = makeEngine
-        activeID = preferences.speechModel
+        activeID = SpeechModelID.available.contains(preferences.speechModel) ? preferences.speechModel : .largeV3Turbo
         var setups: [SpeechModelID: WhisperModelSetup] = [:]
-        for id in SpeechModelID.allCases {
+        for id in SpeechModelID.available {
             setups[id] = WhisperModelSetup(
                 modelID: id,
                 manifestURL: manifest(id),
@@ -119,13 +189,24 @@ final class SpeechModelLibrary: ObservableObject {
                 .store(in: &cancellables)
         }
         bindActive()
-        for (id, setup) in setups where id != activeID || !WhisperModelLocator.isComplete(setup.modelFolder) {
+        for (id, setup) in setups where id != activeID || !WhisperModelLocator.isComplete(setup.modelFolder, for: id) {
             // Missing models show as not downloaded until someone starts the download.
             setup.refreshAvailability()
         }
     }
 
     func setup(for id: SpeechModelID) -> WhisperModelSetup { setups[id]! }
+
+    /// The language dictation uses: the chosen one, or English while an English-only model is active.
+    func language(for chosen: WhisperLanguage) -> WhisperLanguage {
+        activeID.isEnglishOnly ? .english : chosen
+    }
+
+    /// The Whisper model to offer for other languages: one that's already downloaded, else large-v3 turbo.
+    var multilingualModel: SpeechModelID {
+        let multilingual = SpeechModelID.available.filter { !$0.isEnglishOnly }
+        return multilingual.first { setup(for: $0).isReady } ?? .largeV3Turbo
+    }
 
     /// Verifies, and if needed downloads, the model used for dictation.
     func start() {

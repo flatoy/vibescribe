@@ -61,15 +61,8 @@ enum WhisperModelLocator {
         }
     }
 
-    static func isComplete(_ folder: URL) -> Bool {
-        let requiredFiles = [
-            "AudioEncoder.mlmodelc/weights/weight.bin",
-            "MelSpectrogram.mlmodelc/weights/weight.bin",
-            "TextDecoder.mlmodelc/weights/weight.bin",
-            "tokenizer.json",
-            "tokenizer_config.json",
-        ]
-        return requiredFiles.allSatisfy {
+    static func isComplete(_ folder: URL, for model: SpeechModelID) -> Bool {
+        model.requiredFiles.allSatisfy {
             FileManager.default.fileExists(atPath: folder.appendingPathComponent($0).path)
         }
     }
@@ -312,7 +305,7 @@ actor WhisperEngine: SpeechEngine {
     }
 
     private func loadLocalModel() async throws {
-        guard WhisperModelLocator.isComplete(modelFolder) else { throw WhisperModelError.missing }
+        guard WhisperModelLocator.isComplete(modelFolder, for: .largeV3) else { throw WhisperModelError.missing }
         // Validate the local tokenizer first so WhisperKit never falls back to a Hub download.
         _ = try await AutoTokenizerWrapper.from(modelFolder: modelFolder)
         let config = WhisperKitConfig(

@@ -445,7 +445,7 @@ final class WhisperModelSetup: ObservableObject {
     func refreshAvailability() {
         guard task == nil else { return }
         let total = totalBytes ?? 0
-        state = WhisperModelLocator.isComplete(modelFolder) ? .ready : .notDownloaded(partialBytes(), total)
+        state = WhisperModelLocator.isComplete(modelFolder, for: modelID) ? .ready : .notDownloaded(partialBytes(), total)
     }
 
     func delete() throws {

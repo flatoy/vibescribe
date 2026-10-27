@@ -17,6 +17,7 @@ ROOT = Path(__file__).resolve().parents[1]
 MODELS = {
     "large-v3": ("whisper_model_manifest.json", "WhisperModel-large-v3"),
     "large-v3-turbo": ("whisper_model_manifest_turbo.json", "WhisperModel-turbo"),
+    "bark-plus": ("bark_model_manifest_plus.json", "BarkModel-plus"),
 }
 
 

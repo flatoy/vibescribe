@@ -79,7 +79,7 @@ public final class VibeScribeApp: NSObject, NSApplicationDelegate {
 
         overlay = OverlayModel(level: recordingSession.level)
         overlayWindowController = OverlayWindowController(model: overlay)
-        languagePickerWindowController = LanguagePickerWindowController(preferences: preferences, logger: logger)
+        languagePickerWindowController = LanguagePickerWindowController(preferences: preferences, logger: logger, models: models)
         settingsWindowController = SettingsWindowController(context: context)
         onboardingWindowController = OnboardingWindowController(context: context)
         menuBarController = MenuBarController(context: context, session: recordingSession)
@@ -158,13 +158,13 @@ public final class VibeScribeApp: NSObject, NSApplicationDelegate {
 
     private func startSetupFlow() {
         if !preferences.hasCompletedOnboarding,
-           WhisperModelLocator.isComplete(models.active.modelFolder),
+           WhisperModelLocator.isComplete(models.active.modelFolder, for: models.activeID),
            permissions.microphone.isGranted, permissions.accessibility.isGranted {
             // People upgrading from an earlier version are already set up.
             preferences.hasCompletedOnboarding = true
         }
         // Verifying files already on disk needs no consent; downloading waits for the setup window.
-        if preferences.hasCompletedOnboarding || WhisperModelLocator.isComplete(models.active.modelFolder) {
+        if preferences.hasCompletedOnboarding || WhisperModelLocator.isComplete(models.active.modelFolder, for: models.activeID) {
             models.start()
         }
         if !preferences.hasCompletedOnboarding {
@@ -220,8 +220,9 @@ public final class VibeScribeApp: NSObject, NSApplicationDelegate {
             }
             .store(in: &cancellables)
 
-        Publishers.CombineLatest(preferences.$language, preferences.$pushToTalkHotkey)
-            .sink { [weak self] language, hotkey in
+        Publishers.CombineLatest3(preferences.$language, preferences.$pushToTalkHotkey, models.$activeID)
+            .sink { [weak self] chosen, hotkey, _ in
+                guard let language = self?.models.language(for: chosen) else { return }
                 self?.overlay.languageBadge = language == .automatic ? nil : language.badge
                 self?.overlay.shortcutKeycaps = hotkey.keycaps.map { $0.replacingOccurrences(of: "Right ", with: "") }
             }
@@ -337,7 +338,7 @@ public final class VibeScribeApp: NSObject, NSApplicationDelegate {
 
         let frontmost = NSWorkspace.shared.frontmostApplication
         targetAppName = frontmost == NSRunningApplication.current ? "VibeScribe" : frontmost?.localizedName
-        if recordingSession.start(language: preferences.language, inputDeviceUID: preferences.microphoneUID) {
+        if recordingSession.start(language: models.language(for: preferences.language), inputDeviceUID: preferences.microphoneUID) {
             if preferences.playSounds { Sounds.play(.start) }
             overlay.showListening(handsFree: false)
         } else {
